@@ -1,10 +1,9 @@
 import { notFound } from "next/navigation";
-import { getPerfumeBySlug, getPerfumes } from "@/lib/data/perfumes";
+import { getPerfumeBySlug } from "@/lib/data/perfumes";
 
-export async function generateStaticParams() {
-  const perfumes = await getPerfumes();
-  return perfumes.map((p) => ({ slug: p.slug }));
-}
+// Rendered per request rather than statically generated: perfumes are
+// edited live via the admin CMS, so a build-time snapshot would go stale.
+export const dynamic = "force-dynamic";
 
 export default async function PerfumeDetailPage({
   params,

@@ -8,6 +8,8 @@ export const metadata: Metadata = {
     "Browse the Atelier Supply catalogue — fragrance materials for creators, perfumers and businesses, priced in USD/KG.",
 };
 
+export const dynamic = "force-dynamic";
+
 const CATEGORIES = [
   "All",
   "Floral",

@@ -2,6 +2,8 @@ import Link from "next/link";
 import { ButtonLink } from "@/components/button-link";
 import { getFeaturedPerfumes } from "@/lib/data/perfumes";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const featured = await getFeaturedPerfumes(4);
 

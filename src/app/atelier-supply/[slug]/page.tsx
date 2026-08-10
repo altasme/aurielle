@@ -1,10 +1,9 @@
 import { notFound } from "next/navigation";
-import { getSupplyMaterialBySlug, getSupplyMaterials } from "@/lib/data/supply-materials";
+import { getSupplyMaterialBySlug } from "@/lib/data/supply-materials";
 
-export async function generateStaticParams() {
-  const materials = await getSupplyMaterials();
-  return materials.map((m) => ({ slug: m.slug }));
-}
+// Rendered per request rather than statically generated: the catalogue is
+// edited live via the admin CMS, so a build-time snapshot would go stale.
+export const dynamic = "force-dynamic";
 
 export default async function SupplyMaterialDetailPage({
   params,

@@ -1,4 +1,4 @@
-import seedData from "./supply-materials.json";
+import { supabase } from "@/lib/supabase/client";
 
 export type SupplyMaterial = {
   serialNumber: number;
@@ -7,36 +7,80 @@ export type SupplyMaterial = {
   price: number;
   currency: string;
   pricingUnit: string;
-  needsReview: boolean;
   available: boolean;
 };
 
-// Local seed fallback until the Supabase project is provisioned.
-// Swap the body of these functions for real `supabase.from('supply_materials')`
-// queries once NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY are set —
-// the call sites below don't need to change.
-const ALL_MATERIALS = seedData as SupplyMaterial[];
+type SupplyMaterialRow = {
+  serial_number: number;
+  slug: string;
+  display_name: string;
+  price: number;
+  currency: string;
+  pricing_unit: string;
+  available: boolean;
+};
+
+// search_aliases is intentionally never selected here (spec §13a). Search
+// matching against it happens server-side via the `.or()` filter in
+// searchSupplyMaterials below — its contents never appear in a response
+// payload sent to the browser.
+const PUBLIC_COLUMNS =
+  "serial_number, slug, display_name, price, currency, pricing_unit, available";
+
+function toSupplyMaterial(row: SupplyMaterialRow): SupplyMaterial {
+  return {
+    serialNumber: row.serial_number,
+    slug: row.slug,
+    displayName: row.display_name,
+    price: Number(row.price),
+    currency: row.currency,
+    pricingUnit: row.pricing_unit,
+    available: row.available,
+  };
+}
 
 export async function getSupplyMaterials(): Promise<SupplyMaterial[]> {
-  return ALL_MATERIALS.filter((m) => m.available);
+  const { data, error } = await supabase
+    .from("supply_materials")
+    .select(PUBLIC_COLUMNS)
+    .eq("available", true)
+    .order("serial_number");
+  if (error) throw error;
+  return (data ?? []).map(toSupplyMaterial);
 }
 
 export async function getSupplyMaterialBySlug(
   slug: string,
 ): Promise<SupplyMaterial | undefined> {
-  return ALL_MATERIALS.find((m) => m.slug === slug && m.available);
+  const { data, error } = await supabase
+    .from("supply_materials")
+    .select(PUBLIC_COLUMNS)
+    .eq("slug", slug)
+    .eq("available", true)
+    .maybeSingle();
+  if (error) throw error;
+  return data ? toSupplyMaterial(data) : undefined;
+}
+
+// Strips PostgREST filter-syntax metacharacters and SQL LIKE wildcards so
+// user search input can't break out of the `.or()` filter string below or
+// inject unintended wildcards/columns.
+function sanitizeSearchTerm(input: string): string {
+  return input.replace(/[,()%_]/g, " ").trim();
 }
 
 export async function searchSupplyMaterials(
   query: string,
 ): Promise<SupplyMaterial[]> {
-  const q = query.trim().toLowerCase();
-  if (!q) return getSupplyMaterials();
-  // NOTE: once backed by Postgres, this should also match against the
-  // non-rendered `search_aliases` column (spec §10) via the
-  // `supply_materials_search_idx` tsvector index — never select or
-  // return that column's contents to the client.
-  return ALL_MATERIALS.filter(
-    (m) => m.available && m.displayName.toLowerCase().includes(q),
-  );
+  const term = sanitizeSearchTerm(query);
+  if (!term) return getSupplyMaterials();
+
+  const { data, error } = await supabase
+    .from("supply_materials")
+    .select(PUBLIC_COLUMNS)
+    .eq("available", true)
+    .or(`display_name.ilike.%${term}%,search_aliases.ilike.%${term}%`)
+    .order("serial_number");
+  if (error) throw error;
+  return (data ?? []).map(toSupplyMaterial);
 }
