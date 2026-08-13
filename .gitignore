@@ -43,6 +43,9 @@ yarn-error.log*
 .dev.vars
 !.dev.vars.example
 
+# generated catalogue (built from data/*.csv, see scripts/generate-catalogue.mjs)
+/src/data/*.generated.ts
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

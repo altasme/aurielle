@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
-import { getPerfumeBySlug } from "@/lib/data/perfumes";
+import { getPerfumeBySlug, getPerfumes } from "@/lib/data/perfumes";
 
-// Rendered per request rather than statically generated: perfumes are
-// edited live via the admin CMS, so a build-time snapshot would go stale.
-export const dynamic = "force-dynamic";
+export function generateStaticParams() {
+  return getPerfumes().map((p) => ({ slug: p.slug }));
+}
 
 export default async function PerfumeDetailPage({
   params,
@@ -11,7 +11,7 @@ export default async function PerfumeDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const perfume = await getPerfumeBySlug(slug);
+  const perfume = getPerfumeBySlug(slug);
   if (!perfume) notFound();
 
   return (
@@ -27,25 +27,44 @@ export default async function PerfumeDetailPage({
           </p>
         )}
 
+        {perfume.description && (
+          <p className="mt-4 text-sm text-ink/70">{perfume.description}</p>
+        )}
+
         <div className="mt-8 space-y-2 text-sm text-ink/70">
+          {perfume.size && <p>Size: {perfume.size}</p>}
           <p>Type: Perfume Oil</p>
           <p>Alcohol-Free</p>
           <p>Made in France</p>
         </div>
 
-        <div className="mt-10 border-t border-taupe/20 pt-6">
-          <p className="text-sm text-ink/50">
-            Pricing and full product details for this fragrance are pending
-            confirmation from the atelier.
-          </p>
-          <button
-            type="button"
-            disabled
-            className="mt-4 w-full cursor-not-allowed border border-taupe/40 px-8 py-3 text-xs uppercase tracking-[0.2em] text-ink/40"
-          >
-            Coming Soon
-          </button>
-        </div>
+        {perfume.price != null ? (
+          <div className="mt-10 border-t border-taupe/20 pt-6">
+            <p className="text-lg text-burgundy">
+              {perfume.currency} {perfume.price.toFixed(2)}
+            </p>
+            <button
+              type="button"
+              className="mt-4 w-full border border-burgundy bg-burgundy px-8 py-3 text-xs uppercase tracking-[0.2em] text-ivory transition-colors hover:bg-burgundy-dark"
+            >
+              Add to Cart
+            </button>
+          </div>
+        ) : (
+          <div className="mt-10 border-t border-taupe/20 pt-6">
+            <p className="text-sm text-ink/50">
+              Pricing and full product details for this fragrance are pending
+              confirmation from the atelier.
+            </p>
+            <button
+              type="button"
+              disabled
+              className="mt-4 w-full cursor-not-allowed border border-taupe/40 px-8 py-3 text-xs uppercase tracking-[0.2em] text-ink/40"
+            >
+              Coming Soon
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

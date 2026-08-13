@@ -8,10 +8,8 @@ export const metadata: Metadata = {
     "Browse the Aurielle Collection of refined perfume oils crafted for everyday elegance.",
 };
 
-export const dynamic = "force-dynamic";
-
-export default async function CollectionPage() {
-  const perfumes = await getPerfumes();
+export default function CollectionPage() {
+  const perfumes = getPerfumes();
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-20 lg:px-10">

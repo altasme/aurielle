@@ -2,10 +2,8 @@ import Link from "next/link";
 import { ButtonLink } from "@/components/button-link";
 import { getFeaturedPerfumes } from "@/lib/data/perfumes";
 
-export const dynamic = "force-dynamic";
-
-export default async function Home() {
-  const featured = await getFeaturedPerfumes(4);
+export default function Home() {
+  const featured = getFeaturedPerfumes(4);
 
   return (
     <div className="flex flex-col">

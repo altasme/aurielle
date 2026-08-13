@@ -1,4 +1,8 @@
-import { getSupabaseClient } from "@/lib/supabase/client";
+import { supplyMaterials as generatedMaterials } from "@/data/supply-materials.generated";
+
+// Static catalogue (spec v4 §5): reads never touch Supabase. Data comes
+// only from src/data/supply-materials.generated.ts, produced at build
+// time by scripts/generate-catalogue.mjs from data/atelier-supply.csv.
 
 export type SupplyMaterial = {
   serialNumber: number;
@@ -7,80 +11,26 @@ export type SupplyMaterial = {
   price: number;
   currency: string;
   pricingUnit: string;
+  // Alias-only rule (spec §13a): present here only so client-side search
+  // (spec §9/§10) can match against it. No component may render this
+  // field on a card, PDP, meta tag, or anywhere else.
+  searchAliases: string;
   available: boolean;
 };
 
-type SupplyMaterialRow = {
-  serial_number: number;
-  slug: string;
-  display_name: string;
-  price: number;
-  currency: string;
-  pricing_unit: string;
-  available: boolean;
-};
-
-// search_aliases is intentionally never selected here (spec §13a). Search
-// matching against it happens server-side via the `.or()` filter in
-// searchSupplyMaterials below — its contents never appear in a response
-// payload sent to the browser.
-const PUBLIC_COLUMNS =
-  "serial_number, slug, display_name, price, currency, pricing_unit, available";
-
-function toSupplyMaterial(row: SupplyMaterialRow): SupplyMaterial {
-  return {
-    serialNumber: row.serial_number,
-    slug: row.slug,
-    displayName: row.display_name,
-    price: Number(row.price),
-    currency: row.currency,
-    pricingUnit: row.pricing_unit,
-    available: row.available,
-  };
+export function getSupplyMaterials(): SupplyMaterial[] {
+  return generatedMaterials;
 }
 
-export async function getSupplyMaterials(): Promise<SupplyMaterial[]> {
-  const { data, error } = await getSupabaseClient()
-    .from("supply_materials")
-    .select(PUBLIC_COLUMNS)
-    .eq("available", true)
-    .order("serial_number");
-  if (error) throw error;
-  return (data ?? []).map(toSupplyMaterial);
+export function getSupplyMaterialBySlug(slug: string): SupplyMaterial | undefined {
+  return generatedMaterials.find((m) => m.slug === slug);
 }
 
-export async function getSupplyMaterialBySlug(
-  slug: string,
-): Promise<SupplyMaterial | undefined> {
-  const { data, error } = await getSupabaseClient()
-    .from("supply_materials")
-    .select(PUBLIC_COLUMNS)
-    .eq("slug", slug)
-    .eq("available", true)
-    .maybeSingle();
-  if (error) throw error;
-  return data ? toSupplyMaterial(data) : undefined;
-}
-
-// Strips PostgREST filter-syntax metacharacters and SQL LIKE wildcards so
-// user search input can't break out of the `.or()` filter string below or
-// inject unintended wildcards/columns.
-function sanitizeSearchTerm(input: string): string {
-  return input.replace(/[,()%_]/g, " ").trim();
-}
-
-export async function searchSupplyMaterials(
-  query: string,
-): Promise<SupplyMaterial[]> {
-  const term = sanitizeSearchTerm(query);
-  if (!term) return getSupplyMaterials();
-
-  const { data, error } = await getSupabaseClient()
-    .from("supply_materials")
-    .select(PUBLIC_COLUMNS)
-    .eq("available", true)
-    .or(`display_name.ilike.%${term}%,search_aliases.ilike.%${term}%`)
-    .order("serial_number");
-  if (error) throw error;
-  return (data ?? []).map(toSupplyMaterial);
+export function matchesSupplyQuery(material: SupplyMaterial, query: string): boolean {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+  return (
+    material.displayName.toLowerCase().includes(q) ||
+    material.searchAliases.toLowerCase().includes(q)
+  );
 }
