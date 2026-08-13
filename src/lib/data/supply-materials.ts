@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/client";
+import { getSupabaseClient } from "@/lib/supabase/client";
 
 export type SupplyMaterial = {
   serialNumber: number;
@@ -40,7 +40,7 @@ function toSupplyMaterial(row: SupplyMaterialRow): SupplyMaterial {
 }
 
 export async function getSupplyMaterials(): Promise<SupplyMaterial[]> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabaseClient()
     .from("supply_materials")
     .select(PUBLIC_COLUMNS)
     .eq("available", true)
@@ -52,7 +52,7 @@ export async function getSupplyMaterials(): Promise<SupplyMaterial[]> {
 export async function getSupplyMaterialBySlug(
   slug: string,
 ): Promise<SupplyMaterial | undefined> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabaseClient()
     .from("supply_materials")
     .select(PUBLIC_COLUMNS)
     .eq("slug", slug)
@@ -75,7 +75,7 @@ export async function searchSupplyMaterials(
   const term = sanitizeSearchTerm(query);
   if (!term) return getSupplyMaterials();
 
-  const { data, error } = await supabase
+  const { data, error } = await getSupabaseClient()
     .from("supply_materials")
     .select(PUBLIC_COLUMNS)
     .eq("available", true)

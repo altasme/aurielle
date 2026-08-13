@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/client";
+import { getSupabaseClient } from "@/lib/supabase/client";
 
 export type Perfume = {
   slug: string;
@@ -26,7 +26,7 @@ function toPerfume(row: PerfumeRow): Perfume {
 }
 
 export async function getPerfumes(): Promise<Perfume[]> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabaseClient()
     .from("perfumes")
     .select(PUBLIC_COLUMNS)
     .order("name");
@@ -35,7 +35,7 @@ export async function getPerfumes(): Promise<Perfume[]> {
 }
 
 export async function getFeaturedPerfumes(limit = 4): Promise<Perfume[]> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabaseClient()
     .from("perfumes")
     .select(PUBLIC_COLUMNS)
     .eq("featured", true)
@@ -53,7 +53,7 @@ export async function getFeaturedPerfumes(limit = 4): Promise<Perfume[]> {
 export async function getPerfumeBySlug(
   slug: string,
 ): Promise<Perfume | undefined> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabaseClient()
     .from("perfumes")
     .select(PUBLIC_COLUMNS)
     .eq("slug", slug)
