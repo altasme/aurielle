@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getPerfumeBySlug, getPerfumes } from "@/lib/data/perfumes";
+import { AddToCollectionCartButton } from "@/components/add-to-collection-cart-button";
 
 export function generateStaticParams() {
   return getPerfumes().map((p) => ({ slug: p.slug }));
@@ -43,12 +44,9 @@ export default async function PerfumeDetailPage({
             <p className="text-lg text-burgundy">
               {perfume.currency} {perfume.price.toFixed(2)}
             </p>
-            <button
-              type="button"
-              className="mt-4 w-full border border-burgundy bg-burgundy px-8 py-3 text-xs uppercase tracking-[0.2em] text-ivory transition-colors hover:bg-burgundy-dark"
-            >
-              Add to Cart
-            </button>
+            <AddToCollectionCartButton
+              perfume={{ ...perfume, price: perfume.price, currency: perfume.currency! }}
+            />
           </div>
         ) : (
           <div className="mt-10 border-t border-taupe/20 pt-6">

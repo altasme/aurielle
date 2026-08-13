@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ContactForm } from "@/components/contact-form";
 
 export const metadata: Metadata = {
   title: "Contact | Aurielle Paris Atelier",
@@ -18,51 +19,7 @@ export default function ContactPage() {
         <p>Location — pending client details</p>
       </div>
 
-      <form className="mt-12 space-y-5 text-left">
-        <Field label="Name" name="name" />
-        <Field label="Email" name="email" type="email" />
-        <Field label="Country" name="country" />
-        <Field label="Inquiry Type" name="inquiryType" />
-        <div>
-          <label className="text-xs uppercase tracking-wide text-ink/60">
-            Message
-          </label>
-          <textarea
-            name="message"
-            rows={5}
-            className="mt-2 w-full border border-taupe/40 bg-ivory px-4 py-3 text-sm outline-none focus:border-burgundy"
-          />
-        </div>
-        <button
-          type="submit"
-          className="w-full border border-burgundy bg-burgundy px-8 py-3 text-xs uppercase tracking-[0.2em] text-ivory transition-colors hover:bg-burgundy-dark"
-        >
-          Send Message
-        </button>
-      </form>
-    </div>
-  );
-}
-
-function Field({
-  label,
-  name,
-  type = "text",
-}: {
-  label: string;
-  name: string;
-  type?: string;
-}) {
-  return (
-    <div>
-      <label className="text-xs uppercase tracking-wide text-ink/60">
-        {label}
-      </label>
-      <input
-        type={type}
-        name={name}
-        className="mt-2 w-full border border-taupe/40 bg-ivory px-4 py-3 text-sm outline-none focus:border-burgundy"
-      />
+      <ContactForm />
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useCart } from "@/lib/cart/cart-context";
 
 const NAV_LINKS = [
   { href: "/collection", label: "Collection" },
@@ -11,8 +12,17 @@ const NAV_LINKS = [
   { href: "/contact", label: "Contact" },
 ];
 
+function useCartCount() {
+  const { state } = useCart();
+  const collectionCount = state.collection.reduce((n, i) => n + i.quantity, 0);
+  const supplyCount = state.supply.reduce((n, i) => n + i.quantity, 0);
+  return collectionCount + supplyCount;
+}
+
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const cartCount = useCartCount();
+  const cartLabel = cartCount > 0 ? `Cart (${cartCount})` : "Cart";
 
   return (
     <header className="sticky top-0 z-50 border-b border-taupe/20 bg-ivory/95 backdrop-blur">
@@ -39,7 +49,7 @@ export function SiteHeader() {
             aria-label="Cart"
             className="text-sm uppercase tracking-wide text-ink/80 transition-colors hover:text-burgundy"
           >
-            Cart
+            {cartLabel}
           </Link>
         </nav>
 
@@ -74,7 +84,7 @@ export function SiteHeader() {
             className="py-3 text-sm uppercase tracking-wide text-ink/80"
             onClick={() => setMenuOpen(false)}
           >
-            Cart
+            {cartLabel}
           </Link>
         </nav>
       )}

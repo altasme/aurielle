@@ -71,11 +71,40 @@ just rebuild), redeploy. No CMS in Phase 1 — that's Phase 2 (spec §21).
   of foreign-keying to `perfumes`/`supply_materials` — those tables aren't
   the catalogue's source of truth anymore, git/CSV is, so a hard FK
   doesn't hold.
+- `0004_manual_order_flow.sql` — creates the private `payment-proofs`
+  Storage bucket and updates `orders.order_status` to allow
+  `pending_verification` (the status every order starts in — spec §15).
 - `supabase/seed/*.sql` — the old v3 live-catalogue seed data. Not used by
   the Phase 1 app (nothing reads these tables), kept for the eventual
   Phase 2 `CATALOGUE_SOURCE: "supabase"` flip.
-- Run migrations **0001 → 0002 → 0003** in order in the Supabase SQL
-  Editor.
+- Run migrations **0001 → 0002 → 0003 → 0004** in order in the Supabase
+  SQL Editor.
+
+## Orders (manual / Kolekta pattern)
+
+- `src/lib/cart/cart-context.tsx` — two independent carts (`collection`,
+  `supply`), backed by a module-level store synced to `localStorage` via
+  `useSyncExternalStore` (no cart Provider needed — it's already a
+  singleton). Never combined into one order, per spec §31.
+- `/checkout/collection` and `/checkout/atelier-supply` — customer +
+  billing/shipping form, payment method (GCash / Bank Transfer / **Card
+  via Stripe — disabled, "Coming soon"**, per spec's Phase-2 seam),
+  payment instructions from `src/config/payment.ts` (placeholder GCash/
+  bank details — real ones must come from the client), proof-of-payment
+  upload.
+- `POST /api/orders` — the only place that touches Supabase on the order
+  path. Re-derives every line's name/price from the authoritative static
+  catalogue by slug (never trusts client-submitted price — the request
+  body is just a hint), uploads the proof file to the `payment-proofs`
+  bucket, writes `orders` + `order_items` with `order_status =
+  "pending_verification"`. Order number: `AUR-YYYYMMDD-XXXXXX`, retried
+  on collision.
+- `POST /api/inquiries` — contact + wholesale inquiry writes.
+- `GET /api/orders/lookup?orderNumber=&email=` — guest order-lookup
+  (`/order-lookup`), matches on order number + email since there are no
+  customer accounts.
+- Not yet built: confirmation email (spec suggests Resend for
+  testing — needs an API key from you), analytics/consent banner.
 
 ## Phase 2 seam
 
@@ -94,22 +123,22 @@ switch-on.
 
 Same OpenNext-adapter Worker deployment as before — see
 `wrangler.jsonc` / `open-next.config.ts`. `npm run cf:build` /
-`cf:preview` / `cf:deploy`. Now that reads are fully static, the deployed
-Worker mostly serves prerendered HTML; it'll only need Supabase env vars
-once the order/inquiry write endpoints (next up) land. Env var names
-changed from the v3 build: `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`
-(no more `NEXT_PUBLIC_*` — nothing client-side reads Supabase now).
+`cf:preview` / `cf:deploy`. Reads are fully static, but the order/inquiry
+API routes need `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` set as
+runtime variables/secrets on the Worker now (dashboard → Settings →
+Variables and Secrets, or `wrangler secret put`) — no more
+`NEXT_PUBLIC_*`, nothing client-side reads Supabase.
 
 ## What's scaffolded vs. not yet built
 
 Done: routing, design tokens/fonts, header/mobile menu, homepage, fully
 static Collection + Atelier Supply catalogues (client-side search/sort),
-About/Business/Contact page shells, Cloudflare Worker deployment,
-CSV → static-catalogue build pipeline.
+About/Business/Contact forms, Cloudflare Worker deployment, CSV →
+static-catalogue build pipeline, two independent carts, manual
+GCash/bank-transfer checkout with proof-of-payment upload (Card/Stripe
+shown but disabled — "Coming soon"), order + inquiry writes to Supabase,
+order confirmation, guest order-lookup.
 
-Not yet built (Phase 1 remaining): cart (two independent, localStorage),
-manual checkout (GCash/bank-transfer instructions + proof-of-payment
-upload), order + inquiry writes to Supabase, order confirmation, guest
-order-lookup, analytics/consent banner. All deferred to Phase 2: Stripe,
-admin CMS, live-DB catalogue, FX, VAT, shipping calc, category filters,
-MOQ enforcement.
+Not yet built: confirmation email, analytics + Meta Pixel + consent
+banner. All deferred to Phase 2: Stripe, admin CMS, live-DB catalogue,
+FX, VAT, shipping calc, category filters, MOQ enforcement.

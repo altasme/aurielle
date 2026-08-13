@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getSupplyMaterialBySlug, getSupplyMaterials } from "@/lib/data/supply-materials";
+import { AddToSupplyCartButton } from "@/components/add-to-supply-cart-button";
 
 export function generateStaticParams() {
   return getSupplyMaterials().map((m) => ({ slug: m.slug }));
@@ -33,12 +34,9 @@ export default async function SupplyMaterialDetailPage({
           <p>Unit: {material.pricingUnit === "KG" ? "Kilogram" : material.pricingUnit}</p>
         </div>
 
-        <button
-          type="button"
-          className="mt-10 w-full border border-burgundy bg-burgundy px-8 py-3 text-xs uppercase tracking-[0.2em] text-ivory transition-colors hover:bg-burgundy-dark"
-        >
-          Request / Order
-        </button>
+        <div className="mt-10 border-t border-taupe/20 pt-6">
+          <AddToSupplyCartButton material={material} />
+        </div>
       </div>
     </div>
   );
