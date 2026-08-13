@@ -75,7 +75,7 @@ export function SupplyCatalogueBrowser({
           <span
             key={category}
             className="border border-taupe/30 px-4 py-1.5 text-xs uppercase tracking-wide text-ink/50"
-            title="Category filtering is not yet enabled — pending client classification."
+            title="Category filtering is not yet enabled: pending client classification."
           >
             {category}
           </span>

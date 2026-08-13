@@ -1,5 +1,5 @@
 -- Perfume names come from the client's own public marketing material
--- (spec §2) — unlike supply_materials, there's no alias/brand-leak
+-- (spec §2). Unlike supply_materials, there's no alias/brand-leak
 -- concern gating visibility. The storefront already shows all Aurielle
 -- Collection names with a "pricing pending" state on the product page,
 -- so `available` here should describe "orderable", not "visible".

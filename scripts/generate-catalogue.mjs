@@ -4,7 +4,7 @@
 // Runs as an npm `prebuild` step so a bad/missing CSV fails the build
 // loudly and locally, never mid-deploy.
 //
-// No network access, no Supabase client — this script only touches the
+// No network access, no Supabase client: this script only touches the
 // filesystem. Read paths in the app import the generated output, never
 // this script or the CSVs directly.
 
@@ -28,7 +28,7 @@ function readCsv(filename) {
   try {
     raw = readFileSync(filePath, "utf-8");
   } catch {
-    fail(`missing ${path.relative(rootDir, filePath)} — this is the approved source CSV and must exist.`);
+    fail(`missing ${path.relative(rootDir, filePath)}: this is the approved source CSV and must exist.`);
   }
   try {
     return parse(raw, { columns: true, skip_empty_lines: true, trim: true });
@@ -65,11 +65,11 @@ const supplyMaterials = supplyRows.map((row, i) => {
   if (!Number.isFinite(serialNumber)) fail(`atelier-supply.csv row ${i + 2}: bad serial_number`);
   if (!Number.isFinite(price)) fail(`atelier-supply.csv row ${i + 2}: bad price`);
 
-  // search_aliases is bundled for search matching only — the app must
+  // search_aliases is bundled for search matching only; the app must
   // never render it (spec §13a). It still ends up in the client JS
   // bundle for this static-catalogue phase, since search runs
-  // client-side over the bundled dataset (spec §9); that's a deliberate
-  // Phase 1 tradeoff (a few hundred rows, not sensitive/secret data —
+  // client-side over the bundled dataset (spec §9). That's a deliberate
+  // Phase 1 tradeoff (a few hundred rows, not sensitive/secret data;
   // aliases are just other-brand product names), not an oversight.
   return {
     serialNumber,
@@ -119,7 +119,7 @@ const perfumes = perfumeRows.map((row, i) => {
 
 mkdirSync(outDir, { recursive: true });
 
-const banner = `// GENERATED FILE — do not edit by hand.
+const banner = `// GENERATED FILE: do not edit by hand.
 // Produced by scripts/generate-catalogue.mjs from data/*.csv.
 // Run \`npm run generate:catalogue\` (or \`npm run build\`, which runs it
 // automatically as a prebuild step) to regenerate.

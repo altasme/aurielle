@@ -7,14 +7,14 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* HERO — spec §4 */}
+      {/* HERO, spec §4 */}
       <section className="flex min-h-[85vh] flex-col items-center justify-center gap-6 bg-gradient-to-b from-beige to-ivory px-6 py-24 text-center">
         <p className="font-script text-3xl text-burgundy">Aurielle Paris Atelier</p>
         <h1 className="max-w-3xl font-serif text-4xl leading-tight text-ink sm:text-6xl">
           THE ART OF FRAGRANCE
         </h1>
         <p className="max-w-xl text-base text-ink/70 sm:text-lg">
-          Discover Aurielle Paris Atelier — a fragrance house creating refined
+          Discover Aurielle Paris Atelier, a fragrance house creating refined
           perfumes and supplying quality fragrance materials to creators and
           businesses worldwide.
         </p>
@@ -26,7 +26,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* INTRODUCTION — spec §5 */}
+      {/* INTRODUCTION, spec §5 */}
       <section className="mx-auto grid max-w-6xl gap-10 px-6 py-24 lg:grid-cols-2 lg:px-10">
         <div className="text-center lg:col-span-2 lg:text-center">
           <p className="font-script text-2xl text-burgundy">A World of Fragrance</p>
@@ -57,7 +57,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* AURIELLE COLLECTION PREVIEW — spec §6 */}
+      {/* AURIELLE COLLECTION PREVIEW, spec §6 */}
       <section className="bg-beige px-6 py-24 lg:px-10">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">

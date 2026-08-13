@@ -1,5 +1,5 @@
 // Shared between the checkout page (client) and the /api/orders route
-// (server) — types only, no runtime code, so it's safe to import from
+// (server). Types only, no runtime code, so it's safe to import from
 // either side.
 
 export type OrderLineItem = {

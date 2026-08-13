@@ -1,5 +1,5 @@
 -- Phase 1 pivot (spec v4): the catalogue is static, generated at build
--- time from data/*.csv (see scripts/generate-catalogue.mjs) — it no
+-- time from data/*.csv (see scripts/generate-catalogue.mjs). It no
 -- longer lives in, or gets read from, this database. Supabase is
 -- writes-only in Phase 1: orders, order_items, and inquiries.
 
@@ -11,7 +11,7 @@ drop policy if exists "Public can read available supply materials" on supply_mat
 
 -- order_items previously FK'd to perfumes/supply_materials. Those tables
 -- are no longer the source of truth for the catalogue (git/CSV is), so a
--- hard FK doesn't make sense — order lines are fully snapshotted instead
+-- hard FK doesn't make sense: order lines are fully snapshotted instead
 -- (name, price, unit) exactly as spec §15/§20 requires: "later catalogue
 -- edits never alter historical orders."
 alter table order_items drop constraint if exists order_items_one_product;

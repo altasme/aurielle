@@ -11,7 +11,7 @@ import {
 const STORAGE_KEY = "aurielle:cart:v1";
 
 // Module-level singleton store backed by localStorage, read/written via
-// useSyncExternalStore — React's own pattern for syncing to an external
+// useSyncExternalStore, React's own pattern for syncing to an external
 // system that only exists on the client (localStorage isn't available
 // during SSR). getServerSnapshot returns a constant empty cart so the
 // server-rendered HTML always matches the first client render; the real
@@ -28,7 +28,7 @@ function hydrateFromStorage(): void {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (raw) cartState = JSON.parse(raw);
   } catch {
-    // Corrupt or inaccessible storage — keep the empty default.
+    // Corrupt or inaccessible storage: keep the empty default.
   }
 }
 

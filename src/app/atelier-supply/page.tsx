@@ -5,7 +5,7 @@ import { SupplyCatalogueBrowser } from "@/components/supply-catalogue-browser";
 export const metadata: Metadata = {
   title: "Atelier Supply | Aurielle Paris Atelier",
   description:
-    "Browse the Atelier Supply catalogue — fragrance materials for creators, perfumers and businesses, priced in USD/KG.",
+    "Browse the Atelier Supply catalogue: fragrance materials for creators, perfumers and businesses, priced in USD/KG.",
 };
 
 export default function AtelierSupplyPage() {

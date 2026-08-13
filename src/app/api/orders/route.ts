@@ -88,8 +88,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
   }
 
-  // Re-derive every line from the authoritative static catalogue by slug
-  // — never trust client-submitted price/name, which could be tampered
+  // Re-derive every line from the authoritative static catalogue by slug.
+  // Never trust client-submitted price/name, which could be tampered
   // with before the request is sent. Only quantity comes from the client
   // (clamped to a sane range).
   const resolvedItems: OrderLineItem[] = [];
@@ -151,7 +151,7 @@ export async function POST(request: Request) {
   const subtotal = Number(
     resolvedItems.reduce((sum, item) => sum + item.lineSubtotal, 0).toFixed(2),
   );
-  const shippingCost = 0; // Phase 2 — spec §18
+  const shippingCost = 0; // Phase 2, spec §18
   const total = Number((subtotal + shippingCost).toFixed(2));
 
   const supabase = getSupabaseAdminClient();
@@ -193,7 +193,7 @@ export async function POST(request: Request) {
       break;
     }
     lastError = error;
-    if (error.code !== "23505") break; // not a unique-violation on order_number — don't retry
+    if (error.code !== "23505") break; // not a unique-violation on order_number, don't retry
   }
 
   if (!orderId) {
@@ -208,7 +208,7 @@ export async function POST(request: Request) {
 
   if (uploadError) {
     console.error("Proof upload failed", uploadError);
-    // The order record already exists — leave order_status as
+    // The order record already exists, so leave order_status as
     // pending_verification for manual follow-up rather than losing the
     // order; the team can re-request proof from the customer directly.
   } else {

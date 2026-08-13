@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { FormField } from "./form-field";
 
 export function BusinessInquiryForm() {
   const [name, setName] = useState("");
@@ -41,7 +42,7 @@ export function BusinessInquiryForm() {
       }
       setSent(true);
     } catch {
-      setError("Network error — please try again.");
+      setError("Network error. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -50,7 +51,7 @@ export function BusinessInquiryForm() {
   if (sent) {
     return (
       <p className="mt-12 text-sm text-ink/70">
-        Thank you — your inquiry has been received. We&rsquo;ll be in touch
+        Thank you. Your inquiry has been received. We&rsquo;ll be in touch
         soon.
       </p>
     );
@@ -58,16 +59,16 @@ export function BusinessInquiryForm() {
 
   return (
     <form onSubmit={handleSubmit} className="mt-12 space-y-5 text-left">
-      <Field label="Name" value={name} onChange={setName} required />
-      <Field label="Business Name" value={businessName} onChange={setBusinessName} />
-      <Field label="Email" type="email" value={email} onChange={setEmail} required />
-      <Field label="Country" value={country} onChange={setCountry} required />
-      <Field
+      <FormField label="Name" value={name} onChange={setName} required />
+      <FormField label="Business Name" value={businessName} onChange={setBusinessName} />
+      <FormField label="Email" type="email" value={email} onChange={setEmail} required />
+      <FormField label="Country" value={country} onChange={setCountry} required />
+      <FormField
         label="Product / Material Interest"
         value={productInterest}
         onChange={setProductInterest}
       />
-      <Field
+      <FormField
         label="Estimated Quantity"
         value={estimatedQuantity}
         onChange={setEstimatedQuantity}
@@ -92,35 +93,5 @@ export function BusinessInquiryForm() {
         {submitting ? "Sending..." : "Talk to the Atelier"}
       </button>
     </form>
-  );
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-  type = "text",
-  required = false,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  type?: string;
-  required?: boolean;
-}) {
-  return (
-    <div>
-      <label className="text-xs uppercase tracking-wide text-ink/60">
-        {label}
-        {required && " *"}
-      </label>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        required={required}
-        className="mt-2 w-full border border-taupe/40 bg-ivory px-4 py-3 text-sm outline-none focus:border-burgundy"
-      />
-    </div>
   );
 }

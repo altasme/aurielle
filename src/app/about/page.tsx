@@ -7,23 +7,23 @@ export const metadata: Metadata = {
 const SECTIONS = [
   {
     title: "Our Story",
-    body: "Content pending — client-approved brand story to be added here.",
+    body: "Content pending: client-approved brand story to be added here.",
   },
   {
     title: "The Atelier",
-    body: "Content pending — client-approved description of the atelier to be added here.",
+    body: "Content pending: client-approved description of the atelier to be added here.",
   },
   {
     title: "Our Philosophy",
-    body: "Content pending — client-approved philosophy statement to be added here.",
+    body: "Content pending: client-approved philosophy statement to be added here.",
   },
   {
     title: "Fragrance Craftsmanship",
-    body: "Content pending — client-approved craftsmanship details to be added here.",
+    body: "Content pending: client-approved craftsmanship details to be added here.",
   },
   {
     title: "Made in France",
-    body: "Content pending — confirmed factual claims only.",
+    body: "Content pending: confirmed factual claims only.",
   },
 ];
 

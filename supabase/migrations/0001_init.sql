@@ -1,4 +1,4 @@
--- AURIELLE PARIS ATELIER — initial schema
+-- AURIELLE PARIS ATELIER: initial schema
 -- See docs/spec/AURIELLE_SPEC_v3.md for the product requirements this implements.
 
 create extension if not exists "pgcrypto";
@@ -56,7 +56,7 @@ create index if not exists supply_materials_search_idx
   );
 
 -- ============================================================
--- ORDERS — two independent flows (B2C / B2B), never mixed in one order.
+-- ORDERS: two independent flows (B2C / B2B), never mixed in one order.
 -- Merchant of record is the client; `source` marks every website order
 -- for offline commission reconciliation (spec §20).
 -- ============================================================
@@ -139,7 +139,7 @@ create table if not exists contact_inquiries (
 -- Row Level Security
 -- Public (anon) role: read-only on published catalogue rows.
 -- All writes (admin CMS, order creation) go through server-side code
--- using the service role key — never the anon key.
+-- using the service role key, never the anon key.
 -- ============================================================
 alter table perfumes enable row level security;
 alter table supply_materials enable row level security;

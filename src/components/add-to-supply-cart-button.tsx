@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useCart } from "@/lib/cart/cart-context";
 import type { SupplyMaterial } from "@/lib/data/supply-materials";
+import { QuantityStepper } from "./quantity-stepper";
 
 export function AddToSupplyCartButton({ material }: { material: SupplyMaterial }) {
   const { addSupplyItem } = useCart();
@@ -17,25 +18,11 @@ export function AddToSupplyCartButton({ material }: { material: SupplyMaterial }
         <span className="text-xs uppercase tracking-wide text-ink/60">
           Qty ({material.pricingUnit})
         </span>
-        <div className="flex items-center border border-taupe/40">
-          <button
-            type="button"
-            className="px-3 py-2 text-sm"
-            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-            aria-label="Decrease quantity"
-          >
-            −
-          </button>
-          <span className="min-w-8 px-2 text-center text-sm">{quantity}</span>
-          <button
-            type="button"
-            className="px-3 py-2 text-sm"
-            onClick={() => setQuantity((q) => q + 1)}
-            aria-label="Increase quantity"
-          >
-            +
-          </button>
-        </div>
+        <QuantityStepper
+          quantity={quantity}
+          onDecrease={() => setQuantity((q) => Math.max(1, q - 1))}
+          onIncrease={() => setQuantity((q) => q + 1)}
+        />
       </div>
 
       <p className="text-xs text-ink/50">
@@ -65,9 +52,9 @@ export function AddToSupplyCartButton({ material }: { material: SupplyMaterial }
 
       {added && (
         <p className="text-center text-xs text-ink/60">
-          Added to cart —{" "}
+          Added to cart.{" "}
           <a href="/cart" className="text-burgundy underline">
-            view cart
+            View cart
           </a>
         </p>
       )}

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCart } from "@/lib/cart/cart-context";
 import { PAYMENT_METHODS, GCASH_INSTRUCTIONS, BANK_TRANSFER_INSTRUCTIONS } from "@/config/payment";
 import type { PaymentMethod } from "@/config/payment";
+import { FormField } from "./form-field";
 
 type BusinessLine = "collection" | "atelier_supply";
 
@@ -160,7 +161,7 @@ export function CheckoutForm({ businessLine }: { businessLine: BusinessLine }) {
       if (businessLine === "collection") cart.clearCollectionCart();
       else cart.clearSupplyCart();
     } catch {
-      setError("Network error — please check your connection and try again.");
+      setError("Network error. Please check your connection and try again.");
     } finally {
       setSubmitting(false);
     }
@@ -196,10 +197,10 @@ export function CheckoutForm({ businessLine }: { businessLine: BusinessLine }) {
       <form onSubmit={handleSubmit} className="mt-10 space-y-8">
         <fieldset className="space-y-4">
           <legend className="font-serif text-xl text-ink">Your Details</legend>
-          <Field label="Full Name" value={name} onChange={setName} required />
-          <Field label="Email" type="email" value={email} onChange={setEmail} required />
-          <Field label="Phone" value={phone} onChange={setPhone} />
-          <Field
+          <FormField label="Full Name" value={name} onChange={setName} required />
+          <FormField label="Email" type="email" value={email} onChange={setEmail} required />
+          <FormField label="Phone" value={phone} onChange={setPhone} />
+          <FormField
             label="Country"
             value={customerCountry}
             onChange={setCustomerCountry}
@@ -209,20 +210,20 @@ export function CheckoutForm({ businessLine }: { businessLine: BusinessLine }) {
 
         <fieldset className="space-y-4">
           <legend className="font-serif text-xl text-ink">Billing Address</legend>
-          <Field label="Address" value={address} onChange={setAddress} required />
-          <Field label="City" value={city} onChange={setCity} required />
-          <Field
+          <FormField label="Address" value={address} onChange={setAddress} required />
+          <FormField label="City" value={city} onChange={setCity} required />
+          <FormField
             label="State / Province"
             value={stateProvince}
             onChange={setStateProvince}
           />
-          <Field
+          <FormField
             label="Postal Code"
             value={postalCode}
             onChange={setPostalCode}
             required
           />
-          <Field
+          <FormField
             label="Country"
             value={billingCountry}
             onChange={setBillingCountry}
@@ -310,36 +311,6 @@ export function CheckoutForm({ businessLine }: { businessLine: BusinessLine }) {
           {submitting ? "Submitting..." : "Submit Order"}
         </button>
       </form>
-    </div>
-  );
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-  type = "text",
-  required = false,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  type?: string;
-  required?: boolean;
-}) {
-  return (
-    <div>
-      <label className="text-xs uppercase tracking-wide text-ink/60">
-        {label}
-        {required && " *"}
-      </label>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        required={required}
-        className="mt-2 w-full border border-taupe/40 bg-ivory px-4 py-3 text-sm outline-none focus:border-burgundy"
-      />
     </div>
   );
 }

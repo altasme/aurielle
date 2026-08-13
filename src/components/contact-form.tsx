@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { FormField } from "./form-field";
 
 export function ContactForm() {
   const [name, setName] = useState("");
@@ -30,7 +31,7 @@ export function ContactForm() {
       }
       setSent(true);
     } catch {
-      setError("Network error — please try again.");
+      setError("Network error. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -39,7 +40,7 @@ export function ContactForm() {
   if (sent) {
     return (
       <p className="mt-12 text-sm text-ink/70">
-        Thank you — your message has been received. We&rsquo;ll be in touch
+        Thank you. Your message has been received. We&rsquo;ll be in touch
         soon.
       </p>
     );
@@ -47,10 +48,10 @@ export function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} className="mt-12 space-y-5 text-left">
-      <Field label="Name" value={name} onChange={setName} required />
-      <Field label="Email" type="email" value={email} onChange={setEmail} required />
-      <Field label="Country" value={country} onChange={setCountry} />
-      <Field label="Inquiry Type" value={inquiryType} onChange={setInquiryType} />
+      <FormField label="Name" value={name} onChange={setName} required />
+      <FormField label="Email" type="email" value={email} onChange={setEmail} required />
+      <FormField label="Country" value={country} onChange={setCountry} />
+      <FormField label="Inquiry Type" value={inquiryType} onChange={setInquiryType} />
       <div>
         <label className="text-xs uppercase tracking-wide text-ink/60">
           Message
@@ -72,35 +73,5 @@ export function ContactForm() {
         {submitting ? "Sending..." : "Send Message"}
       </button>
     </form>
-  );
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-  type = "text",
-  required = false,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  type?: string;
-  required?: boolean;
-}) {
-  return (
-    <div>
-      <label className="text-xs uppercase tracking-wide text-ink/60">
-        {label}
-        {required && " *"}
-      </label>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        required={required}
-        className="mt-2 w-full border border-taupe/40 bg-ivory px-4 py-3 text-sm outline-none focus:border-burgundy"
-      />
-    </div>
   );
 }

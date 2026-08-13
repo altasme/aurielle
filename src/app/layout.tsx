@@ -23,7 +23,7 @@ const parisienne = Parisienne({
 export const metadata: Metadata = {
   title: "Aurielle Paris Atelier",
   description:
-    "Aurielle Paris Atelier — refined perfumes and a professional fragrance supply catalogue, crafted with French-inspired luxury.",
+    "Aurielle Paris Atelier: refined perfumes and a professional fragrance supply catalogue, crafted with French-inspired luxury.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
