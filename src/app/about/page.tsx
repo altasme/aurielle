@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Reveal } from "@/components/reveal";
 
 export const metadata: Metadata = {
   title: "About | Aurielle Paris Atelier",
@@ -30,17 +31,17 @@ const SECTIONS = [
 export default function AboutPage() {
   return (
     <div className="mx-auto max-w-4xl px-6 py-20 lg:px-10">
-      <div className="text-center">
+      <Reveal className="text-center">
         <p className="font-script text-2xl text-burgundy">Let&apos;s begin</p>
         <h1 className="mt-2 font-serif text-4xl text-ink">About Aurielle</h1>
-      </div>
+      </Reveal>
 
       <div className="mt-16 space-y-14">
         {SECTIONS.map((section) => (
-          <div key={section.title} className="border-t border-taupe/20 pt-8">
+          <Reveal key={section.title} className="border-t border-taupe/20 pt-8">
             <h2 className="font-serif text-2xl text-ink">{section.title}</h2>
             <p className="mt-3 text-sm text-ink/60">{section.body}</p>
-          </div>
+          </Reveal>
         ))}
       </div>
     </div>

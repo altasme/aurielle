@@ -53,7 +53,7 @@ export function AddToSupplyCartButton({ material }: { material: SupplyMaterial }
       </button>
 
       {added && (
-        <p className="text-center text-xs text-ink/60">
+        <p className="fade-in text-center text-xs text-ink/60">
           Added to cart.{" "}
           <Link href="/cart" className="text-burgundy underline">
             View cart

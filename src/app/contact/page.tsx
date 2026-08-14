@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ContactForm } from "@/components/contact-form";
+import { Reveal } from "@/components/reveal";
 
 export const metadata: Metadata = {
   title: "Contact | Aurielle Paris Atelier",
@@ -7,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="mx-auto max-w-2xl px-6 py-20 text-center lg:px-10">
+    <Reveal className="mx-auto max-w-2xl px-6 py-20 text-center lg:px-10">
       <p className="font-script text-2xl text-burgundy">
         Let&apos;s create something beautiful.
       </p>
@@ -20,6 +21,6 @@ export default function ContactPage() {
       </div>
 
       <ContactForm />
-    </div>
+    </Reveal>
   );
 }

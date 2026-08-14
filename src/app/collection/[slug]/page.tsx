@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { getPerfumeBySlug, getPerfumes } from "@/lib/data/perfumes";
 import { AddToCollectionCartButton } from "@/components/add-to-collection-cart-button";
+import { Reveal } from "@/components/reveal";
 
 export function generateStaticParams() {
   return getPerfumes().map((p) => ({ slug: p.slug }));
@@ -18,7 +19,7 @@ export default async function PerfumeDetailPage({
 
   return (
     <div className="mx-auto grid max-w-6xl gap-12 px-6 py-20 lg:grid-cols-2 lg:px-10">
-      <div className="relative aspect-square w-full overflow-hidden border border-taupe/30 bg-beige/40">
+      <Reveal className="relative aspect-square w-full overflow-hidden border border-taupe/30 bg-beige/40">
         <Image
           src={`/images/perfumes/main/${perfume.slug}.jpg`}
           alt={perfume.name}
@@ -27,9 +28,9 @@ export default async function PerfumeDetailPage({
           priority
           className="object-cover"
         />
-      </div>
+      </Reveal>
 
-      <div>
+      <Reveal delayMs={120}>
         <h1 className="font-serif text-4xl text-ink">{perfume.name}</h1>
 
         {perfume.scentProfile.length > 0 && (
@@ -73,7 +74,7 @@ export default async function PerfumeDetailPage({
             </button>
           </div>
         )}
-      </div>
+      </Reveal>
     </div>
   );
 }
