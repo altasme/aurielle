@@ -50,8 +50,30 @@ export function SiteFooter() {
       </div>
 
       <div className="border-t border-taupe/20 px-6 py-5 text-center text-xs text-ink/50">
-        &copy; {new Date().getFullYear()} Aurielle Paris Atelier. All rights
-        reserved.
+        <p>
+          &copy; {new Date().getFullYear()} Aurielle Paris Atelier. All rights
+          reserved.
+        </p>
+        <p className="mt-1">
+          Website &amp; Hosting by{" "}
+          <a
+            href="https://altasme.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-burgundy"
+          >
+            ALTAVENTURES
+          </a>{" "}
+          |{" "}
+          <a
+            href="https://altasme.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-burgundy"
+          >
+            Get your flagship website FREE
+          </a>
+        </p>
       </div>
     </footer>
   );
