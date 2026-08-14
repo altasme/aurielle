@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { FormField } from "./form-field";
+import { SubmitButton } from "./submit-button";
+import { useSubmit } from "@/lib/use-submit";
 
 type LookupResult = {
   order: {
@@ -33,66 +36,43 @@ const ORDER_STATUS_LABELS: Record<string, string> = {
 export function OrderLookupForm() {
   const [orderNumber, setOrderNumber] = useState("");
   const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<LookupResult | null>(null);
+
+  const { submitting, error, submit } = useSubmit();
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setError(null);
     setResult(null);
-    setLoading(true);
-    try {
+    const data = await submit(async () => {
       const params = new URLSearchParams({ orderNumber, email });
       const res = await fetch(`/api/orders/lookup?${params}`);
       const data = await res.json();
-      if (!res.ok) {
-        setError(data.error ?? "Order not found");
-        return;
-      }
-      setResult(data);
-    } catch {
-      setError("Network error. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+      if (!res.ok) throw new Error(data.error ?? "Order not found");
+      return data as LookupResult;
+    });
+    if (data) setResult(data);
   }
 
   return (
     <>
       <form onSubmit={handleSubmit} className="mt-10 space-y-5 text-left">
-        <div>
-          <label className="text-xs uppercase tracking-wide text-ink/60">
-            Order Number
-          </label>
-          <input
-            type="text"
-            value={orderNumber}
-            onChange={(e) => setOrderNumber(e.target.value)}
-            required
-            className="mt-2 w-full border border-taupe/40 bg-ivory px-4 py-3 text-sm outline-none focus:border-burgundy"
-          />
-        </div>
-        <div>
-          <label className="text-xs uppercase tracking-wide text-ink/60">
-            Email
-          </label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="mt-2 w-full border border-taupe/40 bg-ivory px-4 py-3 text-sm outline-none focus:border-burgundy"
-          />
-        </div>
+        <FormField
+          label="Order Number"
+          value={orderNumber}
+          onChange={setOrderNumber}
+          required
+        />
+        <FormField
+          label="Email"
+          type="email"
+          value={email}
+          onChange={setEmail}
+          required
+        />
         {error && <p className="text-sm text-red-700">{error}</p>}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full border border-burgundy bg-burgundy px-8 py-3 text-xs uppercase tracking-[0.2em] text-ivory transition-colors hover:bg-burgundy-dark disabled:opacity-50"
-        >
-          {loading ? "Searching..." : "Find Order"}
-        </button>
+        <SubmitButton pending={submitting} pendingLabel="Searching...">
+          Find Order
+        </SubmitButton>
       </form>
 
       {result && (

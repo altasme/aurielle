@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import type { ReactNode } from "react";
 import { QuantityStepper } from "./quantity-stepper";
+import { ButtonLink } from "./button-link";
 
 type CartSectionItem = {
   slug: string;
@@ -78,12 +78,7 @@ export function CartSection({
             <span className="text-sm text-ink/70">
               Subtotal: {currency} {subtotal.toFixed(2)}
             </span>
-            <Link
-              href={checkoutHref}
-              className="border border-burgundy bg-burgundy px-8 py-3 text-xs uppercase tracking-[0.2em] text-ivory transition-colors hover:bg-burgundy-dark"
-            >
-              Checkout
-            </Link>
+            <ButtonLink href={checkoutHref}>Checkout</ButtonLink>
           </div>
         </>
       )}

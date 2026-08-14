@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { SupplyMaterial } from "@/lib/data/supply-materials";
 import { matchesSupplyQuery } from "@/lib/data/supply-materials";
+import { FIELD_CLASSES } from "./form-field";
 
 const CATEGORIES = [
   "All",
@@ -56,12 +57,12 @@ export function SupplyCatalogueBrowser({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search fragrance materials..."
-          className="w-full border border-taupe/40 bg-ivory px-5 py-3 text-sm outline-none focus:border-burgundy"
+          className={FIELD_CLASSES}
         />
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value as SortOption)}
-          className="border border-taupe/40 bg-ivory px-4 py-3 text-sm outline-none focus:border-burgundy"
+          className={`sm:w-56 ${FIELD_CLASSES}`}
         >
           <option value="serial">Sort: Default</option>
           <option value="name">Sort: Name A–Z</option>

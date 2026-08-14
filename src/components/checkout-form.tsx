@@ -5,7 +5,9 @@ import Link from "next/link";
 import { useCart } from "@/lib/cart/cart-context";
 import { PAYMENT_METHODS, GCASH_INSTRUCTIONS, BANK_TRANSFER_INSTRUCTIONS } from "@/config/payment";
 import type { PaymentMethod } from "@/config/payment";
-import { FormField } from "./form-field";
+import { FormField, FIELD_CLASSES } from "./form-field";
+import { SubmitButton } from "./submit-button";
+import { useSubmit } from "@/lib/use-submit";
 
 type BusinessLine = "collection" | "atelier_supply";
 
@@ -38,9 +40,8 @@ export function CheckoutForm({ businessLine }: { businessLine: BusinessLine }) {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | "">("");
   const [proofFile, setProofFile] = useState<File | null>(null);
 
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState<ConfirmedOrder | null>(null);
+  const { submitting, error, setError, submit } = useSubmit();
 
   const subtotal = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -115,7 +116,6 @@ export function CheckoutForm({ businessLine }: { businessLine: BusinessLine }) {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setError(null);
 
     if (!paymentMethod || paymentMethod === "stripe") {
       setError("Please choose a payment method.");
@@ -126,8 +126,7 @@ export function CheckoutForm({ businessLine }: { businessLine: BusinessLine }) {
       return;
     }
 
-    setSubmitting(true);
-    try {
+    const data = await submit(async () => {
       const payload = {
         businessLine,
         customerName: name,
@@ -151,19 +150,16 @@ export function CheckoutForm({ businessLine }: { businessLine: BusinessLine }) {
 
       const res = await fetch("/api/orders", { method: "POST", body: formData });
       const data = await res.json();
-
       if (!res.ok) {
-        setError(data.error ?? "Something went wrong. Please try again.");
-        return;
+        throw new Error(data.error ?? "Something went wrong. Please try again.");
       }
+      return data as ConfirmedOrder;
+    });
 
+    if (data) {
       setConfirmed(data);
       if (businessLine === "collection") cart.clearCollectionCart();
       else cart.clearSupplyCart();
-    } catch {
-      setError("Network error. Please check your connection and try again.");
-    } finally {
-      setSubmitting(false);
     }
   }
 
@@ -197,38 +193,46 @@ export function CheckoutForm({ businessLine }: { businessLine: BusinessLine }) {
       <form onSubmit={handleSubmit} className="mt-10 space-y-8">
         <fieldset className="space-y-4">
           <legend className="font-serif text-xl text-ink">Your Details</legend>
-          <FormField label="Full Name" value={name} onChange={setName} required />
-          <FormField label="Email" type="email" value={email} onChange={setEmail} required />
-          <FormField label="Phone" value={phone} onChange={setPhone} />
-          <FormField
-            label="Country"
-            value={customerCountry}
-            onChange={setCustomerCountry}
-            required
-          />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField label="Full Name" value={name} onChange={setName} required />
+            <FormField label="Email" type="email" value={email} onChange={setEmail} required />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField label="Phone" value={phone} onChange={setPhone} />
+            <FormField
+              label="Country"
+              value={customerCountry}
+              onChange={setCustomerCountry}
+              required
+            />
+          </div>
         </fieldset>
 
         <fieldset className="space-y-4">
           <legend className="font-serif text-xl text-ink">Billing Address</legend>
           <FormField label="Address" value={address} onChange={setAddress} required />
-          <FormField label="City" value={city} onChange={setCity} required />
-          <FormField
-            label="State / Province"
-            value={stateProvince}
-            onChange={setStateProvince}
-          />
-          <FormField
-            label="Postal Code"
-            value={postalCode}
-            onChange={setPostalCode}
-            required
-          />
-          <FormField
-            label="Country"
-            value={billingCountry}
-            onChange={setBillingCountry}
-            required
-          />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField label="City" value={city} onChange={setCity} required />
+            <FormField
+              label="State / Province"
+              value={stateProvince}
+              onChange={setStateProvince}
+            />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField
+              label="Postal Code"
+              value={postalCode}
+              onChange={setPostalCode}
+              required
+            />
+            <FormField
+              label="Country"
+              value={billingCountry}
+              onChange={setBillingCountry}
+              required
+            />
+          </div>
           <label className="flex items-center gap-2 text-sm text-ink/70">
             <input
               type="checkbox"
@@ -244,9 +248,9 @@ export function CheckoutForm({ businessLine }: { businessLine: BusinessLine }) {
           {PAYMENT_METHODS.map((method) => (
             <label
               key={method.id}
-              className={`flex items-center gap-3 border px-4 py-3 text-sm ${
+              className={`flex items-center gap-3 rounded-sm border px-4 py-3 text-sm transition-colors ${
                 method.available
-                  ? "cursor-pointer border-taupe/40"
+                  ? "cursor-pointer border-taupe/40 has-[:checked]:border-burgundy has-[:checked]:bg-burgundy/5"
                   : "cursor-not-allowed border-taupe/20 text-ink/40"
               }`}
             >
@@ -294,7 +298,7 @@ export function CheckoutForm({ businessLine }: { businessLine: BusinessLine }) {
                 type="file"
                 accept="image/jpeg,image/png,image/webp,application/pdf"
                 onChange={(e) => setProofFile(e.target.files?.[0] ?? null)}
-                className="mt-2 w-full border border-taupe/40 bg-ivory px-4 py-3 text-sm"
+                className={`mt-2 ${FIELD_CLASSES}`}
                 required
               />
             </div>
@@ -303,13 +307,9 @@ export function CheckoutForm({ businessLine }: { businessLine: BusinessLine }) {
 
         {error && <p className="text-sm text-red-700">{error}</p>}
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full border border-burgundy bg-burgundy px-8 py-3 text-xs uppercase tracking-[0.2em] text-ivory transition-colors hover:bg-burgundy-dark disabled:opacity-50"
-        >
-          {submitting ? "Submitting..." : "Submit Order"}
-        </button>
+        <SubmitButton pending={submitting} pendingLabel="Submitting...">
+          Submit Order
+        </SubmitButton>
       </form>
     </div>
   );

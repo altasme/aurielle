@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useCart } from "@/lib/cart/cart-context";
 import type { SupplyMaterial } from "@/lib/data/supply-materials";
 import { QuantityStepper } from "./quantity-stepper";
+import { buttonClassName } from "./button-styles";
 
 export function AddToSupplyCartButton({ material }: { material: SupplyMaterial }) {
   const { addSupplyItem } = useCart();
@@ -45,7 +47,7 @@ export function AddToSupplyCartButton({ material }: { material: SupplyMaterial }
           );
           setAdded(true);
         }}
-        className="w-full border border-burgundy bg-burgundy px-8 py-3 text-xs uppercase tracking-[0.2em] text-ivory transition-colors hover:bg-burgundy-dark"
+        className={`w-full ${buttonClassName("primary")}`}
       >
         Request / Order
       </button>
@@ -53,9 +55,9 @@ export function AddToSupplyCartButton({ material }: { material: SupplyMaterial }
       {added && (
         <p className="text-center text-xs text-ink/60">
           Added to cart.{" "}
-          <a href="/cart" className="text-burgundy underline">
+          <Link href="/cart" className="text-burgundy underline">
             View cart
-          </a>
+          </Link>
         </p>
       )}
     </div>

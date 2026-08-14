@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { FormField } from "./form-field";
+import { FormField, FIELD_CLASSES } from "./form-field";
+import { SubmitButton } from "./submit-button";
+import { useSubmit } from "@/lib/use-submit";
 
 export function BusinessInquiryForm() {
   const [name, setName] = useState("");
@@ -11,16 +13,13 @@ export function BusinessInquiryForm() {
   const [productInterest, setProductInterest] = useState("");
   const [estimatedQuantity, setEstimatedQuantity] = useState("");
   const [message, setMessage] = useState("");
-
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
+
+  const { submitting, error, submit } = useSubmit();
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setError(null);
-    setSubmitting(true);
-    try {
+    const result = await submit(async () => {
       const res = await fetch("/api/inquiries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -37,15 +36,11 @@ export function BusinessInquiryForm() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Could not send your inquiry. Please try again.");
-        return;
+        throw new Error(data.error ?? "Could not send your inquiry. Please try again.");
       }
-      setSent(true);
-    } catch {
-      setError("Network error. Please try again.");
-    } finally {
-      setSubmitting(false);
-    }
+      return data;
+    });
+    if (result) setSent(true);
   }
 
   if (sent) {
@@ -59,20 +54,26 @@ export function BusinessInquiryForm() {
 
   return (
     <form onSubmit={handleSubmit} className="mt-12 space-y-5 text-left">
-      <FormField label="Name" value={name} onChange={setName} required />
-      <FormField label="Business Name" value={businessName} onChange={setBusinessName} />
-      <FormField label="Email" type="email" value={email} onChange={setEmail} required />
-      <FormField label="Country" value={country} onChange={setCountry} required />
-      <FormField
-        label="Product / Material Interest"
-        value={productInterest}
-        onChange={setProductInterest}
-      />
-      <FormField
-        label="Estimated Quantity"
-        value={estimatedQuantity}
-        onChange={setEstimatedQuantity}
-      />
+      <div className="grid gap-5 sm:grid-cols-2">
+        <FormField label="Name" value={name} onChange={setName} required />
+        <FormField label="Business Name" value={businessName} onChange={setBusinessName} />
+      </div>
+      <div className="grid gap-5 sm:grid-cols-2">
+        <FormField label="Email" type="email" value={email} onChange={setEmail} required />
+        <FormField label="Country" value={country} onChange={setCountry} required />
+      </div>
+      <div className="grid gap-5 sm:grid-cols-2">
+        <FormField
+          label="Product / Material Interest"
+          value={productInterest}
+          onChange={setProductInterest}
+        />
+        <FormField
+          label="Estimated Quantity"
+          value={estimatedQuantity}
+          onChange={setEstimatedQuantity}
+        />
+      </div>
       <div>
         <label className="text-xs uppercase tracking-wide text-ink/60">
           Message
@@ -81,17 +82,13 @@ export function BusinessInquiryForm() {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           rows={5}
-          className="mt-2 w-full border border-taupe/40 bg-ivory px-4 py-3 text-sm outline-none focus:border-burgundy"
+          className={`mt-2 ${FIELD_CLASSES}`}
         />
       </div>
       {error && <p className="text-sm text-red-700">{error}</p>}
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-full border border-burgundy bg-burgundy px-8 py-3 text-xs uppercase tracking-[0.2em] text-ivory transition-colors hover:bg-burgundy-dark disabled:opacity-50"
-      >
-        {submitting ? "Sending..." : "Talk to the Atelier"}
-      </button>
+      <SubmitButton pending={submitting} pendingLabel="Sending...">
+        Talk to the Atelier
+      </SubmitButton>
     </form>
   );
 }
