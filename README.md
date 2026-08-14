@@ -61,6 +61,31 @@ pages don't read from the database at all.
 To update the catalogue: edit the CSV, `npm run generate:catalogue` (or
 just rebuild), redeploy. No CMS in Phase 1; that's Phase 2 (spec §21).
 
+## Images
+
+Real photography is wired in under `public/images/`:
+
+- `hero.jpg`: homepage hero background. `og-share.jpg`: social share
+  preview (wired into `layout.tsx` metadata).
+- `logo.png`: the AP monogram, rasterized from the client's source SVG
+  (kept out of the repo; ask for it again if it needs re-exporting).
+  Used in the header and footer. `src/app/icon.png`,
+  `apple-icon.png`, and `favicon.ico` are generated from the same mark.
+- `perfumes/cards/<slug>.jpg` (1200×1600) and `perfumes/main/<slug>.jpg`
+  (1600×1600): one of each per perfume in `data/perfumes.csv`, matched
+  by slug. `PerfumeCard` (used on the homepage and `/collection`) and
+  the PDP (`/collection/[slug]`) reference these paths directly by
+  convention, no image field in the CSV/data model. Adding a new
+  perfume means dropping in matching image files with the same slug.
+- The client also sent a "Bleu Royale" product photo with no matching
+  catalogue entry; left out of `data/perfumes.csv` on request. Revisit
+  if that's meant to become a 15th product.
+- `next.config.ts` sets `images.unoptimized: true`, skipping Next's
+  image-optimization loader (would need an extra Cloudflare Images
+  binding) since these files already ship pre-sized to spec.
+- Atelier Supply materials still have no photography (per the earlier
+  decision to wait for real per-SKU images before adding any).
+
 ## Database (writes only)
 
 - `supabase/migrations/0001_init.sql`, `0002_perfumes_public_read.sql`:

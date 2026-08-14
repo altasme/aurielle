@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { useCart } from "@/lib/cart/cart-context";
 
@@ -29,8 +30,16 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-10">
         <Link
           href="/"
-          className="font-serif text-xl tracking-[0.15em] text-burgundy"
+          className="flex items-center gap-2 font-serif text-xl tracking-[0.15em] text-burgundy"
         >
+          <Image
+            src="/images/logo.png"
+            alt=""
+            width={36}
+            height={36}
+            priority
+            className="h-9 w-9"
+          />
           AURIELLE
         </Link>
 

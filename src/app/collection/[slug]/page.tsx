@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import { getPerfumeBySlug, getPerfumes } from "@/lib/data/perfumes";
 import { AddToCollectionCartButton } from "@/components/add-to-collection-cart-button";
 
@@ -17,7 +18,16 @@ export default async function PerfumeDetailPage({
 
   return (
     <div className="mx-auto grid max-w-6xl gap-12 px-6 py-20 lg:grid-cols-2 lg:px-10">
-      <div className="aspect-square w-full border border-taupe/30 bg-beige/40" />
+      <div className="relative aspect-square w-full overflow-hidden border border-taupe/30 bg-beige/40">
+        <Image
+          src={`/images/perfumes/main/${perfume.slug}.jpg`}
+          alt={perfume.name}
+          fill
+          sizes="(min-width: 1024px) 50vw, 100vw"
+          priority
+          className="object-cover"
+        />
+      </div>
 
       <div>
         <h1 className="font-serif text-4xl text-ink">{perfume.name}</h1>

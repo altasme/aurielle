@@ -20,10 +20,27 @@ const parisienne = Parisienne({
   weight: "400",
 });
 
+const description =
+  "Aurielle Paris Atelier: refined perfumes and a professional fragrance supply catalogue, crafted with French-inspired luxury.";
+
 export const metadata: Metadata = {
+  // Set NEXT_PUBLIC_SITE_URL once the production domain is final so
+  // og:image/twitter:image resolve to absolute URLs; falls back to
+  // localhost for local dev.
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: "Aurielle Paris Atelier",
-  description:
-    "Aurielle Paris Atelier: refined perfumes and a professional fragrance supply catalogue, crafted with French-inspired luxury.",
+  description,
+  openGraph: {
+    title: "Aurielle Paris Atelier",
+    description,
+    images: ["/images/og-share.jpg"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Aurielle Paris Atelier",
+    description,
+    images: ["/images/og-share.jpg"],
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -1,6 +1,6 @@
-import Link from "next/link";
 import type { Metadata } from "next";
 import { getPerfumes } from "@/lib/data/perfumes";
+import { PerfumeCard } from "@/components/perfume-card";
 
 export const metadata: Metadata = {
   title: "The Aurielle Collection | Aurielle Paris Atelier",
@@ -22,24 +22,7 @@ export default function CollectionPage() {
 
       <div className="mt-14 grid grid-cols-2 gap-6 lg:grid-cols-4">
         {perfumes.map((perfume) => (
-          <Link
-            key={perfume.slug}
-            href={`/collection/${perfume.slug}`}
-            className="group flex flex-col"
-          >
-            <div className="aspect-[3/4] w-full border border-taupe/30 bg-beige/40 transition-colors group-hover:border-burgundy" />
-            <p className="mt-4 text-center font-serif text-lg text-ink">
-              {perfume.name}
-            </p>
-            {perfume.scentProfile.length > 0 && (
-              <p className="text-center text-xs text-ink/50">
-                {perfume.scentProfile.join(" · ")}
-              </p>
-            )}
-            <p className="mt-1 text-center text-xs uppercase tracking-wide text-burgundy">
-              View Fragrance
-            </p>
-          </Link>
+          <PerfumeCard key={perfume.slug} perfume={perfume} />
         ))}
       </div>
     </div>

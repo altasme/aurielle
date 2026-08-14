@@ -1,5 +1,6 @@
-import Link from "next/link";
+import Image from "next/image";
 import { ButtonLink } from "@/components/button-link";
+import { PerfumeCard } from "@/components/perfume-card";
 import { getFeaturedPerfumes } from "@/lib/data/perfumes";
 
 export default function Home() {
@@ -8,21 +9,31 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* HERO, spec §4 */}
-      <section className="flex min-h-[85vh] flex-col items-center justify-center gap-6 bg-gradient-to-b from-beige to-ivory px-6 py-24 text-center">
-        <p className="font-script text-3xl text-burgundy">Aurielle Paris Atelier</p>
-        <h1 className="max-w-3xl font-serif text-4xl leading-tight text-ink sm:text-6xl">
-          THE ART OF FRAGRANCE
-        </h1>
-        <p className="max-w-xl text-base text-ink/70 sm:text-lg">
-          Discover Aurielle Paris Atelier, a fragrance house creating refined
-          perfumes and supplying quality fragrance materials to creators and
-          businesses worldwide.
-        </p>
-        <div className="mt-4 flex flex-col gap-4 sm:flex-row">
-          <ButtonLink href="/collection">Explore the Collection</ButtonLink>
-          <ButtonLink href="/atelier-supply" variant="secondary">
-            Explore Atelier Supply
-          </ButtonLink>
+      <section className="relative flex min-h-[85vh] flex-col items-center justify-center gap-6 px-6 py-24 text-center">
+        <Image
+          src="/images/hero.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+        <div className="relative z-10 flex flex-col items-center gap-6">
+          <p className="font-script text-3xl text-burgundy">Aurielle Paris Atelier</p>
+          <h1 className="max-w-3xl font-serif text-4xl leading-tight text-ink sm:text-6xl">
+            THE ART OF FRAGRANCE
+          </h1>
+          <p className="max-w-xl text-base text-ink/70 sm:text-lg">
+            Discover Aurielle Paris Atelier, a fragrance house creating refined
+            perfumes and supplying quality fragrance materials to creators and
+            businesses worldwide.
+          </p>
+          <div className="mt-4 flex flex-col gap-4 sm:flex-row">
+            <ButtonLink href="/collection">Explore the Collection</ButtonLink>
+            <ButtonLink href="/atelier-supply" variant="secondary">
+              Explore Atelier Supply
+            </ButtonLink>
+          </div>
         </div>
       </section>
 
@@ -71,19 +82,7 @@ export default function Home() {
 
           <div className="mt-12 grid grid-cols-2 gap-6 lg:grid-cols-4">
             {featured.map((perfume) => (
-              <Link
-                key={perfume.slug}
-                href={`/collection/${perfume.slug}`}
-                className="group flex flex-col"
-              >
-                <div className="aspect-[3/4] w-full border border-taupe/30 bg-ivory transition-colors group-hover:border-burgundy" />
-                <p className="mt-4 text-center font-serif text-lg text-ink">
-                  {perfume.name}
-                </p>
-                <p className="text-center text-xs uppercase tracking-wide text-burgundy">
-                  View Fragrance
-                </p>
-              </Link>
+              <PerfumeCard key={perfume.slug} perfume={perfume} />
             ))}
           </div>
 
