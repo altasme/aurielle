@@ -542,8 +542,12 @@ export default function Home() {
         </Reveal>
       </section>
 
-      {/* FINAL LUXURY CTA, spec §17 */}
-      <section className="relative flex min-h-[60vh] flex-col items-center justify-center gap-6 overflow-hidden px-6 py-24 text-center">
+      {/* FINAL LUXURY CTA, spec §17. border-t makes this read as a
+          distinct section from "Create Something of Your Own" above it:
+          both are dark, full-bleed, burgundy-overlaid photo sections, so
+          without a visible seam they blend into what looks like one
+          broken image rather than two intentional blocks. */}
+      <section className="relative flex min-h-[60vh] flex-col items-center justify-center gap-6 overflow-hidden border-t border-ivory/20 px-6 py-24 text-center">
         <Image
           src="/images/perfumes/main/noir-elixir.jpg"
           alt=""
