@@ -15,7 +15,7 @@ export default function AtelierSupplyPage() {
     <div className="mx-auto max-w-6xl px-6 py-20 lg:px-10">
       <div className="text-center">
         <h1 className="font-serif text-4xl text-ink">Atelier Supply</h1>
-        <p className="mt-3 text-sm text-ink/60">
+        <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
           Explore our extensive fragrance catalogue and discover materials
           available for your next creation.
         </p>

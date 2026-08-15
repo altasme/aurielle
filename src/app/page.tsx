@@ -50,14 +50,14 @@ export default function Home() {
           sizes="100vw"
           className="hero-image object-cover"
         />
-        <div className="relative z-10 flex flex-col items-center gap-6">
+        <div className="relative z-10 flex flex-col items-center gap-6 border border-taupe/20 bg-ivory px-8 py-10 sm:px-14 sm:py-14">
           <p className="hero-in font-script text-3xl text-burgundy">
             Aurielle Paris Atelier
           </p>
           <h1 className="hero-in hero-in-delay-1 max-w-3xl font-serif text-4xl leading-tight text-ink sm:text-6xl">
             THE ART OF FRAGRANCE
           </h1>
-          <p className="hero-in hero-in-delay-2 max-w-xl text-base text-ink/70 sm:text-lg">
+          <p className="hero-in hero-in-delay-2 max-w-md text-base text-ink sm:text-lg">
             Refined perfume oils crafted in France, made to become the
             signature only you wear. Discover the collection, or source
             quality fragrance materials for your own creations.
@@ -109,7 +109,7 @@ export default function Home() {
             <h2 className="font-serif text-3xl text-ink">
               The Aurielle Collection
             </h2>
-            <p className="mt-2 text-sm text-ink/60">
+            <p className="mx-auto mt-2 max-w-md text-sm text-ink/60">
               Fragrance oils crafted to become part of your signature. Each
               bottle holds ten milliliters of refined, alcohol-free scent.
             </p>
@@ -169,7 +169,7 @@ export default function Home() {
             <h2 className="mt-2 font-serif text-3xl text-ink">
               A Fragrance for Every Mood
             </h2>
-            <p className="mt-3 text-sm text-ink/60">
+            <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
               Discover scents inspired by femininity, mystery, elegance,
               warmth and allure.
             </p>
@@ -211,7 +211,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl text-center">
           <Reveal>
             <h2 className="font-serif text-3xl text-ink">The Atelier</h2>
-            <p className="mt-3 text-sm text-ink/60">
+            <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
               Quality fragrance materials for perfumers, creators and
               businesses.
             </p>
@@ -267,7 +267,7 @@ export default function Home() {
           <h2 className="font-serif text-3xl text-ink">
             Create Something of Your Own
           </h2>
-          <p className="mt-4 text-sm text-ink/70">
+          <p className="mx-auto mt-4 max-w-md text-sm text-ink/70">
             Whether you&rsquo;re developing a fragrance line, creating your
             own products, or sourcing fragrance materials for your business,
             the Atelier is here to help.

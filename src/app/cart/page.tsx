@@ -17,7 +17,7 @@ export default function CartPage() {
   return (
     <div className="mx-auto max-w-4xl px-6 py-20 lg:px-10">
       <h1 className="text-center font-serif text-4xl text-ink">Your Cart</h1>
-      <p className="mt-3 text-center text-sm text-ink/60">
+      <p className="mx-auto mt-3 max-w-md text-center text-sm text-ink/60">
         Aurielle Collection and Atelier Supply are kept in two separate
         carts and checkouts. They&rsquo;re never combined into one order.
       </p>
