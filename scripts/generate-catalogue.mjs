@@ -111,6 +111,7 @@ const perfumes = perfumeRows.map((row, i) => {
     size: row.size || null,
     price,
     currency: row.currency || null,
+    mood: row.mood || null,
     available: true,
   };
 });
@@ -154,6 +155,7 @@ export type PerfumeRecord = {
   size: string | null;
   price: number | null;
   currency: string | null;
+  mood: string | null;
   available: boolean;
 };
 

@@ -12,8 +12,16 @@ export type Perfume = {
   size: string | null;
   price: number | null;
   currency: string | null;
+  mood: string | null;
   available: boolean;
 };
+
+// Fixed display order for the mood-based discovery section (spec ask:
+// "Find Your Scent"). Moods are editorial groupings, not a formal
+// fragrance-family classification, since that hasn't been confirmed
+// by the client yet.
+export const MOODS = ["Feminine", "Mysterious", "Elegant", "Warm", "Alluring"] as const;
+export type Mood = (typeof MOODS)[number];
 
 export function getPerfumes(): Perfume[] {
   return generatedPerfumes;

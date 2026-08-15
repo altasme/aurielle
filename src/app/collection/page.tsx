@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { getPerfumes } from "@/lib/data/perfumes";
-import { PerfumeCard } from "@/components/perfume-card";
+import { CollectionBrowser } from "@/components/collection-browser";
 import { Reveal } from "@/components/reveal";
 
 export const metadata: Metadata = {
@@ -21,12 +22,10 @@ export default function CollectionPage() {
         </p>
       </Reveal>
 
-      <div className="mt-14 grid grid-cols-2 gap-6 lg:grid-cols-4">
-        {perfumes.map((perfume, i) => (
-          <Reveal key={perfume.slug} delayMs={(i % 4) * 100}>
-            <PerfumeCard perfume={perfume} />
-          </Reveal>
-        ))}
+      <div className="mt-10">
+        <Suspense>
+          <CollectionBrowser perfumes={perfumes} />
+        </Suspense>
       </div>
     </div>
   );
