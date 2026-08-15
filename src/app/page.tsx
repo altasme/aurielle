@@ -4,6 +4,17 @@ import { PerfumeCard } from "@/components/perfume-card";
 import { Reveal } from "@/components/reveal";
 import { getFeaturedPerfumes } from "@/lib/data/perfumes";
 
+// Spec §27 (Social Proof): reuse existing marketing photography rather
+// than fabricated reviews, since no verified customer testimonials
+// exist yet. Deliberately different slugs than getFeaturedPerfumes(4)
+// above so this section reads as mood/atmosphere, not a repeat of the
+// product grid.
+const EXPERIENCE_IMAGES = [
+  { slug: "paris-nocturne", alt: "Aurielle perfume oil on a marble table at night, with the Eiffel Tower lit in the distance" },
+  { slug: "visionnaire", alt: "Aurielle perfume oil beside greenery and a gilded mirror" },
+  { slug: "rose-de-minuit", alt: "Aurielle perfume oil among dark red roses and candlelight" },
+];
+
 export default function Home() {
   const featured = getFeaturedPerfumes(4);
 
@@ -104,6 +115,36 @@ export default function Home() {
 
           <div className="mt-12 text-center">
             <ButtonLink href="/collection">Shop All Perfumes</ButtonLink>
+          </div>
+        </div>
+      </section>
+
+      {/* SOCIAL PROOF, spec §27: THE AURIELLE EXPERIENCE */}
+      <section className="px-6 py-24 lg:px-10">
+        <div className="mx-auto max-w-6xl">
+          <Reveal className="text-center">
+            <p className="font-script text-2xl text-burgundy">Every Bottle, a Story</p>
+            <h2 className="mt-2 font-serif text-3xl text-ink">
+              The Aurielle Experience
+            </h2>
+          </Reveal>
+
+          <div className="mt-12 grid gap-6 sm:grid-cols-3">
+            {EXPERIENCE_IMAGES.map((image, i) => (
+              <Reveal
+                key={image.slug}
+                delayMs={i * 100}
+                className="relative aspect-[3/4] overflow-hidden border border-taupe/30"
+              >
+                <Image
+                  src={`/images/perfumes/main/${image.slug}.jpg`}
+                  alt={image.alt}
+                  fill
+                  sizes="(min-width: 1024px) 33vw, 100vw"
+                  className="object-cover"
+                />
+              </Reveal>
+            ))}
           </div>
         </div>
       </section>
