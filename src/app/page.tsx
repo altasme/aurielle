@@ -5,48 +5,92 @@ import { PerfumeCard } from "@/components/perfume-card";
 import { Reveal } from "@/components/reveal";
 import { getFeaturedPerfumes, MOODS } from "@/lib/data/perfumes";
 
-// Spec §27 (Social Proof): reuse existing marketing photography rather
-// than fabricated reviews, since no verified customer testimonials
-// exist yet. Deliberately different slugs than getFeaturedPerfumes(4)
-// above so this section reads as mood/atmosphere, not a repeat of the
-// product grid.
+// Homepage restructure per client-supplied "Homepage Improvement &
+// Content Specification": Aurielle (B2C) and Atelier (B2B supply /
+// private-label) as one fragrance house with two connected worlds.
+
+const ATELIER_CAPABILITIES = [
+  {
+    title: "Fragrance Oils",
+    body: "Source fragrance materials and profiles for personal, creative or commercial applications.",
+  },
+  {
+    title: "Custom Packaging",
+    body: "Bottles, caps, boxes, pouches, labels and other packaging components designed around your brand.",
+  },
+  {
+    title: "OEM & ODM",
+    body: "Develop your own fragrance products with support from concept through finished product.",
+  },
+  {
+    title: "Sourcing & Logistics",
+    body: "Access supply and international shipping support for commercial fragrance projects.",
+  },
+];
+
+const CONCEPT_STEPS = [
+  {
+    number: "01",
+    title: "Develop Your Scent",
+    body: "Select from available fragrance profiles or work toward a scent identity suited to your product and brand.",
+  },
+  {
+    number: "02",
+    title: "Choose Your Packaging",
+    body: "Explore bottles, caps, boxes, pouches and other packaging components.",
+  },
+  {
+    number: "03",
+    title: "Make It Yours",
+    body: "Customize labels, branding, finishes and presentation around your identity.",
+  },
+  {
+    number: "04",
+    title: "Bring It to Market",
+    body: "Coordinate production, sourcing and supply for your finished fragrance products.",
+  },
+];
+
+// Spec §11 "Every Bottle, a Story": reused, already-licensed product
+// photography as atmosphere, not fabricated reviews (no verified
+// customer testimonials exist yet, spec §27 in the earlier round).
 const EXPERIENCE_IMAGES = [
   {
     slug: "paris-nocturne",
     name: "Paris Nocturne",
-    descriptor: "The Night",
+    descriptor: "Midnight Paris, candlelight and quiet sophistication.",
     alt: "Aurielle perfume oil on a marble table at night, with the Eiffel Tower lit in the distance",
   },
   {
-    slug: "visionnaire",
-    name: "Visionnaire",
-    descriptor: "The Confidence",
-    alt: "Aurielle perfume oil beside greenery and a gilded mirror",
+    slug: "donna-velours",
+    name: "Donna Velours",
+    descriptor: "Deep plum, velvet and dark florals.",
+    alt: "Aurielle perfume oil among deep plum roses and velvet drapery",
   },
   {
-    slug: "rose-de-minuit",
-    name: "Rose de Minuit",
-    descriptor: "The Allure",
-    alt: "Aurielle perfume oil among dark red roses and candlelight",
+    slug: "rouge-royale",
+    name: "Rouge Royale",
+    descriptor: "Crimson, burgundy, roses and polished gold.",
+    alt: "Aurielle perfume oil among red roses, a candle and gold jewelry",
   },
 ];
 
 const WHY_AURIELLE = [
   {
-    title: "Refined Perfume Oils",
-    body: "Explore concentrated fragrance compositions designed for a lasting scent experience.",
+    title: "Refined Fragrance",
+    body: "Thoughtfully selected fragrance profiles for personal and commercial applications.",
   },
   {
-    title: "Alcohol-Free",
-    body: "Perfume oils offer a different, intimate way to experience fragrance.",
+    title: "From Scent to Product",
+    body: "Go beyond fragrance oils with packaging, customization and product development support.",
   },
   {
-    title: "Various Signature Scents",
-    body: "A collection spanning floral, woody, warm, mysterious and alluring profiles.",
+    title: "Personal & Commercial",
+    body: "Whether you're discovering a signature scent or building a fragrance business.",
   },
   {
-    title: "For Creators & Businesses",
-    body: "Our Atelier also provides fragrance materials for those creating something of their own.",
+    title: "Supply That Supports Growth",
+    body: "From individual requirements to commercial sourcing and larger-scale projects.",
   },
 ];
 
@@ -55,7 +99,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* 1. HERO, spec §4 */}
+      {/* HERO, spec §4 */}
       <section className="relative flex min-h-[85vh] flex-col items-center justify-center gap-6 overflow-hidden px-6 py-24 text-center">
         <Image
           src="/images/hero.jpg"
@@ -73,29 +117,34 @@ export default function Home() {
             THE ART OF FRAGRANCE
           </h1>
           <p className="hero-in hero-in-delay-2 max-w-md text-base text-ink sm:text-lg">
-            Refined perfume oils crafted in France, made to become the
-            signature only you wear. Discover the collection, or source
-            quality fragrance materials for your own creations.
+            From signature scents to fragrance supply and private-label
+            creation, Aurielle Paris brings together refined fragrances,
+            quality fragrance materials, custom packaging and product
+            development support for individuals, creators and businesses.
           </p>
           <div className="hero-in hero-in-delay-3 mt-4 flex flex-col gap-4 sm:flex-row">
-            <ButtonLink href="/collection">Shop the Collection</ButtonLink>
+            <ButtonLink href="/collection">Discover Aurielle</ButtonLink>
             <ButtonLink href="/atelier-supply" variant="secondary">
-              Explore Atelier Supply
+              Explore the Atelier
             </ButtonLink>
           </div>
         </div>
       </section>
 
-      {/* 2. INTRODUCTION, spec §5: A World of Fragrance */}
+      {/* A WORLD OF FRAGRANCE, spec §5 */}
       <section className="mx-auto grid max-w-6xl gap-10 px-6 py-24 lg:grid-cols-2 lg:px-10">
         <Reveal className="text-center lg:col-span-2 lg:text-center">
           <p className="font-script text-2xl text-burgundy">A World of Fragrance</p>
         </Reveal>
         <Reveal className="border border-taupe/30 p-10 text-center">
           <h2 className="font-serif text-2xl text-ink">Aurielle</h2>
-          <p className="mt-4 text-sm text-ink/70">
-            Fourteen perfume oils, each designed to become the scent no one
-            can quite place. Refined, alcohol-free and made to last.
+          <p className="mt-1 text-xs uppercase tracking-wide text-burgundy">
+            The Fragrance Collection
+          </p>
+          <p className="mx-auto mt-4 max-w-xs text-sm text-ink/70">
+            Discover refined perfume oils created to become part of your
+            signature. Explore scents inspired by femininity, mystery,
+            elegance, warmth and allure.
           </p>
           <div className="mt-6">
             <ButtonLink href="/collection" variant="secondary">
@@ -105,28 +154,170 @@ export default function Home() {
         </Reveal>
         <Reveal className="border border-taupe/30 p-10 text-center" delayMs={120}>
           <h2 className="font-serif text-2xl text-ink">Atelier</h2>
-          <p className="mt-4 text-sm text-ink/70">
-            Explore our extensive fragrance supply catalogue for perfumers,
-            businesses and fragrance creators.
+          <p className="mt-1 text-xs uppercase tracking-wide text-burgundy">
+            Fragrance Supply &amp; Creation
+          </p>
+          <p className="mx-auto mt-4 max-w-xs text-sm text-ink/70">
+            For perfumers, creators and businesses looking to source
+            fragrance materials, develop products, customize packaging or
+            build a fragrance line.
           </p>
           <div className="mt-6">
             <ButtonLink href="/atelier-supply" variant="secondary">
-              Explore Supply
+              Explore the Atelier
             </ButtonLink>
           </div>
         </Reveal>
       </section>
 
-      {/* 3. AURIELLE COLLECTION PREVIEW, spec §6 */}
+      {/* ATELIER INTRODUCTION, spec §6 */}
+      <section className="bg-beige px-6 py-24 lg:px-10">
+        <div className="mx-auto max-w-6xl text-center">
+          <Reveal>
+            <p className="font-script text-2xl text-burgundy">The Aurielle Atelier</p>
+            <h2 className="mt-2 font-serif text-3xl text-ink">
+              More Than Fragrance. A Supply Partner.
+            </h2>
+            <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
+              From fragrance oils and packaging to custom branding and
+              finished products, Aurielle Paris Atelier supports creators
+              and businesses throughout the fragrance development process.
+            </p>
+          </Reveal>
+
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {ATELIER_CAPABILITIES.map((item, i) => (
+              <Reveal
+                key={item.title}
+                delayMs={i * 100}
+                className="border border-taupe/30 bg-ivory p-8 text-left"
+              >
+                <h3 className="font-serif text-lg text-ink">{item.title}</h3>
+                <p className="mt-2 text-sm text-ink/70">{item.body}</p>
+              </Reveal>
+            ))}
+          </div>
+
+          <div className="mt-12">
+            <ButtonLink href="/atelier-supply">Explore Atelier Supply</ButtonLink>
+          </div>
+        </div>
+      </section>
+
+      {/* REAL-WORLD BUSINESS PROOF, spec §7. Imagery pending: the
+          warehouse/production/packaging/finished-product photography
+          this section calls for hasn't been supplied yet, so this ships
+          as a labeled placeholder collage rather than stock/AI imagery
+          or repurposed product shots. Naming stays neutral ("Behind the
+          Supply") until the client confirms whether pictured facilities
+          are owned or a manufacturing partner, per the spec's own rule
+          against claiming "Our Factory" without that confirmation. */}
+      <section className="px-6 py-24 lg:px-10">
+        <div className="mx-auto max-w-6xl">
+          <Reveal className="text-center">
+            <p className="font-script text-2xl text-burgundy">Behind the Supply</p>
+            <h2 className="mt-2 font-serif text-3xl text-ink">
+              Built for Ideas That Need to Scale
+            </h2>
+            <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
+              Whether you&rsquo;re developing a signature scent, launching a
+              fragrance collection or sourcing products for an established
+              business, the Atelier connects fragrance, packaging and
+              supply into one process.
+            </p>
+          </Reveal>
+
+          <div className="mt-12 grid gap-4 sm:grid-cols-2">
+            {["Warehouse", "Production", "Packaging", "Finished Product"].map((label, i) => (
+              <Reveal
+                key={label}
+                delayMs={i * 80}
+                className="flex aspect-[16/10] items-center justify-center border border-taupe/30 bg-beige/40"
+              >
+                <p className="px-6 text-center text-xs text-ink/40">
+                  {label} photography pending
+                </p>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FROM CONCEPT TO FINISHED PRODUCT, spec §8 */}
       <section className="bg-beige px-6 py-24 lg:px-10">
         <div className="mx-auto max-w-6xl">
           <Reveal className="text-center">
             <h2 className="font-serif text-3xl text-ink">
-              The Aurielle Collection
+              From Concept to Finished Product
+            </h2>
+            <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
+              Bring your fragrance idea to life through a process designed
+              around your brand, your product and your goals.
+            </p>
+          </Reveal>
+
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {CONCEPT_STEPS.map((step, i) => (
+              <Reveal key={step.number} delayMs={i * 100} className="text-left">
+                <p className="font-script text-xl text-burgundy">{step.number}</p>
+                <h3 className="mt-1 font-serif text-lg text-ink">{step.title}</h3>
+                <p className="mt-2 text-sm text-ink/70">{step.body}</p>
+              </Reveal>
+            ))}
+          </div>
+
+          <div className="mt-12 text-center">
+            <ButtonLink href="/business">Start Your Project</ButtonLink>
+          </div>
+        </div>
+      </section>
+
+      {/* YOUR BRAND, YOUR BOTTLE, spec §9. Custom metal-label photography
+          hasn't been supplied yet, so this is a placeholder rather than
+          stock imagery, per the spec's own instruction not to overuse
+          stock/AI imagery when real client imagery is the point. */}
+      <section className="px-6 py-24 lg:px-10">
+        <div className="mx-auto max-w-6xl">
+          <Reveal className="text-center">
+            <h2 className="font-serif text-3xl text-ink">
+              Your Brand. Your Bottle. Your Identity.
+            </h2>
+            <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
+              From custom labels and metal plates to bottles, caps and
+              packaging, the Atelier helps transform fragrance concepts
+              into products that look and feel like your brand.
+            </p>
+          </Reveal>
+
+          <Reveal
+            delayMs={100}
+            className="mt-10 flex aspect-[21/9] items-center justify-center border border-taupe/30 bg-beige/40"
+          >
+            <p className="px-6 text-center text-xs text-ink/40">
+              Custom label &amp; packaging photography pending
+            </p>
+          </Reveal>
+
+          <div className="mt-10 text-center">
+            <ButtonLink href="/business" variant="secondary">
+              Explore Customization
+            </ButtonLink>
+          </div>
+        </div>
+      </section>
+
+      {/* AURIELLE COLLECTION, spec §10 */}
+      <section className="bg-beige px-6 py-24 lg:px-10">
+        <div className="mx-auto max-w-6xl">
+          <Reveal className="text-center">
+            <p className="font-script text-2xl text-burgundy">The Aurielle Collection</p>
+            <h2 className="mt-2 font-serif text-3xl text-ink">
+              Fragrance Made Personal
             </h2>
             <p className="mx-auto mt-2 max-w-md text-sm text-ink/60">
-              Fragrance oils crafted to become part of your signature. Each
-              bottle holds ten milliliters of refined, alcohol-free scent.
+              Refined perfume oils crafted to become part of your signature.
+              Each bottle holds 10 milliliters of refined, alcohol-free
+              scent.
             </p>
           </Reveal>
 
@@ -144,8 +335,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* THE AURIELLE EXPERIENCE, spec §27: reused photography, not
-          fabricated reviews (no verified customer feedback exists yet). */}
+      {/* EVERY BOTTLE, A STORY, spec §11 */}
       <section className="px-6 py-24 lg:px-10">
         <div className="mx-auto max-w-6xl">
           <Reveal className="text-center">
@@ -170,7 +360,7 @@ export default function Home() {
                 <p className="mt-3 text-center font-serif text-sm text-ink">
                   {image.name}
                 </p>
-                <p className="text-center text-xs uppercase tracking-wide text-burgundy">
+                <p className="mx-auto mt-1 max-w-[24ch] text-center text-xs text-ink/50">
                   {image.descriptor}
                 </p>
               </Reveal>
@@ -179,8 +369,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. FIND YOUR SCENT: mood-based discovery, not a formal fragrance-
-          family classification (unconfirmed by the client). */}
+      {/* FIND YOUR SIGNATURE, spec §12: mood-based discovery, not a
+          formal fragrance-family classification (unconfirmed by the
+          client). Already functionally filters /collection. */}
       <section className="bg-beige px-6 py-24 lg:px-10">
         <div className="mx-auto max-w-4xl text-center">
           <Reveal>
@@ -208,7 +399,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. THE AURIELLE PHILOSOPHY */}
+      {/* THE AURIELLE PHILOSOPHY */}
       <Reveal className="mx-auto max-w-2xl px-6 py-24 text-center lg:px-10">
         <p className="font-script text-2xl text-burgundy">The Aurielle Philosophy</p>
         <h2 className="mt-2 font-serif text-3xl text-ink">
@@ -230,49 +421,7 @@ export default function Home() {
         </div>
       </Reveal>
 
-      {/* 6. THE ATELIER, replaces the generic "For Your Business" block */}
-      <section className="bg-beige px-6 py-24 lg:px-10">
-        <div className="mx-auto max-w-6xl text-center">
-          <Reveal>
-            <h2 className="font-serif text-3xl text-ink">The Atelier</h2>
-            <p className="mt-3 font-serif text-xl text-burgundy">
-              Need fragrance materials for your business?
-            </p>
-            <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
-              Explore fragrance oils and materials available by kg/L,
-              whether you&rsquo;re developing your own fragrance, building a
-              product line, or sourcing for commercial production.
-            </p>
-          </Reveal>
-
-          <div className="mt-12 grid gap-6 sm:grid-cols-3">
-            <Reveal className="border border-taupe/30 bg-ivory p-8 text-left">
-              <h3 className="font-serif text-lg text-ink">Fragrance Oils</h3>
-              <p className="mt-2 text-sm text-ink/70">
-                Browse available fragrance materials and pricing by kg/L.
-              </p>
-            </Reveal>
-            <Reveal delayMs={100} className="border border-taupe/30 bg-ivory p-8 text-left">
-              <h3 className="font-serif text-lg text-ink">For Perfumers</h3>
-              <p className="mt-2 text-sm text-ink/70">
-                Materials for developing your own fragrance creations.
-              </p>
-            </Reveal>
-            <Reveal delayMs={200} className="border border-taupe/30 bg-ivory p-8 text-left">
-              <h3 className="font-serif text-lg text-ink">For Businesses</h3>
-              <p className="mt-2 text-sm text-ink/70">
-                Bulk supply for brands, manufacturers and commercial use.
-              </p>
-            </Reveal>
-          </div>
-
-          <div className="mt-12">
-            <ButtonLink href="/atelier-supply">View Atelier Supply</ButtonLink>
-          </div>
-        </div>
-      </section>
-
-      {/* 7. WHY AURIELLE, trust section */}
+      {/* WHY AURIELLE, spec §13 */}
       <section className="px-6 py-24 lg:px-10">
         <div className="mx-auto max-w-6xl">
           <Reveal className="text-center">
@@ -289,27 +438,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 8. BUSINESS / WHOLESALE CTA */}
-      <Reveal className="bg-beige px-6 py-24 text-center lg:px-10">
-        <div className="mx-auto max-w-2xl">
-          <h2 className="font-serif text-3xl text-ink">
-            Create Something of Your Own
-          </h2>
-          <p className="mx-auto mt-4 max-w-md text-sm text-ink/70">
-            Whether you&rsquo;re developing a fragrance line, creating your
-            own products, or sourcing fragrance materials for your business,
-            the Atelier is here to help.
-          </p>
-          <div className="mt-6">
-            <ButtonLink href="/atelier-supply">Explore Atelier Supply</ButtonLink>
-          </div>
-        </div>
-      </Reveal>
-
-      {/* 9. THE STORY BEHIND AURIELLE. Founder photo still pending. */}
+      {/* THE STORY BEHIND AURIELLE, spec §14. Founder photo still pending;
+          a real one, once supplied, replaces this rather than a
+          generic AI portrait. */}
       <section className="mx-auto grid max-w-6xl gap-10 px-6 py-24 lg:grid-cols-2 lg:items-start lg:px-10">
         <Reveal className="flex aspect-[4/3] items-center justify-center border border-taupe/30 bg-beige/40">
-          <p className="px-6 text-center text-xs uppercase tracking-wide text-ink/40">
+          <p className="px-6 text-center text-xs text-ink/40">
             Founder photo pending
           </p>
         </Reveal>
@@ -342,10 +476,65 @@ export default function Home() {
         </Reveal>
       </section>
 
-      {/* 10. FINAL CTA, atmospheric close */}
+      {/* FRAGRANCE IN THE REAL WORLD, spec §15. Event photography hasn't
+          been supplied yet; testimonials aren't fabricated (no verified
+          customer feedback exists), so this ships as a placeholder,
+          ready for a real photo and, later, real quotes. */}
+      <section className="bg-beige px-6 py-24 lg:px-10">
+        <div className="mx-auto max-w-4xl text-center">
+          <Reveal>
+            <h2 className="font-serif text-3xl text-ink">Fragrance in the Real World</h2>
+            <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
+              From personal signatures to growing fragrance businesses,
+              Aurielle is part of a community of people creating,
+              discovering and sharing fragrance.
+            </p>
+          </Reveal>
+
+          <Reveal
+            delayMs={100}
+            className="mx-auto mt-10 flex aspect-[16/9] max-w-3xl items-center justify-center border border-taupe/30 bg-ivory"
+          >
+            <p className="px-6 text-center text-xs text-ink/40">
+              Community / event photography pending
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* CREATE SOMETHING OF YOUR OWN, spec §16: the primary B2B
+          conversion section. */}
+      <section className="relative flex flex-col items-center justify-center gap-6 overflow-hidden px-6 py-24 text-center">
+        <Image
+          src="/images/perfumes/main/mystere-xiii.jpg"
+          alt=""
+          fill
+          sizes="100vw"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-burgundy-dark/80" />
+        <Reveal className="relative z-10 mx-auto max-w-2xl">
+          <h2 className="font-serif text-3xl text-ivory">
+            Create Something of Your Own
+          </h2>
+          <p className="mx-auto mt-4 max-w-md text-sm text-ivory/80">
+            Developing a fragrance line, creating your own products or
+            sourcing fragrance materials for your business? The Atelier is
+            here to help.
+          </p>
+          <div className="mt-6 flex flex-col justify-center gap-4 sm:flex-row">
+            <ButtonLink href="/business">Talk to the Atelier</ButtonLink>
+            <ButtonLink href="/atelier-supply" variant="inverse">
+              View Supply Catalog
+            </ButtonLink>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* FINAL LUXURY CTA, spec §17 */}
       <section className="relative flex min-h-[60vh] flex-col items-center justify-center gap-6 overflow-hidden px-6 py-24 text-center">
         <Image
-          src="/images/perfumes/main/rouge-royale.jpg"
+          src="/images/perfumes/main/noir-elixir.jpg"
           alt=""
           fill
           sizes="100vw"
@@ -355,7 +544,7 @@ export default function Home() {
         <Reveal className="relative z-10 flex flex-col items-center gap-4">
           <p className="font-script text-3xl text-ivory">Discover Your Signature</p>
           <p className="max-w-md text-sm text-ivory/80">
-            Enter the world of Aurielle Paris Atelier.
+            Enter the world of Aurielle Paris.
           </p>
           <div className="mt-2">
             <ButtonLink href="/collection">Shop the Collection</ButtonLink>

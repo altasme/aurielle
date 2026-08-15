@@ -7,7 +7,7 @@ import { useCart } from "@/lib/cart/cart-context";
 
 const NAV_LINKS = [
   { href: "/collection", label: "Collection" },
-  { href: "/atelier-supply", label: "Atelier Supply" },
+  { href: "/atelier-supply", label: "Atelier" },
   { href: "/about", label: "About" },
   { href: "/business", label: "Business" },
   { href: "/contact", label: "Contact" },
@@ -37,9 +37,23 @@ export function SiteHeader() {
     prevCartCount.current = cartCount;
   }, [cartCount]);
 
+  // Subtle scroll-triggered compacting (spec: "slightly more compact,
+  // solid background, no aggressive animation"), not a layout jump.
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-50 border-b border-taupe/20 bg-ivory/95 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-10">
+    <header
+      className={`sticky top-0 z-50 border-b border-taupe/20 backdrop-blur transition-colors ${scrolled ? "bg-ivory" : "bg-ivory/95"}`}
+    >
+      <div
+        className={`mx-auto flex max-w-7xl items-center justify-between px-6 lg:px-10 ${scrolled ? "py-3" : "py-4"}`}
+      >
         <Link
           href="/"
           className="flex items-center gap-2 font-serif text-xl tracking-[0.15em] text-burgundy"

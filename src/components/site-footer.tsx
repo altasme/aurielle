@@ -4,7 +4,7 @@ import Image from "next/image";
 export function SiteFooter() {
   return (
     <footer className="border-t border-taupe/20 bg-beige">
-      <div className="mx-auto grid max-w-7xl gap-10 px-6 py-14 lg:grid-cols-3 lg:px-10">
+      <div className="mx-auto grid max-w-7xl gap-10 px-6 py-14 lg:grid-cols-4 lg:px-10">
         <div>
           <p className="flex items-center gap-2 font-serif text-lg tracking-[0.15em] text-burgundy">
             <Image
@@ -52,6 +52,26 @@ export function SiteFooter() {
             </li>
             <li>
               <Link href="/order-lookup">Order Lookup</Link>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <p className="text-sm font-medium uppercase tracking-wide text-ink/60">
+            Legal
+          </p>
+          <ul className="mt-3 space-y-2 text-sm text-ink/80">
+            <li>
+              <Link href="/privacy">Privacy Policy</Link>
+            </li>
+            <li>
+              <Link href="/terms">Terms &amp; Conditions</Link>
+            </li>
+            <li>
+              <Link href="/shipping">Shipping</Link>
+            </li>
+            <li>
+              <Link href="/returns">Returns</Link>
             </li>
           </ul>
         </div>
