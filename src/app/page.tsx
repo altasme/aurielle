@@ -204,14 +204,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* REAL-WORLD BUSINESS PROOF, spec §7. Imagery pending: the
-          warehouse/production/packaging/finished-product photography
-          this section calls for hasn't been supplied yet, so this ships
-          as a labeled placeholder collage rather than stock/AI imagery
-          or repurposed product shots. Naming stays neutral ("Behind the
-          Supply") until the client confirms whether pictured facilities
-          are owned or a manufacturing partner, per the spec's own rule
-          against claiming "Our Factory" without that confirmation. */}
+      {/* REAL-WORLD BUSINESS PROOF, spec §7. Naming stays neutral
+          ("Behind the Supply") since ownership of the pictured facility
+          hasn't been confirmed, per the spec's own rule against
+          claiming "Our Factory" without that confirmation. */}
       <section className="px-6 py-24 lg:px-10">
         <div className="mx-auto max-w-6xl">
           <Reveal className="text-center">
@@ -228,15 +224,24 @@ export default function Home() {
           </Reveal>
 
           <div className="mt-12 grid gap-4 sm:grid-cols-2">
-            {["Warehouse", "Production", "Packaging", "Finished Product"].map((label, i) => (
+            {[
+              { slug: "warehouse", label: "Warehouse", alt: "Warehouse stacked with packaged inventory ready for shipment" },
+              { slug: "production", label: "Production", alt: "Stainless steel production tanks in a clean manufacturing facility" },
+              { slug: "packaging", label: "Packaging", alt: "Automated packaging and filling equipment" },
+              { slug: "finished-product", label: "Finished Product", alt: "Wall display of finished fragrance products on illuminated shelving" },
+            ].map((image, i) => (
               <Reveal
-                key={label}
+                key={image.slug}
                 delayMs={i * 80}
-                className="flex aspect-[16/10] items-center justify-center border border-taupe/30 bg-beige/40"
+                className="relative aspect-[16/10] overflow-hidden border border-taupe/30"
               >
-                <p className="px-6 text-center text-xs text-ink/40">
-                  {label} photography pending
-                </p>
+                <Image
+                  src={`/images/atelier/${image.slug}.jpg`}
+                  alt={image.alt}
+                  fill
+                  sizes="(min-width: 640px) 50vw, 100vw"
+                  className="object-cover"
+                />
               </Reveal>
             ))}
           </div>
@@ -272,10 +277,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* YOUR BRAND, YOUR BOTTLE, spec §9. Custom metal-label photography
-          hasn't been supplied yet, so this is a placeholder rather than
-          stock imagery, per the spec's own instruction not to overuse
-          stock/AI imagery when real client imagery is the point. */}
+      {/* YOUR BRAND, YOUR BOTTLE, spec §9 */}
       <section className="px-6 py-24 lg:px-10">
         <div className="mx-auto max-w-6xl">
           <Reveal className="text-center">
@@ -291,11 +293,15 @@ export default function Home() {
 
           <Reveal
             delayMs={100}
-            className="mt-10 flex aspect-[21/9] items-center justify-center border border-taupe/30 bg-beige/40"
+            className="relative mt-10 aspect-[21/9] overflow-hidden border border-taupe/30"
           >
-            <p className="px-6 text-center text-xs text-ink/40">
-              Custom label &amp; packaging photography pending
-            </p>
+            <Image
+              src="/images/atelier/custom-label.jpg"
+              alt="Close-up of custom perfume bottles, candles and metal labels bearing different private-label brand names"
+              fill
+              sizes="100vw"
+              className="object-cover"
+            />
           </Reveal>
 
           <div className="mt-10 text-center">
@@ -438,14 +444,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* THE STORY BEHIND AURIELLE, spec §14. Founder photo still pending;
-          a real one, once supplied, replaces this rather than a
-          generic AI portrait. */}
+      {/* THE STORY BEHIND AURIELLE, spec §14 */}
       <section className="mx-auto grid max-w-6xl gap-10 px-6 py-24 lg:grid-cols-2 lg:items-start lg:px-10">
-        <Reveal className="flex aspect-[4/3] items-center justify-center border border-taupe/30 bg-beige/40">
-          <p className="px-6 text-center text-xs text-ink/40">
-            Founder photo pending
-          </p>
+        <Reveal className="relative aspect-[4/3] overflow-hidden border border-taupe/30">
+          <Image
+            src="/images/atelier/founder.jpg"
+            alt="Portrait of the Aurielle Paris Atelier founder"
+            fill
+            sizes="(min-width: 1024px) 50vw, 100vw"
+            className="object-cover"
+          />
         </Reveal>
         <Reveal delayMs={120}>
           <h2 className="font-serif text-3xl text-ink">The Story Behind Aurielle</h2>
@@ -476,10 +484,9 @@ export default function Home() {
         </Reveal>
       </section>
 
-      {/* FRAGRANCE IN THE REAL WORLD, spec §15. Event photography hasn't
-          been supplied yet; testimonials aren't fabricated (no verified
-          customer feedback exists), so this ships as a placeholder,
-          ready for a real photo and, later, real quotes. */}
+      {/* FRAGRANCE IN THE REAL WORLD, spec §15. Real event photography,
+          not fabricated testimonials: no verified customer quotes exist
+          yet, so this stays photo-only until real ones are supplied. */}
       <section className="bg-beige px-6 py-24 lg:px-10">
         <div className="mx-auto max-w-4xl text-center">
           <Reveal>
@@ -493,11 +500,15 @@ export default function Home() {
 
           <Reveal
             delayMs={100}
-            className="mx-auto mt-10 flex aspect-[16/9] max-w-3xl items-center justify-center border border-taupe/30 bg-ivory"
+            className="relative mx-auto mt-10 aspect-[16/9] max-w-3xl overflow-hidden border border-taupe/30"
           >
-            <p className="px-6 text-center text-xs text-ink/40">
-              Community / event photography pending
-            </p>
+            <Image
+              src="/images/atelier/community-event.jpg"
+              alt="Guests exploring fragrance samples together at an Aurielle event"
+              fill
+              sizes="(min-width: 1024px) 768px, 100vw"
+              className="object-cover"
+            />
           </Reveal>
         </div>
       </section>
