@@ -513,56 +513,39 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CREATE SOMETHING OF YOUR OWN, spec §16: the primary B2B
-          conversion section. */}
-      <section className="relative flex flex-col items-center justify-center gap-6 overflow-hidden px-6 py-24 text-center">
+      {/* FINAL CTA, merging what were spec §16/§17 into one closing
+          chapter: two consecutive dark burgundy-overlaid photo sections
+          read as excess length and, without enough contrast between
+          them, as one broken image rather than two intentional blocks.
+          One elegant close now carries both the consumer and B2B paths,
+          on a soft, unused-elsewhere image rather than another dark
+          hero-style banner. */}
+      <section className="relative flex min-h-[70vh] flex-col items-center justify-center gap-6 overflow-hidden px-6 py-24 text-center">
         <Image
-          src="/images/perfumes/main/mystere-xiii.jpg"
+          src="/images/perfumes/main/satin-mystique.jpg"
           alt=""
           fill
           sizes="100vw"
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-burgundy-dark/80" />
-        <Reveal className="relative z-10 mx-auto max-w-2xl">
-          <h2 className="font-serif text-3xl text-ivory">
+        <Reveal className="relative z-10 mx-auto max-w-2xl border border-taupe/20 bg-ivory px-8 py-10 sm:px-14 sm:py-14">
+          <p className="font-script text-2xl text-burgundy">
+            From the scent you wear to the brand you build.
+          </p>
+          <h2 className="mt-2 font-serif text-3xl text-ink">
             Create Something of Your Own
           </h2>
-          <p className="mx-auto mt-4 max-w-md text-sm text-ivory/80">
-            Developing a fragrance line, creating your own products or
-            sourcing fragrance materials for your business? The Atelier is
-            here to help.
+          <p className="mx-auto mt-4 max-w-md text-sm text-ink/70">
+            Whether you&rsquo;re looking for your next personal fragrance or
+            developing something for your own brand, Aurielle Paris Atelier
+            brings together refined fragrance, quality materials, and the
+            freedom to create something uniquely yours.
           </p>
           <div className="mt-6 flex flex-col justify-center gap-4 sm:flex-row">
-            <ButtonLink href="/business">Talk to the Atelier</ButtonLink>
-            <ButtonLink href="/atelier-supply" variant="inverse">
-              View Supply Catalog
+            <ButtonLink href="/collection">Explore the Collection</ButtonLink>
+            <ButtonLink href="/business" variant="secondary">
+              Talk to the Atelier
             </ButtonLink>
-          </div>
-        </Reveal>
-      </section>
-
-      {/* FINAL LUXURY CTA, spec §17. border-t makes this read as a
-          distinct section from "Create Something of Your Own" above it:
-          both are dark, full-bleed, burgundy-overlaid photo sections, so
-          without a visible seam they blend into what looks like one
-          broken image rather than two intentional blocks. */}
-      <section className="relative flex min-h-[60vh] flex-col items-center justify-center gap-6 overflow-hidden border-t border-ivory/20 px-6 py-24 text-center">
-        <Image
-          src="/images/perfumes/main/noir-elixir.jpg"
-          alt=""
-          fill
-          sizes="100vw"
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-burgundy-dark/70" />
-        <Reveal className="relative z-10 flex flex-col items-center gap-4">
-          <p className="font-script text-3xl text-ivory">Discover Your Signature</p>
-          <p className="max-w-md text-sm text-ivory/80">
-            Enter the world of Aurielle Paris.
-          </p>
-          <div className="mt-2">
-            <ButtonLink href="/collection">Shop the Collection</ButtonLink>
           </div>
         </Reveal>
       </section>
