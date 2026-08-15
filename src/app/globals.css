@@ -104,15 +104,18 @@ h1, h2, h3, h4, .font-serif {
   }
 
   /* Scroll reveal, driven by the Reveal component adding
-     .is-visible once the element intersects the viewport. */
-  .reveal {
+     .is-visible once the element intersects the viewport. Gated behind
+     html.js (set by an inline beforeInteractive script in the root
+     layout): without JS to ever add .is-visible, content must default
+     to visible rather than being stuck at opacity 0 forever. */
+  html.js .reveal {
     opacity: 0;
     transform: translateY(24px);
     transition:
       opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
       transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .reveal.is-visible {
+  html.js .reveal.is-visible {
     opacity: 1;
     transform: translateY(0);
   }

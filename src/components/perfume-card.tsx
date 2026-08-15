@@ -22,8 +22,13 @@ export function PerfumeCard({ perfume }: { perfume: Perfume }) {
           {perfume.scentProfile.join(" · ")}
         </p>
       )}
+      {perfume.price != null && (
+        <p className="mt-1 text-center text-sm text-ink">
+          {perfume.currency} {perfume.price.toFixed(2)}
+        </p>
+      )}
       <p className="mt-1 text-center text-xs uppercase tracking-wide text-burgundy">
-        View Fragrance
+        Shop Now
       </p>
     </Link>
   );

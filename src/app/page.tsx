@@ -27,18 +27,28 @@ export default function Home() {
             THE ART OF FRAGRANCE
           </h1>
           <p className="hero-in hero-in-delay-2 max-w-xl text-base text-ink/70 sm:text-lg">
-            Discover Aurielle Paris Atelier, a fragrance house creating refined
-            perfumes and supplying quality fragrance materials to creators and
-            businesses worldwide.
+            Refined perfume oils crafted in France, made to become the
+            signature only you wear. Discover the collection, or source
+            quality fragrance materials for your own creations.
           </p>
           <div className="hero-in hero-in-delay-3 mt-4 flex flex-col gap-4 sm:flex-row">
-            <ButtonLink href="/collection">Explore the Collection</ButtonLink>
+            <ButtonLink href="/collection">Shop the Collection</ButtonLink>
             <ButtonLink href="/atelier-supply" variant="secondary">
               Explore Atelier Supply
             </ButtonLink>
           </div>
         </div>
       </section>
+
+      {/* TRUST BAR */}
+      <Reveal className="border-b border-taupe/20 bg-beige/40 px-6 py-5">
+        <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-x-8 gap-y-2 divide-x divide-taupe/30 text-center text-xs uppercase tracking-wide text-ink/60">
+          <span className="px-4 first:pl-0">Alcohol-Free Perfume Oils</span>
+          <span className="px-4">Made in France</span>
+          <span className="px-4">Boutique Fragrance House</span>
+          <span className="px-4 last:pr-0">Made to Last</span>
+        </div>
+      </Reveal>
 
       {/* INTRODUCTION, spec §5 */}
       <section className="mx-auto grid max-w-6xl gap-10 px-6 py-24 lg:grid-cols-2 lg:px-10">
@@ -48,12 +58,12 @@ export default function Home() {
         <Reveal className="border border-taupe/30 p-10 text-center">
           <h2 className="font-serif text-2xl text-ink">Aurielle</h2>
           <p className="mt-4 text-sm text-ink/70">
-            Discover our signature collection of refined perfume oils created
-            for everyday elegance and unforgettable moments.
+            Fourteen perfume oils, each designed to become the scent no one
+            can quite place. Refined, alcohol-free and made to last.
           </p>
           <div className="mt-6">
             <ButtonLink href="/collection" variant="secondary">
-              Discover Aurielle
+              Shop Aurielle
             </ButtonLink>
           </div>
         </Reveal>
@@ -79,7 +89,8 @@ export default function Home() {
               The Aurielle Collection
             </h2>
             <p className="mt-2 text-sm text-ink/60">
-              Fragrance oils crafted to become part of your signature.
+              Fragrance oils crafted to become part of your signature. Each
+              bottle holds ten milliliters of refined, alcohol-free scent.
             </p>
           </Reveal>
 
@@ -92,7 +103,7 @@ export default function Home() {
           </div>
 
           <div className="mt-12 text-center">
-            <ButtonLink href="/collection">View All Perfumes</ButtonLink>
+            <ButtonLink href="/collection">Shop All Perfumes</ButtonLink>
           </div>
         </div>
       </section>

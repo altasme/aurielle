@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Playfair_Display, Inter, Parisienne } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
@@ -48,8 +49,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       className={`${playfair.variable} ${inter.variable} ${parisienne.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-ivory text-ink">
+        {/* Marks .reveal sections as JS-driven before first paint so they
+            only start hidden when a script can actually reveal them; with
+            JS disabled the class never lands and content stays visible. */}
+        <Script id="js-flag" strategy="beforeInteractive">
+          {`document.documentElement.classList.add("js");`}
+        </Script>
         <SiteHeader />
         <main className="flex-1">{children}</main>
         <SiteFooter />
