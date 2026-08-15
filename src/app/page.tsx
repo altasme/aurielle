@@ -191,14 +191,17 @@ export default function Home() {
 
       {/* 5. THE AURIELLE PHILOSOPHY */}
       <Reveal className="mx-auto max-w-2xl px-6 py-24 text-center lg:px-10">
-        <p className="font-script text-2xl text-burgundy">Born from the Art of French Fragrance</p>
+        <p className="font-script text-2xl text-burgundy">The Aurielle Philosophy</p>
+        <h2 className="mt-2 font-serif text-3xl text-ink">
+          Born from the Art of French Fragrance
+        </h2>
         <p className="mt-4 text-sm text-ink/70">
           Inspired by the timeless elegance of Paris, Aurielle creates refined
           perfume oils designed to become part of your signature.
         </p>
         <div className="mt-6">
           <ButtonLink href="/collection" variant="secondary">
-            Discover Aurielle
+            Explore the Collection
           </ButtonLink>
         </div>
       </Reveal>
@@ -275,20 +278,39 @@ export default function Home() {
         </div>
       </Reveal>
 
-      {/* 9. THE STORY BEHIND AURIELLE. No real founder story or photo
-          exists yet (client-approved facts only, per spec); this shell
-          holds the section's place honestly rather than inventing one. */}
-      <section className="mx-auto grid max-w-6xl gap-10 px-6 py-24 lg:grid-cols-2 lg:items-center lg:px-10">
+      {/* 9. THE STORY BEHIND AURIELLE. Founder photo still pending. */}
+      <section className="mx-auto grid max-w-6xl gap-10 px-6 py-24 lg:grid-cols-2 lg:items-start lg:px-10">
         <Reveal className="flex aspect-[4/3] items-center justify-center border border-taupe/30 bg-beige/40">
           <p className="px-6 text-center text-xs uppercase tracking-wide text-ink/40">
             Founder photo pending
           </p>
         </Reveal>
         <Reveal delayMs={120}>
-          <p className="font-script text-2xl text-burgundy">The Story Behind Aurielle</p>
+          <h2 className="font-serif text-3xl text-ink">The Story Behind Aurielle</h2>
           <p className="mt-4 text-sm text-ink/70">
-            Content pending: client-approved founder story to be added here.
+            A fragrance is more than a scent. It is a memory, an emotion, a
+            presence.
           </p>
+          <p className="mt-4 text-sm text-ink/70">
+            Inspired by the timeless elegance of Paris and the artistry of
+            French perfumery, Aurielle Paris Atelier was created to make
+            fragrance feel personal.
+          </p>
+          <p className="mt-4 text-sm text-ink/70">
+            Our collection of refined perfume oils invites you into different
+            worlds of beauty, mystery, warmth and allure, with each
+            composition created to become part of your own signature.
+          </p>
+          <p className="mt-4 text-sm text-ink/70">
+            Beyond the collection, our Atelier supplies fragrance materials
+            to perfumers, creators and businesses, giving others the
+            opportunity to create something uniquely their own.
+          </p>
+          <div className="mt-6">
+            <ButtonLink href="/collection" variant="secondary">
+              Discover the World of Aurielle
+            </ButtonLink>
+          </div>
         </Reveal>
       </section>
 

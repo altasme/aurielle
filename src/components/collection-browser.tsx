@@ -6,6 +6,13 @@ import { MOODS, type Perfume } from "@/lib/data/perfumes";
 import { PerfumeCard } from "./perfume-card";
 import { Reveal } from "./reveal";
 
+function chipClassName(active: boolean): string {
+  const base = "border px-4 py-1.5 text-xs uppercase tracking-wide transition-colors";
+  return active
+    ? `${base} border-burgundy bg-burgundy text-ivory`
+    : `${base} border-taupe/30 text-ink/60 hover:border-burgundy hover:text-burgundy`;
+}
+
 export function CollectionBrowser({ perfumes }: { perfumes: Perfume[] }) {
   const searchParams = useSearchParams();
   const initialMood = searchParams.get("mood");
@@ -21,28 +28,11 @@ export function CollectionBrowser({ perfumes }: { perfumes: Perfume[] }) {
   return (
     <div>
       <div className="flex flex-wrap justify-center gap-2">
-        <button
-          type="button"
-          onClick={() => setMood(null)}
-          className={`border px-4 py-1.5 text-xs uppercase tracking-wide transition-colors ${
-            mood === null
-              ? "border-burgundy bg-burgundy text-ivory"
-              : "border-taupe/30 text-ink/60 hover:border-burgundy hover:text-burgundy"
-          }`}
-        >
+        <button type="button" onClick={() => setMood(null)} className={chipClassName(mood === null)}>
           All
         </button>
         {MOODS.map((m) => (
-          <button
-            key={m}
-            type="button"
-            onClick={() => setMood(m)}
-            className={`border px-4 py-1.5 text-xs uppercase tracking-wide transition-colors ${
-              mood === m
-                ? "border-burgundy bg-burgundy text-ivory"
-                : "border-taupe/30 text-ink/60 hover:border-burgundy hover:text-burgundy"
-            }`}
-          >
+          <button key={m} type="button" onClick={() => setMood(m)} className={chipClassName(mood === m)}>
             {m}
           </button>
         ))}
