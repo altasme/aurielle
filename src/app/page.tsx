@@ -11,27 +11,42 @@ import { getFeaturedPerfumes, MOODS } from "@/lib/data/perfumes";
 // above so this section reads as mood/atmosphere, not a repeat of the
 // product grid.
 const EXPERIENCE_IMAGES = [
-  { slug: "paris-nocturne", alt: "Aurielle perfume oil on a marble table at night, with the Eiffel Tower lit in the distance" },
-  { slug: "visionnaire", alt: "Aurielle perfume oil beside greenery and a gilded mirror" },
-  { slug: "rose-de-minuit", alt: "Aurielle perfume oil among dark red roses and candlelight" },
+  {
+    slug: "paris-nocturne",
+    name: "Paris Nocturne",
+    descriptor: "The Night",
+    alt: "Aurielle perfume oil on a marble table at night, with the Eiffel Tower lit in the distance",
+  },
+  {
+    slug: "visionnaire",
+    name: "Visionnaire",
+    descriptor: "The Confidence",
+    alt: "Aurielle perfume oil beside greenery and a gilded mirror",
+  },
+  {
+    slug: "rose-de-minuit",
+    name: "Rose de Minuit",
+    descriptor: "The Allure",
+    alt: "Aurielle perfume oil among dark red roses and candlelight",
+  },
 ];
 
 const WHY_AURIELLE = [
   {
-    title: "Crafted with Intention",
-    body: "Refined fragrance compositions.",
+    title: "Refined Perfume Oils",
+    body: "Explore concentrated fragrance compositions designed for a lasting scent experience.",
   },
   {
-    title: "Made to Last",
-    body: "Alcohol-free perfume oils designed for lasting wear.",
+    title: "Alcohol-Free",
+    body: "Perfume oils offer a different, intimate way to experience fragrance.",
   },
   {
-    title: "For Personal & Commercial Use",
-    body: "From individual signature scents to fragrance materials for businesses.",
+    title: "Various Signature Scents",
+    body: "A collection spanning floral, woody, warm, mysterious and alluring profiles.",
   },
   {
-    title: "French-Inspired Craftsmanship",
-    body: "A collection rooted in the elegance and heritage of French perfumery.",
+    title: "For Creators & Businesses",
+    body: "Our Atelier also provides fragrance materials for those creating something of their own.",
   },
 ];
 
@@ -142,18 +157,22 @@ export default function Home() {
 
           <div className="mt-12 grid gap-6 sm:grid-cols-3">
             {EXPERIENCE_IMAGES.map((image, i) => (
-              <Reveal
-                key={image.slug}
-                delayMs={i * 100}
-                className="relative aspect-[3/4] overflow-hidden border border-taupe/30"
-              >
-                <Image
-                  src={`/images/perfumes/main/${image.slug}.jpg`}
-                  alt={image.alt}
-                  fill
-                  sizes="(min-width: 1024px) 33vw, 100vw"
-                  className="object-cover"
-                />
+              <Reveal key={image.slug} delayMs={i * 100}>
+                <div className="relative aspect-[3/4] overflow-hidden border border-taupe/30">
+                  <Image
+                    src={`/images/perfumes/main/${image.slug}.jpg`}
+                    alt={image.alt}
+                    fill
+                    sizes="(min-width: 1024px) 33vw, 100vw"
+                    className="object-cover"
+                  />
+                </div>
+                <p className="mt-3 text-center font-serif text-sm text-ink">
+                  {image.name}
+                </p>
+                <p className="text-center text-xs uppercase tracking-wide text-burgundy">
+                  {image.descriptor}
+                </p>
               </Reveal>
             ))}
           </div>
@@ -193,11 +212,16 @@ export default function Home() {
       <Reveal className="mx-auto max-w-2xl px-6 py-24 text-center lg:px-10">
         <p className="font-script text-2xl text-burgundy">The Aurielle Philosophy</p>
         <h2 className="mt-2 font-serif text-3xl text-ink">
-          Born from the Art of French Fragrance
+          A Scent Becomes Part of You
         </h2>
-        <p className="mt-4 text-sm text-ink/70">
-          Inspired by the timeless elegance of Paris, Aurielle creates refined
-          perfume oils designed to become part of your signature.
+        <p className="mx-auto mt-4 max-w-md text-sm text-ink/70">
+          Fragrance is more than something you wear. It becomes a memory, a
+          mood, a presence.
+        </p>
+        <p className="mx-auto mt-3 max-w-md text-sm text-ink/70">
+          Aurielle was created around the belief that the right scent should
+          feel personal. Something that accompanies you, reflects you and
+          eventually becomes part of how you are remembered.
         </p>
         <div className="mt-6">
           <ButtonLink href="/collection" variant="secondary">
@@ -211,9 +235,13 @@ export default function Home() {
         <div className="mx-auto max-w-6xl text-center">
           <Reveal>
             <h2 className="font-serif text-3xl text-ink">The Atelier</h2>
+            <p className="mt-3 font-serif text-xl text-burgundy">
+              Need fragrance materials for your business?
+            </p>
             <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
-              Quality fragrance materials for perfumers, creators and
-              businesses.
+              Explore fragrance oils and materials available by kg/L,
+              whether you&rsquo;re developing your own fragrance, building a
+              product line, or sourcing for commercial production.
             </p>
           </Reveal>
 
