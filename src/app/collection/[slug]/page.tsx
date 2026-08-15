@@ -3,6 +3,7 @@ import Image from "next/image";
 import { getPerfumeBySlug, getPerfumes } from "@/lib/data/perfumes";
 import { AddToCollectionCartButton } from "@/components/add-to-collection-cart-button";
 import { Reveal } from "@/components/reveal";
+import { formatMoney } from "@/lib/format-money";
 
 export function generateStaticParams() {
   return getPerfumes().map((p) => ({ slug: p.slug }));
@@ -53,7 +54,7 @@ export default async function PerfumeDetailPage({
         {perfume.price != null ? (
           <div className="mt-10 border-t border-taupe/20 pt-6">
             <p className="text-lg text-burgundy">
-              {perfume.currency} {perfume.price.toFixed(2)}
+              {formatMoney(perfume.currency!, perfume.price)}
             </p>
             <AddToCollectionCartButton
               perfume={{ ...perfume, price: perfume.price, currency: perfume.currency! }}

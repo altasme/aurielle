@@ -6,6 +6,7 @@ import { useCart } from "@/lib/cart/cart-context";
 import type { SupplyMaterial } from "@/lib/data/supply-materials";
 import { QuantityStepper } from "./quantity-stepper";
 import { buttonClassName } from "./button-styles";
+import { formatMoney } from "@/lib/format-money";
 
 export function AddToSupplyCartButton({ material }: { material: SupplyMaterial }) {
   const { addSupplyItem } = useCart();
@@ -28,7 +29,7 @@ export function AddToSupplyCartButton({ material }: { material: SupplyMaterial }
       </div>
 
       <p className="text-xs text-ink/50">
-        Subtotal: {material.currency} {subtotal.toFixed(2)}
+        Subtotal: {formatMoney(material.currency, subtotal)}
       </p>
 
       <button

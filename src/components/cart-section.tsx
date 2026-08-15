@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { QuantityStepper } from "./quantity-stepper";
 import { ButtonLink } from "./button-link";
+import { formatMoney } from "@/lib/format-money";
 
 type CartSectionItem = {
   slug: string;
@@ -61,7 +62,7 @@ export function CartSection({
                     onIncrease={() => onIncrease(item.slug)}
                   />
                   <span className="w-24 text-right text-sm text-burgundy">
-                    {item.currency} {(item.price * item.quantity).toFixed(2)}
+                    {formatMoney(item.currency, item.price * item.quantity)}
                   </span>
                   <button
                     type="button"
@@ -76,7 +77,7 @@ export function CartSection({
           </div>
           <div className="mt-4 flex items-center justify-between">
             <span className="text-sm text-ink/70">
-              Subtotal: {currency} {subtotal.toFixed(2)}
+              Subtotal: {formatMoney(currency, subtotal)}
             </span>
             <ButtonLink href={checkoutHref}>Checkout</ButtonLink>
           </div>

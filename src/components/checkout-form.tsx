@@ -8,6 +8,7 @@ import type { PaymentMethod } from "@/config/payment";
 import { FormField, FIELD_CLASSES } from "./form-field";
 import { SubmitButton } from "./submit-button";
 import { useSubmit } from "@/lib/use-submit";
+import { formatMoney } from "@/lib/format-money";
 
 type BusinessLine = "collection" | "atelier_supply";
 
@@ -70,17 +71,13 @@ export function CheckoutForm({ businessLine }: { businessLine: BusinessLine }) {
                   {item.name} × {item.quantity}
                   {item.pricingUnit ? ` ${item.pricingUnit}` : ""}
                 </span>
-                <span>
-                  {item.currency} {item.lineSubtotal.toFixed(2)}
-                </span>
+                <span>{formatMoney(item.currency, item.lineSubtotal)}</span>
               </div>
             ))}
           </div>
           <div className="mt-4 flex justify-between border-t border-taupe/20 pt-4 font-medium text-ink">
             <span>Total</span>
-            <span>
-              {confirmed.currency} {confirmed.total.toFixed(2)}
-            </span>
+            <span>{formatMoney(confirmed.currency, confirmed.total)}</span>
           </div>
           <p className="mt-4 text-xs text-ink/50">
             Payment method: {PAYMENT_METHODS.find((m) => m.id === confirmed.paymentMethod)?.label}
@@ -177,16 +174,12 @@ export function CheckoutForm({ businessLine }: { businessLine: BusinessLine }) {
               {"name" in item ? item.name : item.displayName} × {item.quantity}
               {"pricingUnit" in item ? ` ${item.pricingUnit}` : ""}
             </span>
-            <span>
-              {item.currency} {(item.price * item.quantity).toFixed(2)}
-            </span>
+            <span>{formatMoney(item.currency, item.price * item.quantity)}</span>
           </div>
         ))}
         <div className="mt-2 flex justify-between font-medium text-ink">
           <span>Subtotal</span>
-          <span>
-            {currency} {subtotal.toFixed(2)}
-          </span>
+          <span>{formatMoney(currency, subtotal)}</span>
         </div>
       </div>
 

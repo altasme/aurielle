@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCart } from "@/lib/cart/cart-context";
 import { CartSection } from "@/components/cart-section";
+import { formatMoney } from "@/lib/format-money";
 
 export default function CartPage() {
   const {
@@ -36,7 +37,7 @@ export default function CartPage() {
         items={state.collection.map((item) => ({
           slug: item.slug,
           title: item.name,
-          unitPriceLabel: `${item.currency} ${item.price.toFixed(2)} each`,
+          unitPriceLabel: `${formatMoney(item.currency, item.price)} each`,
           price: item.price,
           currency: item.currency,
           quantity: item.quantity,
@@ -67,7 +68,7 @@ export default function CartPage() {
         items={state.supply.map((item) => ({
           slug: item.slug,
           title: item.displayName,
-          unitPriceLabel: `${item.currency} ${item.price.toFixed(2)} / ${item.pricingUnit}`,
+          unitPriceLabel: `${formatMoney(item.currency, item.price)} / ${item.pricingUnit}`,
           price: item.price,
           currency: item.currency,
           quantity: item.quantity,

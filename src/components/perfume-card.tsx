@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Perfume } from "@/lib/data/perfumes";
+import { formatMoney } from "@/lib/format-money";
 
 export function PerfumeCard({ perfume }: { perfume: Perfume }) {
   return (
@@ -22,9 +23,9 @@ export function PerfumeCard({ perfume }: { perfume: Perfume }) {
           {perfume.scentProfile.join(" · ")}
         </p>
       )}
-      {perfume.price != null && (
+      {perfume.price != null && perfume.currency && (
         <p className="mt-1 text-center text-sm text-ink">
-          {perfume.currency} {perfume.price.toFixed(2)}
+          {formatMoney(perfume.currency, perfume.price)}
         </p>
       )}
       <p className="mt-1 text-center text-xs uppercase tracking-wide text-burgundy">

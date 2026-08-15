@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { FormField } from "./form-field";
 import { SubmitButton } from "./submit-button";
 import { useSubmit } from "@/lib/use-submit";
+import { formatMoney } from "@/lib/format-money";
 
 type LookupResult = {
   order: {
@@ -93,17 +94,13 @@ export function OrderLookupForm() {
                   {item.name_snapshot} × {item.quantity}
                   {item.pricing_unit ? ` ${item.pricing_unit}` : ""}
                 </span>
-                <span>
-                  {item.currency} {item.line_subtotal.toFixed(2)}
-                </span>
+                <span>{formatMoney(item.currency, item.line_subtotal)}</span>
               </div>
             ))}
           </div>
           <div className="mt-4 flex justify-between border-t border-taupe/20 pt-4 font-medium text-ink">
             <span>Total</span>
-            <span>
-              {result.order.currency} {result.order.total.toFixed(2)}
-            </span>
+            <span>{formatMoney(result.order.currency, result.order.total)}</span>
           </div>
         </div>
       )}
