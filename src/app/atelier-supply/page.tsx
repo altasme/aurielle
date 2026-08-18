@@ -8,8 +8,12 @@ export const metadata: Metadata = {
     "Browse the Atelier Supply catalogue: fragrance materials for creators, perfumers and businesses, priced in USD/KG.",
 };
 
-export default function AtelierSupplyPage() {
-  const materials = getSupplyMaterials();
+// Falls back to a periodic refresh; admin saves also push an immediate
+// update via revalidatePath() (see src/app/api/admin/products routes).
+export const revalidate = 3600;
+
+export default async function AtelierSupplyPage() {
+  const materials = await getSupplyMaterials();
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-20 lg:px-10">

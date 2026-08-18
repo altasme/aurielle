@@ -5,15 +5,17 @@ brand with two commercial sides: the **Aurielle Collection** (B2C perfumes)
 and **Atelier Supply** (B2B fragrance materials catalogue).
 
 Current source of truth: [`docs/spec/AURIELLE_SPEC_v4.md`](docs/spec/AURIELLE_SPEC_v4.md)
-("Phase-recalibrated," supersedes v3). The core decision: **reads are
-static, writes go to Supabase.** The catalogue is a few hundred near-static
-records generated at build time from CSV; nothing on a read path touches a
-database. Supabase is used only to write orders/inquiries at request time,
-via a manual (GCash / bank-transfer + proof-of-payment) order flow: no
-Stripe, no admin CMS, no live-DB catalogue in Phase 1. See v4 §"WHY v4
-EXISTS" for why (a Supabase-at-build-time read crashed the first production
-deploy, and this line was drawn to kill that entire error class, not just
-patch the one crash).
+("Phase-recalibrated," supersedes v3), **superseded again** for the
+catalogue's read path by the admin panel spec (client-supplied
+"AURIELLE ADMIN PANEL — MVP Product & Pricing Specification"). v4's core
+decision was "reads are static, writes go to Supabase"; the admin panel
+requires the client to manage products/pricing themselves without a
+developer, which needs a live, editable catalogue. The pivot: the
+Aurielle Collection and Atelier Supply catalogue pages are now **DB-backed
+with ISR** (`export const revalidate` + `revalidatePath()` on every admin
+save), not static-from-CSV. See "Admin panel" below. Everything else v4
+decided (manual GCash/bank-transfer order flow, no Stripe, order/inquiry
+writes) is unchanged.
 
 ## Stack
 
@@ -31,35 +33,35 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000). `npm run dev` and
 `npm run build` both run `scripts/generate-catalogue.mjs` first (as a
 `predev`/`prebuild` step) to compile `data/*.csv` into
-`src/data/*.generated.ts`, gitignored build output regenerated every
-time. No Supabase env vars are needed to build or run the site; catalogue
-pages don't read from the database at all.
+`src/data/*.generated.ts`; that generated output is no longer read by any
+page (see "Catalogue" below) but the script is left in place since
+`scripts/generate-backfill-sql.mjs` reads the same source CSVs. **Supabase
+env vars (`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`) are now required to
+build the site**, not just to run it: `generateStaticParams()` on the
+catalogue detail pages calls Supabase at build time.
 
-## Catalogue (static, Phase 1)
+## Catalogue (DB-backed, admin-managed)
 
-- `data/atelier-supply.csv`: the **236 client-approved, already-neutral**
-  rows from the source price list (name, price, unit, serial number).
-  Designer/brand-named rows are intentionally excluded from this file.
-- `data/perfumes.csv`: the 14 placeholder perfume names from the client's
-  marketing material; price/size/description are blank pending client
-  input.
-- `docs/atelier-supply-needs-review.csv`: the other **275 rows** whose
-  only name in the source PDF was literally a designer/brand reference
-  (e.g. "Dior Sauvage"). These need a client-approved neutral name before
-  they can be added to `atelier-supply.csv`; once approved, add rows
-  there (with the designer name moved to `search_aliases`) and redeploy.
-- `scripts/generate-catalogue.mjs`: compiles both CSVs into typed
-  `src/data/*.generated.ts`. Fails loudly (exit 1) on a missing file,
-  duplicate serial number, or bad price, on purpose, so a broken CSV
-  can't ship silently.
-- `search_aliases` is bundled into the client JS so search can match
-  against it (client-side search over ~250 records, spec §9/§10), but no
-  component ever renders that field. That's a deliberate Phase 1
-  tradeoff, not a leak: alias-only means "never displayed," not "never
-  shipped."
-
-To update the catalogue: edit the CSV, `npm run generate:catalogue` (or
-just rebuild), redeploy. No CMS in Phase 1; that's Phase 2 (spec §21).
+- The catalogue now lives in Supabase's `products` table (migration
+  `0005_admin_panel.sql`), one shared table for both categories
+  (`category = 'aurielle_collection' | 'atelier_supply'`), edited through
+  the admin panel at `/admin` (see "Admin panel" below). `src/lib/data/
+  perfumes.ts` and `supply-materials.ts` read only `status = 'active'`
+  rows, server-only.
+- `data/atelier-supply.csv` and `data/perfumes.csv` are no longer the
+  live source of truth; they're kept only as the input to
+  `scripts/generate-backfill-sql.mjs` (see "Database" below), which
+  backfilled the original catalogue into `products` so the site didn't go
+  blank when this pivot shipped. Edit products through `/admin` from now
+  on, not these CSVs.
+- `docs/atelier-supply-needs-review.csv`: the **275 rows** whose only name
+  in the source PDF was a designer/brand reference (e.g. "Dior Sauvage").
+  Still unresolved; add client-approved neutral names as new Atelier
+  Supply products via the admin panel once approved.
+- `search_aliases`/Product Tags: the admin's optional "Product Tags" field
+  on Atelier Supply products feeds client-side search the same way the
+  old CSV's `search_aliases` column did (spec §13a: matched, never
+  rendered on a card/PDP/meta tag).
 
 ## Images
 
@@ -86,24 +88,70 @@ Real photography is wired in under `public/images/`:
 - Atelier Supply materials still have no photography (per the earlier
   decision to wait for real per-SKU images before adding any).
 
-## Database (writes only)
+## Database
 
 - `supabase/migrations/0001_init.sql`, `0002_perfumes_public_read.sql`:
   from the v3 (live-DB-catalogue) build. Superseded by
-  `0003_phase1_writes_only.sql`, which removes the now-pointless public
-  read policies (no anon client exists in the app anymore) and reshapes
-  `order_items` to snapshot fields (name/price/unit at order time) instead
-  of foreign-keying to `perfumes`/`supply_materials`. Those tables aren't
-  the catalogue's source of truth anymore, git/CSV is, so a hard FK
-  doesn't hold.
+  `0003_phase1_writes_only.sql`, which removed the (at the time)
+  pointless public read policies and reshaped `order_items` to snapshot
+  fields (name/price/unit at order time) instead of foreign-keying to
+  `perfumes`/`supply_materials`.
 - `0004_manual_order_flow.sql`: creates the private `payment-proofs`
   Storage bucket and updates `orders.order_status` to allow
   `pending_verification` (the status every order starts in, spec §15).
-- `supabase/seed/*.sql`: the old v3 live-catalogue seed data. Not used by
-  the Phase 1 app (nothing reads these tables), kept for the eventual
-  Phase 2 `CATALOGUE_SOURCE: "supabase"` flip.
-- Run migrations **0001 → 0002 → 0003 → 0004** in order in the Supabase
-  SQL Editor.
+- `0005_admin_panel.sql`: the admin panel pivot. Adds `admin_users`,
+  `admin_sessions`, `product_types`, `products`, `product_tags`,
+  `product_images`, with RLS (public reads only `status = 'active'`
+  products; `admin_users`/`admin_sessions` have no public policy at all).
+  The legacy `perfumes`/`supply_materials` tables from 0001-0002 are left
+  in place, unused, not dropped.
+- `0006_backfill_catalogue.sql`: generated by
+  `scripts/generate-backfill-sql.mjs` from `data/*.csv`, inserts the
+  original 14 perfumes + 236 supply materials into `products` as
+  `status = 'active'` rows (idempotent, `on conflict (slug) do nothing`)
+  so the live site doesn't go blank the moment reads switch over. **Must
+  run after 0005.** Backfilled rows have no `perfume_type` /
+  `product_type_id` / `mood` set (the old CSVs never carried that data);
+  an admin should fill those in via the edit form when convenient, the
+  public pages tolerate a null Type gracefully in the meantime.
+- `supabase/seed/*.sql`: the old v3 live-catalogue seed data, superseded
+  by 0006 above. Not used.
+- Run migrations **0001 → 0002 → 0003 → 0004 → 0005 → 0006** in order in
+  the Supabase SQL Editor (all manual; there is no migration runner).
+- After 0005/0006 are applied, create the first admin login:
+  `ADMIN_USERNAME=... ADMIN_PASSWORD=... node scripts/seed-admin-user.mjs`
+  prints an `insert into admin_users ...` statement (password scrypt-
+  hashed locally, never touches the network) to run in the SQL Editor.
+  Re-run with the same username to reset a forgotten password.
+
+## Admin panel
+
+- `/admin/login` → `/admin` (dashboard: Product & Pricing is the only
+  active MVP module; Order Management, Promotion, and Reports &
+  Analytics are disabled "Coming Soon" placeholders per spec).
+- Auth: a dedicated `admin_users` table (not Supabase Auth), scrypt
+  password hashing (`node:crypto`, Workers-compatible), session cookies
+  (httpOnly/secure/sameSite=lax, 7-day expiry, only the session token's
+  SHA-256 hash stored server-side). `src/lib/admin/auth.ts`. Every admin
+  API route checks the session itself (`getSessionAdminUser()`), not just
+  the page-level layout guard, per the spec's "protected server-side, not
+  only frontend" requirement.
+- Product & Pricing (`/admin/products`): category tabs (Aurielle
+  Collection / Atelier Supply), search, add/edit/delete, Draft/Active
+  status. One shared `products` table for both categories (spec §18:
+  "do not create separate completely unrelated product systems"),
+  differentiated by nullable category-specific columns.
+- Images: Cloudinary via signed REST calls (`src/lib/admin/cloudinary.ts`,
+  direct `fetch`, not the `cloudinary` npm SDK, which isn't reliably
+  Workers-safe). The DB stores only the Cloudinary public ID + URL, never
+  the binary. Needs `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`,
+  `CLOUDINARY_API_SECRET` env vars; upload/reorder/set-primary/delete all
+  no-op with a clear error until those are set.
+- Every create/update/delete (product or image) calls `revalidatePath()`
+  (`src/lib/admin/revalidate.ts`) on the affected category's listing
+  page, the product's detail page, and the homepage (which features
+  Aurielle Collection products) so changes go live immediately, without
+  waiting for the `revalidate = 3600` fallback on those pages.
 
 ## Orders (manual / Kolekta pattern)
 

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/lib/cart/cart-context";
 
@@ -21,6 +22,7 @@ function useCartCount() {
 }
 
 export function SiteHeader() {
+  const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const cartCount = useCartCount();
   const cartLabel = cartCount > 0 ? `Cart (${cartCount})` : "Cart";
@@ -46,6 +48,11 @@ export function SiteHeader() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Admin gets its own shell (src/app/admin/(protected)/layout.tsx),
+  // not the public marketing header, per the admin spec's "does not
+  // need to replicate the luxury consumer website."
+  if (pathname.startsWith("/admin")) return null;
 
   return (
     <header

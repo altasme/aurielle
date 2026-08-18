@@ -103,7 +103,7 @@ export async function POST(request: Request) {
     const slug = String(rawItem?.slug ?? "");
 
     if (payload.businessLine === "collection") {
-      const perfume = getPerfumeBySlug(slug);
+      const perfume = await getPerfumeBySlug(slug);
       if (!perfume || perfume.price == null || !perfume.currency) {
         return NextResponse.json(
           { error: `Unknown or unpriced perfume: ${slug}` },
@@ -126,7 +126,7 @@ export async function POST(request: Request) {
         lineSubtotal: Number((perfume.price * quantity).toFixed(2)),
       });
     } else {
-      const material = getSupplyMaterialBySlug(slug);
+      const material = await getSupplyMaterialBySlug(slug);
       if (!material) {
         return NextResponse.json({ error: `Unknown material: ${slug}` }, { status: 400 });
       }

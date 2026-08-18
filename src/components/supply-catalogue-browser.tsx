@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { SupplyMaterial } from "@/lib/data/supply-materials";
-import { matchesSupplyQuery } from "@/lib/data/supply-materials";
+import { matchesSupplyQuery } from "@/lib/data/supply-search";
 import { FIELD_CLASSES } from "./form-field";
 
 const CATEGORIES = [

@@ -10,8 +10,12 @@ export const metadata: Metadata = {
     "Browse the Aurielle Collection of refined perfume oils crafted for everyday elegance.",
 };
 
-export default function CollectionPage() {
-  const perfumes = getPerfumes();
+// Falls back to a periodic refresh; admin saves also push an immediate
+// update via revalidatePath() (see src/app/api/admin/products routes).
+export const revalidate = 3600;
+
+export default async function CollectionPage() {
+  const perfumes = await getPerfumes();
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-20 lg:px-10">

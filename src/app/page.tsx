@@ -3,7 +3,8 @@ import Link from "next/link";
 import { ButtonLink } from "@/components/button-link";
 import { PerfumeCard } from "@/components/perfume-card";
 import { Reveal } from "@/components/reveal";
-import { getFeaturedPerfumes, MOODS } from "@/lib/data/perfumes";
+import { getFeaturedPerfumes } from "@/lib/data/perfumes";
+import { MOODS } from "@/lib/data/moods";
 
 // Homepage restructure per client-supplied "Homepage Improvement &
 // Content Specification": Aurielle (B2C) and Atelier (B2B supply /
@@ -94,8 +95,12 @@ const WHY_AURIELLE = [
   },
 ];
 
-export default function Home() {
-  const featured = getFeaturedPerfumes(4);
+// Falls back to a periodic refresh; admin saves also push an immediate
+// update via revalidatePath("/") (see src/app/api/admin/products routes).
+export const revalidate = 3600;
+
+export default async function Home() {
+  const featured = await getFeaturedPerfumes(4);
 
   return (
     <div className="flex flex-col">

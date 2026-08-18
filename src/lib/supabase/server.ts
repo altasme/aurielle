@@ -3,19 +3,21 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 let cachedAdminClient: SupabaseClient | undefined;
 
-// Write-only service-role client (spec v4 §Architecture). Bypasses Row
-// Level Security. Server-only: importing this from a client component
-// fails the build. Use for order/inquiry writes and proof-of-payment
-// uploads; never expose this key to the browser.
+// Service-role client. Bypasses Row Level Security. Server-only:
+// importing this from a client component fails the build. Used for
+// order/inquiry writes, proof-of-payment uploads, the admin panel
+// (src/lib/admin/), and the public catalogue reads in src/lib/data/
+// (admin-panel pivot: the catalogue is DB-backed again, not static) --
+// never expose this key to the browser.
 //
-// Built lazily on first call, inside write handlers only, never at
-// module scope: Next's build step imports every route module to inspect
-// its exports, which previously ran before Cloudflare's build container
-// had env vars attached, so a module-scope createClient() call crashed
-// the build with "supabaseUrl is required". No read path imports this
-// client at all anymore (catalogue is static, see src/lib/data/), so
-// that failure mode is gone regardless, but the lazy pattern stays as
-// the correct default for any server-only client.
+// Built lazily on first call, never at module scope: Next's build step
+// imports every route module to inspect its exports, which previously
+// ran before Cloudflare's build container had env vars attached, so a
+// module-scope createClient() call crashed the build with "supabaseUrl
+// is required". generateStaticParams() on the catalogue pages now also
+// calls this at build time, so the build environment must have
+// SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY set for `next build` to
+// succeed, not just for the deployed Worker.
 export function getSupabaseAdminClient(): SupabaseClient {
   if (!cachedAdminClient) {
     const url = process.env.SUPABASE_URL;

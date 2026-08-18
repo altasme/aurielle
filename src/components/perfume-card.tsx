@@ -17,7 +17,7 @@ export function PerfumeCard({ perfume }: { perfume: Perfume }) {
       <Link href={`/collection/${perfume.slug}`}>
         <div className="relative aspect-[3/4] w-full overflow-hidden border border-taupe/30 bg-beige/40 transition-colors group-hover:border-burgundy">
           <Image
-            src={`/images/perfumes/cards/${perfume.slug}.jpg`}
+            src={perfume.primaryImageUrl ?? `/images/perfumes/cards/${perfume.slug}.jpg`}
             alt={perfume.name}
             fill
             sizes="(min-width: 1024px) 25vw, 50vw"

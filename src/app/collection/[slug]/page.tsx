@@ -5,8 +5,13 @@ import { AddToCollectionCartButton } from "@/components/add-to-collection-cart-b
 import { Reveal } from "@/components/reveal";
 import { formatMoney } from "@/lib/format-money";
 
-export function generateStaticParams() {
-  return getPerfumes().map((p) => ({ slug: p.slug }));
+// Falls back to a periodic refresh; admin saves also push an immediate
+// update via revalidatePath() (see src/app/api/admin/products routes).
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const perfumes = await getPerfumes();
+  return perfumes.map((p) => ({ slug: p.slug }));
 }
 
 export default async function PerfumeDetailPage({
@@ -15,14 +20,14 @@ export default async function PerfumeDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const perfume = getPerfumeBySlug(slug);
+  const perfume = await getPerfumeBySlug(slug);
   if (!perfume) notFound();
 
   return (
     <div className="mx-auto grid max-w-6xl gap-12 px-6 py-20 lg:grid-cols-2 lg:px-10">
       <Reveal className="relative aspect-square w-full overflow-hidden border border-taupe/30 bg-beige/40">
         <Image
-          src={`/images/perfumes/main/${perfume.slug}.jpg`}
+          src={perfume.primaryImageUrl ?? `/images/perfumes/main/${perfume.slug}.jpg`}
           alt={perfume.name}
           fill
           sizes="(min-width: 1024px) 50vw, 100vw"
@@ -46,7 +51,7 @@ export default async function PerfumeDetailPage({
 
         <div className="mt-8 space-y-2 text-sm text-ink/70">
           {perfume.size && <p>Size: {perfume.size}</p>}
-          <p>Type: Perfume Oil</p>
+          <p>Type: {perfume.perfumeType ?? "Perfume Oil"}</p>
           <p>Alcohol-Free</p>
           <p>Made in France</p>
         </div>

@@ -2,7 +2,8 @@
 
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
-import { MOODS, type Perfume } from "@/lib/data/perfumes";
+import { MOODS } from "@/lib/data/moods";
+import type { Perfume } from "@/lib/data/perfumes";
 import { PerfumeCard } from "./perfume-card";
 import { Reveal } from "./reveal";
 

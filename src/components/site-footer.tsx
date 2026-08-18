@@ -1,7 +1,15 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 export function SiteFooter() {
+  const pathname = usePathname();
+  // Admin gets its own shell, not the public marketing footer -- see
+  // the matching check in SiteHeader.
+  if (pathname.startsWith("/admin")) return null;
+
   return (
     <footer className="border-t border-taupe/20 bg-beige">
       <div className="mx-auto grid max-w-7xl gap-10 px-6 py-14 lg:grid-cols-4 lg:px-10">
