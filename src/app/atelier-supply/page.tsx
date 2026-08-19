@@ -5,7 +5,7 @@ import { SupplyCatalogueBrowser } from "@/components/supply-catalogue-browser";
 export const metadata: Metadata = {
   title: "Atelier Supply | Aurielle Paris Atelier",
   description:
-    "Browse the Atelier Supply catalogue: fragrance materials for creators, perfumers and businesses, priced in USD/KG.",
+    "Browse the Atelier Supply catalogue: fragrance materials, bottles, pouches, boxes and labels for creators, perfumers and businesses.",
 };
 
 // Falls back to a periodic refresh; admin saves also push an immediate
@@ -20,8 +20,9 @@ export default async function AtelierSupplyPage() {
       <div className="text-center">
         <h1 className="font-serif text-4xl text-ink">Atelier Supply</h1>
         <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
-          Explore our extensive fragrance catalogue and discover materials
-          available for your next creation.
+          Fragrance materials, bottles, pouches, boxes and labels for your
+          next creation &mdash; browse by category or search the full
+          catalogue.
         </p>
       </div>
 

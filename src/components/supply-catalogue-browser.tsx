@@ -1,26 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import type { SupplyMaterial } from "@/lib/data/supply-materials";
 import { matchesSupplyQuery } from "@/lib/data/supply-search";
 import { FIELD_CLASSES } from "./form-field";
 
-const CATEGORIES = [
-  "All",
-  "Floral",
-  "Fruity",
-  "Woody",
-  "Fresh",
-  "Musky",
-  "Amber",
-  "Sweet",
-  "Citrus",
-  "Oriental",
-  "Other",
-];
-
 type SortOption = "serial" | "name" | "price-asc" | "price-desc";
+
+function chipClassName(active: boolean): string {
+  const base = "border px-4 py-1.5 text-xs uppercase tracking-wide transition-colors";
+  return active
+    ? `${base} border-burgundy bg-burgundy text-ivory`
+    : `${base} border-taupe/30 text-ink/60 hover:border-burgundy hover:text-burgundy`;
+}
 
 export function SupplyCatalogueBrowser({
   materials,
@@ -29,9 +23,17 @@ export function SupplyCatalogueBrowser({
 }) {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortOption>("serial");
+  const [type, setType] = useState<string | null>(null);
+
+  const types = useMemo(() => {
+    const names = new Set(materials.map((m) => m.productTypeName ?? "Other"));
+    return [...names].sort();
+  }, [materials]);
 
   const results = useMemo(() => {
-    const filtered = materials.filter((m) => matchesSupplyQuery(m, query));
+    const filtered = materials
+      .filter((m) => matchesSupplyQuery(m, query))
+      .filter((m) => !type || (m.productTypeName ?? "Other") === type);
     const sorted = [...filtered];
     switch (sort) {
       case "name":
@@ -47,7 +49,7 @@ export function SupplyCatalogueBrowser({
         sorted.sort((a, b) => a.serialNumber - b.serialNumber);
     }
     return sorted;
-  }, [materials, query, sort]);
+  }, [materials, query, sort, type]);
 
   return (
     <div>
@@ -56,7 +58,7 @@ export function SupplyCatalogueBrowser({
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search fragrance materials..."
+          placeholder="Search Atelier Supply..."
           className={FIELD_CLASSES}
         />
         <select
@@ -72,14 +74,13 @@ export function SupplyCatalogueBrowser({
       </div>
 
       <div className="mt-6 flex flex-wrap justify-center gap-2">
-        {CATEGORIES.map((category) => (
-          <span
-            key={category}
-            className="border border-taupe/30 px-4 py-1.5 text-xs uppercase tracking-wide text-ink/50"
-            title="Category filtering is not yet enabled: pending client classification."
-          >
-            {category}
-          </span>
+        <button type="button" onClick={() => setType(null)} className={chipClassName(type === null)}>
+          All
+        </button>
+        {types.map((t) => (
+          <button key={t} type="button" onClick={() => setType(t)} className={chipClassName(type === t)}>
+            {t}
+          </button>
         ))}
       </div>
 
@@ -87,22 +88,40 @@ export function SupplyCatalogueBrowser({
         {results.length} material{results.length === 1 ? "" : "s"}
       </p>
 
-      <div className="mt-6 divide-y divide-taupe/15 border-y border-taupe/15">
-        {results.map((material) => (
-          <Link
-            key={material.slug}
-            href={`/atelier-supply/${material.slug}`}
-            className="flex items-center justify-between gap-4 px-2 py-5 transition-colors hover:bg-beige/30"
-          >
-            <span className="font-serif text-lg text-ink">
-              {material.displayName}
-            </span>
-            <span className="whitespace-nowrap text-sm text-burgundy">
-              USD {material.price.toFixed(2)} / {material.pricingUnit}
-            </span>
-          </Link>
-        ))}
-      </div>
+      {results.length > 0 ? (
+        <div className="mt-6 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+          {results.map((material) => (
+            <Link key={material.slug} href={`/atelier-supply/${material.slug}`} className="group flex flex-col">
+              <div className="relative aspect-square w-full overflow-hidden border border-taupe/30 bg-beige/40 transition-colors group-hover:border-burgundy">
+                {material.primaryImageUrl ? (
+                  <Image
+                    src={material.primaryImageUrl}
+                    alt={material.displayName}
+                    fill
+                    sizes="(min-width: 1024px) 25vw, 50vw"
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-xs text-ink/30">
+                    No image
+                  </div>
+                )}
+              </div>
+              {material.productTypeName && (
+                <p className="mt-3 text-center text-xs uppercase tracking-wide text-burgundy/70">
+                  {material.productTypeName}
+                </p>
+              )}
+              <p className="mt-1 text-center font-serif text-base text-ink">{material.displayName}</p>
+              <p className="mt-1 text-center text-sm text-ink/70">
+                USD {material.price.toFixed(2)} / {material.pricingUnit}
+              </p>
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <p className="mt-10 text-center text-sm text-ink/50">No materials match your search.</p>
+      )}
     </div>
   );
 }
