@@ -6,7 +6,14 @@
 	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
 	"assets": {
 		"directory": ".open-next/assets",
-		"binding": "ASSETS"
+		"binding": "ASSETS",
+		// Cloudflare serves a matching static asset directly, bypassing the
+		// Worker script (and therefore Next's middleware.ts) entirely, by
+		// default. The root path "/" needs the middleware's host-based
+		// rewrite (admin-aurielle.altasme.com's "/" -> "/admin") to run on
+		// every request, so it's forced through the Worker; every other
+		// path keeps the faster direct-asset-serving default.
+		"run_worker_first": ["/"]
 	},
 	"services": [
 		{
