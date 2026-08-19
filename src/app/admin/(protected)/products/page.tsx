@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { listProducts, type ProductCategory } from "@/lib/admin/products";
+import { listProducts, listProductTypes, type ProductCategory } from "@/lib/admin/products";
 import { formatMoney } from "@/lib/format-money";
 import { DeleteProductButton } from "@/components/admin/delete-product-button";
 
@@ -21,15 +21,26 @@ export default async function AdminProductsPage({
   const category: ProductCategory = isCategory(categoryParam) ? categoryParam : "aurielle_collection";
   const searchParam = Array.isArray(params.search) ? params.search[0] : params.search;
   const search = searchParam ?? "";
+  const productTypeParam = Array.isArray(params.productType) ? params.productType[0] : params.productType;
 
-  const products = await listProducts({ category, search: search || undefined });
+  const productTypes = category === "atelier_supply" ? await listProductTypes("atelier_supply") : [];
+  const productTypeId = category === "atelier_supply" && productTypes.some((t) => t.id === productTypeParam)
+    ? productTypeParam
+    : undefined;
+
+  const products = await listProducts({ category, search: search || undefined, productTypeId });
+
+  const addProductHref =
+    category === "atelier_supply" && productTypeId
+      ? `/admin/products/new?category=atelier_supply&productType=${productTypeId}`
+      : `/admin/products/new?category=${category}`;
 
   return (
     <div>
       <div className="flex items-center justify-between">
         <h1 className="font-serif text-2xl text-ink">Product &amp; Pricing</h1>
         <Link
-          href={`/admin/products/new?category=${category}`}
+          href={addProductHref}
           className="border border-burgundy bg-burgundy px-4 py-2 text-xs uppercase tracking-wide text-ivory hover:bg-burgundy-dark"
         >
           + Add Product
@@ -52,8 +63,37 @@ export default async function AdminProductsPage({
         ))}
       </div>
 
+      {category === "atelier_supply" && productTypes.length > 0 && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link
+            href="/admin/products?category=atelier_supply"
+            className={`border px-3 py-1.5 text-xs uppercase tracking-wide transition-colors ${
+              !productTypeId
+                ? "border-burgundy bg-burgundy text-ivory"
+                : "border-taupe/30 text-ink/60 hover:border-burgundy hover:text-burgundy"
+            }`}
+          >
+            All
+          </Link>
+          {productTypes.map((type) => (
+            <Link
+              key={type.id}
+              href={`/admin/products?category=atelier_supply&productType=${type.id}`}
+              className={`border px-3 py-1.5 text-xs uppercase tracking-wide transition-colors ${
+                productTypeId === type.id
+                  ? "border-burgundy bg-burgundy text-ivory"
+                  : "border-taupe/30 text-ink/60 hover:border-burgundy hover:text-burgundy"
+              }`}
+            >
+              {type.name}
+            </Link>
+          ))}
+        </div>
+      )}
+
       <form method="get" className="mt-6 flex gap-3">
         <input type="hidden" name="category" value={category} />
+        {productTypeId && <input type="hidden" name="productType" value={productTypeId} />}
         <input
           type="search"
           name="search"

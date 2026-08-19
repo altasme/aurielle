@@ -3,7 +3,6 @@ import { getSessionAdminUser } from "@/lib/admin/auth";
 import { getProduct, updateProduct, deleteProduct, type ProductInput } from "@/lib/admin/products";
 import { deleteImage } from "@/lib/admin/cloudinary";
 import { revalidateProduct } from "@/lib/admin/revalidate";
-import { MOODS } from "@/lib/data/moods";
 import { withErrorHandling } from "@/lib/admin/with-error-handling";
 
 type Params = { params: Promise<{ id: string }> };
@@ -45,16 +44,10 @@ export const PATCH = withErrorHandling(async (request: Request, { params }: Para
   if (!body.description?.trim()) {
     return NextResponse.json({ error: "Description is required" }, { status: 400 });
   }
-  if (existing.category === "aurielle_collection" && body.perfumeType !== "Perfume Oil" && body.perfumeType !== "Waterbased") {
-    return NextResponse.json({ error: "Type must be Perfume Oil or Waterbased" }, { status: 400 });
-  }
-  if (existing.category === "atelier_supply" && !body.productTypeId) {
-    return NextResponse.json({ error: "Product type is required" }, { status: 400 });
-  }
-  if (body.mood && !(MOODS as readonly string[]).includes(body.mood)) {
-    return NextResponse.json({ error: "Invalid mood" }, { status: 400 });
-  }
-
+  // Product type (Atelier Supply) and Type (Aurielle Collection) are no
+  // longer editable from this form -- type is chosen once at creation
+  // and organizes the product into its sub-menu; preserve whatever is
+  // already on the row rather than requiring it here.
   await updateProduct(id, {
     category: existing.category,
     name: body.name.trim(),
@@ -64,9 +57,8 @@ export const PATCH = withErrorHandling(async (request: Request, { params }: Para
     size: body.size.trim(),
     status: body.status === "active" ? "active" : "draft",
     tags: Array.isArray(body.tags) ? body.tags : [],
-    perfumeType: body.perfumeType,
-    mood: body.mood || undefined,
-    productTypeId: body.productTypeId,
+    mood: body.mood?.trim() || undefined,
+    productTypeId: existing.productTypeId ?? undefined,
   });
 
   revalidateProduct(existing.category, existing.slug);

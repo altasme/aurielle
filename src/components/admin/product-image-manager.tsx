@@ -155,8 +155,16 @@ export function ProductImageManager({
       {error && <p className="mt-3 text-sm text-red-700">{error}</p>}
 
       <div className="mt-4">
+        <label
+          htmlFor="product-image-upload"
+          aria-disabled={uploading}
+          className={`inline-flex cursor-pointer items-center justify-center border border-burgundy px-6 py-2.5 text-xs uppercase tracking-wide text-burgundy transition-colors hover:bg-burgundy hover:text-ivory ${uploading ? "pointer-events-none opacity-50" : ""}`}
+        >
+          {uploading ? "Uploading..." : "Upload Image"}
+        </label>
         <input
           ref={fileInputRef}
+          id="product-image-upload"
           type="file"
           accept="image/*"
           disabled={uploading}
@@ -164,9 +172,8 @@ export function ProductImageManager({
             const file = e.target.files?.[0];
             if (file) void handleUpload(file);
           }}
-          className="text-sm text-ink/70"
+          className="sr-only"
         />
-        {uploading && <p className="mt-1 text-xs text-ink/50">Uploading...</p>}
       </div>
     </div>
   );

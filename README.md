@@ -114,10 +114,17 @@ Real photography is wired in under `public/images/`:
   `product_type_id` / `mood` set (the old CSVs never carried that data);
   an admin should fill those in via the edit form when convenient, the
   public pages tolerate a null Type gracefully in the meantime.
+- `0007_admin_refinements.sql`: client feedback after first live use.
+  Seeds Atelier Supply's five sub-menu product types (Fragrances /
+  Bottles / Pouches / Boxes / Labels) and backfills every pre-admin-panel
+  product (all fragrances) onto "Fragrances"; drops the fixed 5-value
+  CHECK constraint on `products.mood` so mood becomes free-text/
+  admin-extensible, same pattern as Scent Tags, instead of a closed enum.
 - `supabase/seed/*.sql`: the old v3 live-catalogue seed data, superseded
   by 0006 above. Not used.
-- Run migrations **0001 → 0002 → 0003 → 0004 → 0005 → 0006** in order in
-  the Supabase SQL Editor (all manual; there is no migration runner).
+- Run migrations **0001 → 0002 → 0003 → 0004 → 0005 → 0006 → 0007** in
+  order in the Supabase SQL Editor (all manual; there is no migration
+  runner).
 - After 0005/0006 are applied, create the first admin login:
   `ADMIN_USERNAME=... ADMIN_PASSWORD=... node scripts/seed-admin-user.mjs`
   prints an `insert into admin_users ...` statement (password scrypt-

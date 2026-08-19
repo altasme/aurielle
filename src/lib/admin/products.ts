@@ -1,7 +1,6 @@
 import "server-only";
 import { getSupabaseAdminClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/slugify";
-import type { Mood } from "@/lib/data/moods";
 
 export type ProductCategory = "aurielle_collection" | "atelier_supply";
 export type ProductStatus = "active" | "draft";
@@ -38,8 +37,9 @@ export type ProductDetail = {
   size: string | null;
   status: ProductStatus;
   perfumeType: string | null;
-  mood: Mood | null;
+  mood: string | null;
   productTypeId: string | null;
+  productTypeName: string | null;
   serialNumber: number | null;
   tags: string[];
   images: ProductImage[];
@@ -66,6 +66,7 @@ function mapImage(row: {
 export async function listProducts(params: {
   category: ProductCategory;
   search?: string;
+  productTypeId?: string;
 }): Promise<ProductListItem[]> {
   const supabase = getSupabaseAdminClient();
   let query = supabase
@@ -78,6 +79,9 @@ export async function listProducts(params: {
 
   if (params.search?.trim()) {
     query = query.ilike("name", `%${params.search.trim()}%`);
+  }
+  if (params.productTypeId) {
+    query = query.eq("product_type_id", params.productTypeId);
   }
 
   const { data, error } = await query;
@@ -107,7 +111,7 @@ export async function getProduct(id: string): Promise<ProductDetail | null> {
   const { data, error } = await supabase
     .from("products")
     .select(
-      "id, category, slug, name, description, price, currency, size, status, perfume_type, mood, product_type_id, serial_number, product_tags(tag), product_images(id, cloudinary_public_id, cloudinary_url, is_primary, sort_order)",
+      "id, category, slug, name, description, price, currency, size, status, perfume_type, mood, product_type_id, product_types(name), serial_number, product_tags(tag), product_images(id, cloudinary_public_id, cloudinary_url, is_primary, sort_order)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -119,6 +123,7 @@ export async function getProduct(id: string): Promise<ProductDetail | null> {
   const images = ((data.product_images ?? []) as Parameters<typeof mapImage>[0][])
     .map(mapImage)
     .sort((a, b) => a.sortOrder - b.sortOrder);
+  const productType = data.product_types as unknown as { name: string } | null;
 
   return {
     id: data.id,
@@ -133,10 +138,27 @@ export async function getProduct(id: string): Promise<ProductDetail | null> {
     perfumeType: data.perfume_type,
     mood: data.mood,
     productTypeId: data.product_type_id,
+    productTypeName: productType?.name ?? null,
     serialNumber: data.serial_number,
     tags,
     images,
   };
+}
+
+// Distinct moods already in use, for the admin form's suggestions --
+// moods are free-text, admin-extensible (like Scent Tags), not a fixed
+// enum or a separately-managed list.
+export async function listMoods(): Promise<string[]> {
+  const supabase = getSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select("mood")
+    .eq("category", "aurielle_collection")
+    .not("mood", "is", null);
+
+  if (error) throw new Error(`Failed to list moods: ${error.message}`);
+  const moods = new Set((data ?? []).map((row) => row.mood as string));
+  return [...moods].sort();
 }
 
 async function uniqueSlug(name: string): Promise<string> {
@@ -167,7 +189,7 @@ export type ProductInput = {
   tags: string[];
   // Aurielle Collection
   perfumeType?: "Perfume Oil" | "Waterbased";
-  mood?: Mood;
+  mood?: string;
   // Atelier Supply
   productTypeId?: string;
 };

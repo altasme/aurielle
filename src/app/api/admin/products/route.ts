@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { getSessionAdminUser } from "@/lib/admin/auth";
 import { listProducts, createProduct, type ProductCategory, type ProductInput } from "@/lib/admin/products";
 import { revalidateProduct } from "@/lib/admin/revalidate";
-import { MOODS } from "@/lib/data/moods";
 import { withErrorHandling } from "@/lib/admin/with-error-handling";
 
 function isCategory(value: unknown): value is ProductCategory {
@@ -19,7 +18,11 @@ export const GET = withErrorHandling(async (request: Request) => {
     return NextResponse.json({ error: "category must be aurielle_collection or atelier_supply" }, { status: 400 });
   }
 
-  const products = await listProducts({ category, search: searchParams.get("search") ?? undefined });
+  const products = await listProducts({
+    category,
+    search: searchParams.get("search") ?? undefined,
+    productTypeId: searchParams.get("productType") ?? undefined,
+  });
   return NextResponse.json({ products });
 });
 
@@ -49,14 +52,8 @@ export const POST = withErrorHandling(async (request: Request) => {
   if (!body.description?.trim()) {
     return NextResponse.json({ error: "Description is required" }, { status: 400 });
   }
-  if (body.category === "aurielle_collection" && body.perfumeType !== "Perfume Oil" && body.perfumeType !== "Waterbased") {
-    return NextResponse.json({ error: "Type must be Perfume Oil or Waterbased" }, { status: 400 });
-  }
   if (body.category === "atelier_supply" && !body.productTypeId) {
     return NextResponse.json({ error: "Product type is required" }, { status: 400 });
-  }
-  if (body.mood && !(MOODS as readonly string[]).includes(body.mood)) {
-    return NextResponse.json({ error: "Invalid mood" }, { status: 400 });
   }
 
   const { id } = await createProduct({
@@ -68,8 +65,7 @@ export const POST = withErrorHandling(async (request: Request) => {
     size: body.size.trim(),
     status: body.status === "active" ? "active" : "draft",
     tags: Array.isArray(body.tags) ? body.tags : [],
-    perfumeType: body.perfumeType,
-    mood: body.mood || undefined,
+    mood: body.mood?.trim() || undefined,
     productTypeId: body.productTypeId,
   });
 

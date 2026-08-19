@@ -1,6 +1,8 @@
 import Link from "next/link";
-import { listProductTypes, type ProductCategory } from "@/lib/admin/products";
+import { notFound } from "next/navigation";
+import { listProductTypes, listMoods, type ProductCategory } from "@/lib/admin/products";
 import { ProductForm } from "@/components/admin/product-form";
+import { AtelierTypePicker } from "@/components/admin/atelier-type-picker";
 
 function isCategory(value: string | undefined): value is ProductCategory {
   return value === "aurielle_collection" || value === "atelier_supply";
@@ -15,7 +17,7 @@ const CATEGORY_CARDS: { value: ProductCategory; label: string; description: stri
   {
     value: "atelier_supply",
     label: "Atelier Supply",
-    description: "Raw materials and supplies, with admin-defined product types.",
+    description: "Raw materials and supplies, organized into Fragrances, Bottles, Pouches, Boxes, Labels and more.",
   },
 ];
 
@@ -24,6 +26,7 @@ export default async function NewProductPage({
 }: PageProps<"/admin/products/new">) {
   const params = await searchParams;
   const categoryParam = Array.isArray(params.category) ? params.category[0] : params.category;
+  const productTypeParam = Array.isArray(params.productType) ? params.productType[0] : params.productType;
 
   if (!isCategory(categoryParam)) {
     return (
@@ -46,16 +49,40 @@ export default async function NewProductPage({
     );
   }
 
-  const productTypes =
-    categoryParam === "atelier_supply" ? await listProductTypes("atelier_supply") : [];
+  if (categoryParam === "atelier_supply") {
+    const types = await listProductTypes("atelier_supply");
+
+    if (!productTypeParam) {
+      return (
+        <div>
+          <h1 className="font-serif text-2xl text-ink">Add Product &mdash; Atelier Supply</h1>
+          <AtelierTypePicker types={types} />
+        </div>
+      );
+    }
+
+    const productType = types.find((t) => t.id === productTypeParam);
+    if (!productType) notFound();
+
+    return (
+      <div>
+        <h1 className="font-serif text-2xl text-ink">Add Product &mdash; Atelier Supply</h1>
+        <p className="mt-1 text-sm text-ink/60">Type: {productType.name}</p>
+        <ProductForm
+          category="atelier_supply"
+          productTypeId={productType.id}
+          productTypeName={productType.name}
+        />
+      </div>
+    );
+  }
+
+  const moodSuggestions = await listMoods();
 
   return (
     <div>
-      <h1 className="font-serif text-2xl text-ink">
-        Add Product &mdash;{" "}
-        {categoryParam === "aurielle_collection" ? "Aurielle Collection" : "Atelier Supply"}
-      </h1>
-      <ProductForm category={categoryParam} productTypes={productTypes} />
+      <h1 className="font-serif text-2xl text-ink">Add Product &mdash; Aurielle Collection</h1>
+      <ProductForm category="aurielle_collection" moodSuggestions={moodSuggestions} />
     </div>
   );
 }

@@ -6,19 +6,24 @@ import { FormField, FIELD_CLASSES } from "@/components/form-field";
 import { SubmitButton } from "@/components/submit-button";
 import { TagInput } from "@/components/admin/tag-input";
 import { useSubmit } from "@/lib/use-submit";
-import type { ProductCategory, ProductDetail, ProductStatus, ProductType } from "@/lib/admin/products";
-import { MOODS } from "@/lib/data/moods";
-
-const PERFUME_TYPES = ["Perfume Oil", "Waterbased"] as const;
+import type { ProductCategory, ProductDetail, ProductStatus } from "@/lib/admin/products";
 
 export function ProductForm({
   category,
   product,
-  productTypes,
+  productTypeId,
+  productTypeName,
+  moodSuggestions,
 }: {
   category: ProductCategory;
   product?: ProductDetail;
-  productTypes: ProductType[];
+  // Atelier Supply, create mode only: the type chosen in the previous
+  // step (AtelierTypePicker). Not shown/editable on the edit form.
+  productTypeId?: string;
+  productTypeName?: string;
+  // Aurielle Collection: existing values, offered as suggestions for
+  // the free-text mood field (admin can type any new one too).
+  moodSuggestions?: string[];
 }) {
   const router = useRouter();
   const { submitting, error, submit } = useSubmit();
@@ -29,34 +34,7 @@ export function ProductForm({
   const [size, setSize] = useState(product?.size ?? "");
   const [status, setStatus] = useState<ProductStatus>(product?.status ?? "draft");
   const [tags, setTags] = useState<string[]>(product?.tags ?? []);
-  const [perfumeType, setPerfumeType] = useState<string>(product?.perfumeType ?? "");
   const [mood, setMood] = useState<string>(product?.mood ?? "");
-  const [productTypeId, setProductTypeId] = useState<string>(product?.productTypeId ?? "");
-
-  const [types, setTypes] = useState(productTypes);
-  const [creatingType, setCreatingType] = useState(false);
-  const [newTypeName, setNewTypeName] = useState("");
-  const [typeError, setTypeError] = useState<string | null>(null);
-
-  async function handleCreateType(e: FormEvent) {
-    e.preventDefault();
-    setTypeError(null);
-    if (!newTypeName.trim()) return;
-    const res = await fetch("/api/admin/product-types", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: newTypeName.trim() }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      setTypeError(data.error ?? "Failed to create product type");
-      return;
-    }
-    setTypes((prev) => [...prev, data.type as ProductType]);
-    setProductTypeId(data.type.id);
-    setNewTypeName("");
-    setCreatingType(false);
-  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -68,7 +46,6 @@ export function ProductForm({
       size,
       status,
       tags,
-      perfumeType: category === "aurielle_collection" ? perfumeType : undefined,
       mood: category === "aurielle_collection" ? mood || undefined : undefined,
       productTypeId: category === "atelier_supply" ? productTypeId : undefined,
     };
@@ -98,6 +75,17 @@ export function ProductForm({
 
   return (
     <form onSubmit={handleSubmit} className="mt-6 max-w-2xl space-y-5">
+      {!product && category === "atelier_supply" && productTypeName && (
+        <p className="text-xs uppercase tracking-wide text-ink/50">
+          Product Type: <span className="text-ink">{productTypeName}</span>
+        </p>
+      )}
+      {product && category === "atelier_supply" && product.productTypeName && (
+        <p className="text-xs uppercase tracking-wide text-ink/50">
+          Product Type: <span className="text-ink">{product.productTypeName}</span>
+        </p>
+      )}
+
       <FormField label="Product Name" value={name} onChange={setName} required />
 
       <div>
@@ -122,95 +110,24 @@ export function ProductForm({
         <FormField label="Size" value={size} onChange={setSize} required />
       </div>
 
-      {category === "aurielle_collection" ? (
+      {category === "aurielle_collection" && (
         <div>
-          <label className="text-xs uppercase tracking-wide text-ink/60">Type *</label>
-          <select
-            value={perfumeType}
-            onChange={(e) => setPerfumeType(e.target.value)}
-            required
-            className={`mt-2 ${FIELD_CLASSES}`}
-          >
-            <option value="" disabled>
-              Select a type
-            </option>
-            {PERFUME_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-
-          <label className="mt-4 block text-xs uppercase tracking-wide text-ink/60">
+          <label className="text-xs uppercase tracking-wide text-ink/60">
             Mood (optional &mdash; powers the &ldquo;Find Your Scent&rdquo; homepage filter)
           </label>
-          <select value={mood} onChange={(e) => setMood(e.target.value)} className={`mt-2 ${FIELD_CLASSES}`}>
-            <option value="">None</option>
-            {MOODS.map((m) => (
-              <option key={m} value={m}>
-                {m}
-              </option>
-            ))}
-          </select>
-        </div>
-      ) : (
-        <div>
-          <label className="text-xs uppercase tracking-wide text-ink/60">Product Type *</label>
-          <select
-            value={productTypeId}
-            onChange={(e) => setProductTypeId(e.target.value)}
-            required
+          <input
+            type="text"
+            list="mood-suggestions"
+            value={mood}
+            onChange={(e) => setMood(e.target.value)}
+            placeholder="e.g. Feminine, Warm, Elegant..."
             className={`mt-2 ${FIELD_CLASSES}`}
-          >
-            <option value="" disabled>
-              Select a product type
-            </option>
-            {types.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
-              </option>
+          />
+          <datalist id="mood-suggestions">
+            {(moodSuggestions ?? []).map((m) => (
+              <option key={m} value={m} />
             ))}
-          </select>
-
-          {creatingType ? (
-            <div className="mt-3 flex items-end gap-3">
-              <div className="flex-1">
-                <label className="text-xs uppercase tracking-wide text-ink/60">New Type Name</label>
-                <input
-                  type="text"
-                  value={newTypeName}
-                  onChange={(e) => setNewTypeName(e.target.value)}
-                  className={`mt-2 ${FIELD_CLASSES}`}
-                />
-              </div>
-              <button
-                type="button"
-                onClick={handleCreateType}
-                className="border border-burgundy px-4 py-3 text-xs uppercase tracking-wide text-burgundy"
-              >
-                Add
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setCreatingType(false);
-                  setNewTypeName("");
-                }}
-                className="px-4 py-3 text-xs uppercase tracking-wide text-ink/50"
-              >
-                Cancel
-              </button>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setCreatingType(true)}
-              className="mt-2 text-xs uppercase tracking-wide text-burgundy underline"
-            >
-              + New Type
-            </button>
-          )}
-          {typeError && <p className="mt-2 text-sm text-red-700">{typeError}</p>}
+          </datalist>
         </div>
       )}
 
