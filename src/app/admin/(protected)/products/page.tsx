@@ -112,7 +112,7 @@ export default async function AdminProductsPage({
             <tr>
               <th className="px-4 py-3">Image</th>
               <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Type</th>
+              {category === "atelier_supply" && <th className="px-4 py-3">Type</th>}
               <th className="px-4 py-3">Price</th>
               <th className="px-4 py-3">Size</th>
               <th className="px-4 py-3">Status</th>
@@ -138,7 +138,9 @@ export default async function AdminProductsPage({
                   )}
                 </td>
                 <td className="px-4 py-3 text-ink">{product.name}</td>
-                <td className="px-4 py-3 text-ink/70">{product.perfumeType ?? product.productTypeName ?? "—"}</td>
+                {category === "atelier_supply" && (
+                  <td className="px-4 py-3 text-ink/70">{product.productTypeName ?? "—"}</td>
+                )}
                 <td className="px-4 py-3 text-ink/70">{formatMoney(product.currency, product.price)}</td>
                 <td className="px-4 py-3 text-ink/70">{product.size ?? "—"}</td>
                 <td className="px-4 py-3">
@@ -165,7 +167,10 @@ export default async function AdminProductsPage({
             ))}
             {products.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-sm text-ink/50">
+                <td
+                  colSpan={category === "atelier_supply" ? 7 : 6}
+                  className="px-4 py-10 text-center text-sm text-ink/50"
+                >
                   No products found.
                 </td>
               </tr>
