@@ -1,16 +1,17 @@
 import { NextResponse } from "next/server";
 import { getSessionAdminUser } from "@/lib/admin/auth";
 import { listProductTypes, createProductType } from "@/lib/admin/products";
+import { withErrorHandling } from "@/lib/admin/with-error-handling";
 
-export async function GET() {
+export const GET = withErrorHandling(async () => {
   const user = await getSessionAdminUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const types = await listProductTypes("atelier_supply");
   return NextResponse.json({ types });
-}
+});
 
-export async function POST(request: Request) {
+export const POST = withErrorHandling(async (request: Request) => {
   const user = await getSessionAdminUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -35,4 +36,4 @@ export async function POST(request: Request) {
     const status = message.includes("duplicate") ? 409 : 500;
     return NextResponse.json({ error: message }, { status });
   }
-}
+});

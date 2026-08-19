@@ -4,10 +4,11 @@ import { getProduct } from "@/lib/admin/products";
 import { deleteImage } from "@/lib/admin/cloudinary";
 import { getSupabaseAdminClient } from "@/lib/supabase/server";
 import { revalidateProduct } from "@/lib/admin/revalidate";
+import { withErrorHandling } from "@/lib/admin/with-error-handling";
 
 type Params = { params: Promise<{ id: string; imageId: string }> };
 
-export async function PATCH(request: Request, { params }: Params) {
+export const PATCH = withErrorHandling(async (request: Request, { params }: Params) => {
   const user = await getSessionAdminUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -44,9 +45,9 @@ export async function PATCH(request: Request, { params }: Params) {
 
   revalidateProduct(product.category, product.slug);
   return NextResponse.json({ ok: true });
-}
+});
 
-export async function DELETE(_request: Request, { params }: Params) {
+export const DELETE = withErrorHandling(async (_request: Request, { params }: Params) => {
   const user = await getSessionAdminUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -75,4 +76,4 @@ export async function DELETE(_request: Request, { params }: Params) {
 
   revalidateProduct(product.category, product.slug);
   return NextResponse.json({ ok: true });
-}
+});

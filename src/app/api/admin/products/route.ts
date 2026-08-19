@@ -3,12 +3,13 @@ import { getSessionAdminUser } from "@/lib/admin/auth";
 import { listProducts, createProduct, type ProductCategory, type ProductInput } from "@/lib/admin/products";
 import { revalidateProduct } from "@/lib/admin/revalidate";
 import { MOODS } from "@/lib/data/moods";
+import { withErrorHandling } from "@/lib/admin/with-error-handling";
 
 function isCategory(value: unknown): value is ProductCategory {
   return value === "aurielle_collection" || value === "atelier_supply";
 }
 
-export async function GET(request: Request) {
+export const GET = withErrorHandling(async (request: Request) => {
   const user = await getSessionAdminUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -20,9 +21,9 @@ export async function GET(request: Request) {
 
   const products = await listProducts({ category, search: searchParams.get("search") ?? undefined });
   return NextResponse.json({ products });
-}
+});
 
-export async function POST(request: Request) {
+export const POST = withErrorHandling(async (request: Request) => {
   const user = await getSessionAdminUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -74,4 +75,4 @@ export async function POST(request: Request) {
 
   revalidateProduct(body.category);
   return NextResponse.json({ id }, { status: 201 });
-}
+});

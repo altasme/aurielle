@@ -4,10 +4,11 @@ import { getProduct, updateProduct, deleteProduct, type ProductInput } from "@/l
 import { deleteImage } from "@/lib/admin/cloudinary";
 import { revalidateProduct } from "@/lib/admin/revalidate";
 import { MOODS } from "@/lib/data/moods";
+import { withErrorHandling } from "@/lib/admin/with-error-handling";
 
 type Params = { params: Promise<{ id: string }> };
 
-export async function GET(_request: Request, { params }: Params) {
+export const GET = withErrorHandling(async (_request: Request, { params }: Params) => {
   const user = await getSessionAdminUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -15,9 +16,9 @@ export async function GET(_request: Request, { params }: Params) {
   const product = await getProduct(id);
   if (!product) return NextResponse.json({ error: "Product not found" }, { status: 404 });
   return NextResponse.json({ product });
-}
+});
 
-export async function PATCH(request: Request, { params }: Params) {
+export const PATCH = withErrorHandling(async (request: Request, { params }: Params) => {
   const user = await getSessionAdminUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -70,9 +71,9 @@ export async function PATCH(request: Request, { params }: Params) {
 
   revalidateProduct(existing.category, existing.slug);
   return NextResponse.json({ ok: true });
-}
+});
 
-export async function DELETE(_request: Request, { params }: Params) {
+export const DELETE = withErrorHandling(async (_request: Request, { params }: Params) => {
   const user = await getSessionAdminUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -91,4 +92,4 @@ export async function DELETE(_request: Request, { params }: Params) {
 
   revalidateProduct(existing.category, existing.slug);
   return NextResponse.json({ ok: true });
-}
+});

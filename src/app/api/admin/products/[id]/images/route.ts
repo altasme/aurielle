@@ -4,10 +4,11 @@ import { getProduct } from "@/lib/admin/products";
 import { uploadImage } from "@/lib/admin/cloudinary";
 import { getSupabaseAdminClient } from "@/lib/supabase/server";
 import { revalidateProduct } from "@/lib/admin/revalidate";
+import { withErrorHandling } from "@/lib/admin/with-error-handling";
 
 type Params = { params: Promise<{ id: string }> };
 
-export async function POST(request: Request, { params }: Params) {
+export const POST = withErrorHandling(async (request: Request, { params }: Params) => {
   const user = await getSessionAdminUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -61,11 +62,11 @@ export async function POST(request: Request, { params }: Params) {
       sortOrder: data.sort_order,
     },
   });
-}
+});
 
 // Reorders every image for a product in one call: body is the full
 // list of image IDs in the desired display order.
-export async function PATCH(request: Request, { params }: Params) {
+export const PATCH = withErrorHandling(async (request: Request, { params }: Params) => {
   const user = await getSessionAdminUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -99,4 +100,4 @@ export async function PATCH(request: Request, { params }: Params) {
 
   revalidateProduct(product.category, product.slug);
   return NextResponse.json({ ok: true });
-}
+});
