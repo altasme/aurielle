@@ -130,8 +130,11 @@ Real photography is wired in under `public/images/`:
   at the same `aurielle` Worker (Cloudflare dashboard → Workers & Pages
   → aurielle → Settings → Domains & Routes), not a separate deployment.
   Same code, same database as the public site at `aurielle.altasme.com`;
-  `/admin/login` also still works on the public domain since nothing in
-  the app routes on hostname.
+  `/admin/login` also still works on the public domain, `middleware.ts`
+  only rewrites that one domain's bare root ("/") to "/admin" so visiting
+  `admin-aurielle.altasme.com` with no path lands on the admin panel
+  instead of the public homepage. Everything else (including `/admin/*`
+  itself) is untouched by the rewrite.
 - `/admin/login` → `/admin` (dashboard: Product & Pricing is the only
   active MVP module; Order Management, Promotion, and Reports &
   Analytics are disabled "Coming Soon" placeholders per spec).
