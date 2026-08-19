@@ -111,7 +111,7 @@ export function ProductImageManager({
                   </span>
                 )}
               </div>
-              <div className="mt-2 flex items-center justify-between gap-1 text-xs">
+              <div className="mt-2 grid grid-cols-[auto_1fr_auto] items-center gap-1 text-xs">
                 <button
                   type="button"
                   onClick={() => handleMove(img.id, -1)}
@@ -121,15 +121,17 @@ export function ProductImageManager({
                 >
                   &larr;
                 </button>
-                {!img.isPrimary && (
-                  <button
-                    type="button"
-                    onClick={() => handleSetPrimary(img.id)}
-                    className="text-burgundy underline"
-                  >
-                    Set Primary
-                  </button>
-                )}
+                <span className="text-center">
+                  {!img.isPrimary && (
+                    <button
+                      type="button"
+                      onClick={() => handleSetPrimary(img.id)}
+                      className="text-burgundy underline"
+                    >
+                      Set Primary
+                    </button>
+                  )}
+                </span>
                 <button
                   type="button"
                   onClick={() => handleMove(img.id, 1)}

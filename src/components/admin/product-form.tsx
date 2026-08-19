@@ -36,6 +36,9 @@ export function ProductForm({
   const [tags, setTags] = useState<string[]>(product?.tags ?? []);
   const [mood, setMood] = useState<string>(product?.mood ?? "");
 
+  const currencySymbol = category === "aurielle_collection" ? "₱" : "USD";
+  const displayProductTypeName = product ? product.productTypeName : productTypeName;
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const body = {
@@ -75,14 +78,9 @@ export function ProductForm({
 
   return (
     <form onSubmit={handleSubmit} className="mt-6 max-w-2xl space-y-5">
-      {!product && category === "atelier_supply" && productTypeName && (
+      {category === "atelier_supply" && displayProductTypeName && (
         <p className="text-xs uppercase tracking-wide text-ink/50">
-          Product Type: <span className="text-ink">{productTypeName}</span>
-        </p>
-      )}
-      {product && category === "atelier_supply" && product.productTypeName && (
-        <p className="text-xs uppercase tracking-wide text-ink/50">
-          Product Type: <span className="text-ink">{product.productTypeName}</span>
+          Product Type: <span className="text-ink">{displayProductTypeName}</span>
         </p>
       )}
 
@@ -106,7 +104,7 @@ export function ProductForm({
       )}
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <FormField label="Price (₱)" type="number" value={price} onChange={setPrice} required />
+        <FormField label={`Price (${currencySymbol})`} type="number" value={price} onChange={setPrice} required />
         <FormField label="Size" value={size} onChange={setSize} required />
       </div>
 
