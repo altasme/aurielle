@@ -126,6 +126,12 @@ Real photography is wired in under `public/images/`:
 
 ## Admin panel
 
+- Lives at `admin-aurielle.altasme.com` -- a second custom domain routed
+  at the same `aurielle` Worker (Cloudflare dashboard → Workers & Pages
+  → aurielle → Settings → Domains & Routes), not a separate deployment.
+  Same code, same database as the public site at `aurielle.altasme.com`;
+  `/admin/login` also still works on the public domain since nothing in
+  the app routes on hostname.
 - `/admin/login` → `/admin` (dashboard: Product & Pricing is the only
   active MVP module; Order Management, Promotion, and Reports &
   Analytics are disabled "Coming Soon" placeholders per spec).
