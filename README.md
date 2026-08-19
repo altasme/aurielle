@@ -196,11 +196,22 @@ switch-on.
 
 Same OpenNext-adapter Worker deployment as before, see
 `wrangler.jsonc` / `open-next.config.ts`. `npm run cf:build` /
-`cf:preview` / `cf:deploy`. Reads are fully static, but the order/inquiry
-API routes need `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` set as
-runtime variables/secrets on the Worker now (dashboard → Settings →
-Variables and Secrets, or `wrangler secret put`); no more
-`NEXT_PUBLIC_*`, nothing client-side reads Supabase.
+`cf:preview` / `cf:deploy`. The Worker needs five runtime
+variables/secrets set (dashboard → Settings → Variables and Secrets, or
+`wrangler secret put <NAME>`) that `.dev.vars` covers locally:
+`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `CLOUDINARY_CLOUD_NAME`,
+`CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`. No `NEXT_PUBLIC_*`,
+nothing client-side reads any of these.
+
+`open-next.config.ts` doesn't configure an R2/KV incremental cache, so
+`export const revalidate` on the catalogue pages doesn't get a durable
+cache to write to on Workers -- each request just renders fresh from
+Supabase instead of serving a cached copy (correct output, no ISR
+performance/cost benefit yet). `revalidatePath()` calls from the admin
+routes are effectively no-ops until that's wired up. Fine for now given
+catalogue size; revisit via
+https://opennext.js.org/cloudflare/caching if traffic or Supabase
+read volume becomes a concern.
 
 ## What's scaffolded vs. not yet built
 

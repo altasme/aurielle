@@ -16,8 +16,11 @@
 			"service": "aurielle"
 		}
 	]
-	// No r2_buckets / images bindings yet: this MVP doesn't use ISR
-	// (catalogue pages are fully static) or next/image optimization, so
-	// the incremental cache + image bindings aren't needed. Add them per
-	// https://opennext.js.org/cloudflare/caching if that changes.
+	// No r2_buckets / images bindings yet: no next/image optimization
+	// (images.unoptimized in next.config.ts), and the catalogue pages'
+	// `export const revalidate` currently has no durable cache to write
+	// to without one (see README "Deploying to Cloudflare") -- each
+	// request just renders fresh instead of serving a cached copy, which
+	// is correct but not free ISR. Add an r2_buckets binding per
+	// https://opennext.js.org/cloudflare/caching if that becomes worth it.
 }
