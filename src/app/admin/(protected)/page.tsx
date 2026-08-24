@@ -4,7 +4,7 @@ const MODULES = [
   {
     title: "Order Management",
     description: "Orders, order status, customer information, payment status, fulfillment, shipping.",
-    href: null,
+    href: "/admin/orders",
   },
   {
     title: "Product & Pricing",
