@@ -42,6 +42,13 @@ update orders set order_status = 'to_pack' where order_status = 'received';
 update orders set order_status = 'to_ship' where order_status = 'processing';
 update orders set order_status = 'shipped_out' where order_status = 'fulfilled';
 
+-- Catch-all: any row holding some other stray/legacy value (blank,
+-- NULL, or anything not named above) falls back to the pipeline's
+-- starting status rather than blocking the constraint below.
+update orders set order_status = 'pending_verification'
+  where order_status is null
+     or order_status not in ('pending_verification', 'to_pack', 'to_ship', 'shipped_out', 'cancelled');
+
 alter table orders drop constraint if exists orders_order_status_check;
 alter table orders
   add constraint orders_order_status_check
