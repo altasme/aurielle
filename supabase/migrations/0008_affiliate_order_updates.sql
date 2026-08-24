@@ -32,17 +32,20 @@ alter table orders add column if not exists viewed_at timestamptz;
 -- ORDERS: fulfillment-oriented status pipeline, replacing the
 -- generic received/processing/fulfilled steps. "cancelled" is kept
 -- outside the happy path for orders that don't ship.
+--
+-- Existing rows must move to the closest equivalent in the new
+-- pipeline BEFORE the new, stricter constraint is added below --
+-- adding the constraint first rejects any row still holding an old
+-- received/processing/fulfilled value.
 -- ============================================================
+update orders set order_status = 'to_pack' where order_status = 'received';
+update orders set order_status = 'to_ship' where order_status = 'processing';
+update orders set order_status = 'shipped_out' where order_status = 'fulfilled';
+
 alter table orders drop constraint if exists orders_order_status_check;
 alter table orders
   add constraint orders_order_status_check
   check (order_status in ('pending_verification', 'to_pack', 'to_ship', 'shipped_out', 'cancelled'));
-
--- Existing rows using the old received/processing/fulfilled values
--- move to the closest equivalent in the new pipeline.
-update orders set order_status = 'to_pack' where order_status = 'received';
-update orders set order_status = 'to_ship' where order_status = 'processing';
-update orders set order_status = 'shipped_out' where order_status = 'fulfilled';
 
 -- Shipment details, set when an order moves to "Shipped Out".
 alter table orders add column if not exists courier_name text;
