@@ -1,0 +1,41 @@
+name: Deploy to Cloudflare
+
+# Runs the exact same commands documented in the README's "Deploying to
+# Cloudflare" section (npm run cf:deploy), just from CI instead of a
+# terminal -- so a deploy doesn't depend on anyone having a live
+# Codespace/dev environment open.
+
+on:
+  push:
+    branches: [claude/new-session-hr1y19]
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci
+
+      # Same mechanism as local dev (.dev.vars, gitignored): the
+      # OpenNext Cloudflare build step reads these to prerender the
+      # catalogue pages, which now call Supabase at build time.
+      - name: Write .dev.vars for the build step
+        run: |
+          cat <<VARS > .dev.vars
+          SUPABASE_URL=${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}
+          VARS
+
+      - name: Build and deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: npm run cf:deploy
