@@ -219,6 +219,14 @@ variables/secrets set (dashboard → Settings → Variables and Secrets, or
 `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`. No `NEXT_PUBLIC_*`,
 nothing client-side reads any of these.
 
+`.github/workflows/deploy.yml` runs the same `npm run cf:deploy` from
+GitHub Actions on every push to this branch (plus a manual
+`workflow_dispatch` trigger), so a deploy doesn't need anyone's terminal
+or a live Codespace. Needs six repository secrets set once (GitHub →
+repo → Settings → Secrets and variables → Actions): the same five above
+plus `CLOUDFLARE_API_TOKEN` (dashboard → profile icon → My Profile →
+API Tokens → Create Token → "Edit Cloudflare Workers" template).
+
 `open-next.config.ts` doesn't configure an R2/KV incremental cache, so
 `export const revalidate` on the catalogue pages doesn't get a durable
 cache to write to on Workers -- each request just renders fresh from
