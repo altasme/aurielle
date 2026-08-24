@@ -33,11 +33,15 @@ alter table orders add column if not exists viewed_at timestamptz;
 -- generic received/processing/fulfilled steps. "cancelled" is kept
 -- outside the happy path for orders that don't ship.
 --
--- Existing rows must move to the closest equivalent in the new
--- pipeline BEFORE the new, stricter constraint is added below --
--- adding the constraint first rejects any row still holding an old
--- received/processing/fulfilled value.
+-- The old (0004) constraint only allows pending_verification/
+-- received/processing/fulfilled/cancelled -- it must be dropped
+-- BEFORE the UPDATEs below, or the UPDATEs themselves get rejected
+-- for writing a new status name (e.g. 'to_pack') the old constraint
+-- has never heard of. The new, strict constraint is only added back
+-- at the very end, once every row already holds a valid new value.
 -- ============================================================
+alter table orders drop constraint if exists orders_order_status_check;
+
 update orders set order_status = 'to_pack' where order_status = 'received';
 update orders set order_status = 'to_ship' where order_status = 'processing';
 update orders set order_status = 'shipped_out' where order_status = 'fulfilled';
@@ -49,7 +53,6 @@ update orders set order_status = 'pending_verification'
   where order_status is null
      or order_status not in ('pending_verification', 'to_pack', 'to_ship', 'shipped_out', 'cancelled');
 
-alter table orders drop constraint if exists orders_order_status_check;
 alter table orders
   add constraint orders_order_status_check
   check (order_status in ('pending_verification', 'to_pack', 'to_ship', 'shipped_out', 'cancelled'));
