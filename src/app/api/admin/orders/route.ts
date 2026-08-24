@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSessionAdminUser } from "@/lib/admin/auth";
 import { listOrders, type BusinessLine, type OrderStatus } from "@/lib/admin/orders";
-import { withErrorHandling } from "@/lib/admin/with-error-handling";
+import { withErrorHandling } from "@/lib/with-error-handling";
 
 function isBusinessLine(value: string | null): value is BusinessLine {
   return value === "collection" || value === "atelier_supply";

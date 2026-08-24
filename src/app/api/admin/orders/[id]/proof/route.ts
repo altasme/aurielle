@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSessionAdminUser } from "@/lib/admin/auth";
 import { getOrder, getProofSignedUrl } from "@/lib/admin/orders";
-import { withErrorHandling } from "@/lib/admin/with-error-handling";
+import { withErrorHandling } from "@/lib/with-error-handling";
 
 type Params = { params: Promise<{ id: string }> };
 

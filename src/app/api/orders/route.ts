@@ -4,6 +4,7 @@ import { generateOrderNumber } from "@/lib/orders/order-number";
 import { getPerfumeBySlug } from "@/lib/data/perfumes";
 import { getSupplyMaterialBySlug } from "@/lib/data/supply-materials";
 import type { Address, OrderLineItem, OrderPayload } from "@/lib/orders/types";
+import { withErrorHandling } from "@/lib/with-error-handling";
 
 const MAX_PROOF_SIZE = 8 * 1024 * 1024; // 8MB
 const ALLOWED_PROOF_TYPES = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
@@ -24,7 +25,7 @@ function isValidAddress(a: unknown): a is Address {
   );
 }
 
-export async function POST(request: Request) {
+export const POST = withErrorHandling(async (request: Request) => {
   let formData: FormData;
   try {
     formData = await request.formData();
@@ -245,4 +246,4 @@ export async function POST(request: Request) {
     paymentMethod: payload.paymentMethod,
     customerEmail: payload.customerEmail.trim().toLowerCase(),
   });
-}
+});

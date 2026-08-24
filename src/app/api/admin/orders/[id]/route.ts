@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getSessionAdminUser } from "@/lib/admin/auth";
 import { getOrder, updateOrderStatus } from "@/lib/admin/orders";
 import { ORDER_STATUSES, PAYMENT_STATUSES, type OrderStatus, type PaymentStatus } from "@/lib/admin/order-constants";
-import { withErrorHandling } from "@/lib/admin/with-error-handling";
+import { withErrorHandling } from "@/lib/with-error-handling";
 
 type Params = { params: Promise<{ id: string }> };
 

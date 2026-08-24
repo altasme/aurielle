@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSessionAdminUser } from "@/lib/admin/auth";
 import { listProductTypes, createProductType } from "@/lib/admin/products";
-import { withErrorHandling } from "@/lib/admin/with-error-handling";
+import { withErrorHandling } from "@/lib/with-error-handling";
 
 export const GET = withErrorHandling(async () => {
   const user = await getSessionAdminUser();

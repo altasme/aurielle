@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/server";
+import { withErrorHandling } from "@/lib/with-error-handling";
 
 type ContactBody = {
   type: "contact";
@@ -21,7 +22,7 @@ type WholesaleBody = {
   message?: string;
 };
 
-export async function POST(request: Request) {
+export const POST = withErrorHandling(async (request: Request) => {
   let body: ContactBody | WholesaleBody;
   try {
     body = await request.json();
@@ -74,4 +75,4 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json({ error: "Invalid inquiry type" }, { status: 400 });
-}
+});

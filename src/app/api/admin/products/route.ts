@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getSessionAdminUser } from "@/lib/admin/auth";
 import { listProducts, createProduct, type ProductCategory, type ProductInput } from "@/lib/admin/products";
 import { revalidateProduct } from "@/lib/admin/revalidate";
-import { withErrorHandling } from "@/lib/admin/with-error-handling";
+import { withErrorHandling } from "@/lib/with-error-handling";
 
 function isCategory(value: unknown): value is ProductCategory {
   return value === "aurielle_collection" || value === "atelier_supply";

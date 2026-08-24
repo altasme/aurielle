@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/server";
+import { withErrorHandling } from "@/lib/with-error-handling";
 
-export async function GET(request: Request) {
+export const GET = withErrorHandling(async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const orderNumber = searchParams.get("orderNumber")?.trim();
   const email = searchParams.get("email")?.trim().toLowerCase();
@@ -45,4 +46,4 @@ export async function GET(request: Request) {
   void _id;
 
   return NextResponse.json({ order: orderWithoutId, items: items ?? [] });
-}
+});

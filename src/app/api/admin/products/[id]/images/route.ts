@@ -4,7 +4,7 @@ import { getProduct } from "@/lib/admin/products";
 import { uploadImage } from "@/lib/admin/cloudinary";
 import { getSupabaseAdminClient } from "@/lib/supabase/server";
 import { revalidateProduct } from "@/lib/admin/revalidate";
-import { withErrorHandling } from "@/lib/admin/with-error-handling";
+import { withErrorHandling } from "@/lib/with-error-handling";
 
 type Params = { params: Promise<{ id: string }> };
 

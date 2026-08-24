@@ -3,7 +3,7 @@ import { getSessionAdminUser } from "@/lib/admin/auth";
 import { getProduct, updateProduct, deleteProduct, type ProductInput } from "@/lib/admin/products";
 import { deleteImage } from "@/lib/admin/cloudinary";
 import { revalidateProduct } from "@/lib/admin/revalidate";
-import { withErrorHandling } from "@/lib/admin/with-error-handling";
+import { withErrorHandling } from "@/lib/with-error-handling";
 
 type Params = { params: Promise<{ id: string }> };
 
