@@ -120,7 +120,7 @@ Real photography is wired in under `public/images/`:
   product (all fragrances) onto "Fragrances"; drops the fixed 5-value
   CHECK constraint on `products.mood` so mood becomes free-text/
   admin-extensible, same pattern as Scent Tags, instead of a closed enum.
-- `0008_affiliate_order_updates.sql`: client feedback round 3. Adds
+- `0009_affiliate_order_updates.sql`: client feedback round 3. Adds
   `affiliate_applications` (public "Be an Affiliate" nav button/form);
   `orders.viewed_at` for the admin unviewed-order counter badge;
   replaces the order status pipeline (`received`/`processing`/
@@ -130,7 +130,7 @@ Real photography is wired in under `public/images/`:
   an order moves to Shipped Out.
 - `supabase/seed/*.sql`: the old v3 live-catalogue seed data, superseded
   by 0006 above. Not used.
-- Run migrations **0001 → 0002 → 0003 → 0004 → 0005 → 0006 → 0007 → 0008**
+- Run migrations **0001 → 0002 → 0003 → 0004 → 0005 → 0006 → 0007 → 0009**
   in order in the Supabase SQL Editor (all manual; there is no migration
   runner).
 - After 0005/0006 are applied, create the first admin login:
