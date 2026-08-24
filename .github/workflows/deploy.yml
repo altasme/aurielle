@@ -22,20 +22,19 @@ jobs:
 
       - run: npm ci
 
-      # Same mechanism as local dev (.dev.vars, gitignored): the
-      # OpenNext Cloudflare build step reads these to prerender the
-      # catalogue pages, which now call Supabase at build time.
-      - name: Write .dev.vars for the build step
-        run: |
-          cat <<VARS > .dev.vars
-          SUPABASE_URL=${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }}
-          CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}
-          CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}
-          VARS
-
+      # `initOpenNextCloudflareForDev()` (next.config.ts) only loads
+      # .dev.vars into process.env inside the `next dev` server process
+      # -- it's a no-op during `next build`. getSupabaseAdminClient()
+      # (src/lib/supabase/server.ts) reads process.env directly, and
+      # generateStaticParams() on the catalogue pages calls it at build
+      # time, so these secrets must be real process env vars for the
+      # build step, not just written to .dev.vars.
       - name: Build and deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
         run: npm run cf:deploy

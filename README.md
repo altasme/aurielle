@@ -233,7 +233,13 @@ GitHub Actions on every push to this branch (plus a manual
 or a live Codespace. Needs six repository secrets set once (GitHub →
 repo → Settings → Secrets and variables → Actions): the same five above
 plus `CLOUDFLARE_API_TOKEN` (dashboard → profile icon → My Profile →
-API Tokens → Create Token → "Edit Cloudflare Workers" template).
+API Tokens → Create Token → "Edit Cloudflare Workers" template). The
+workflow passes the five Supabase/Cloudinary secrets as real `env:`
+vars on the build step (not just a written `.dev.vars` file) because
+`initOpenNextCloudflareForDev()` only loads `.dev.vars` inside `next
+dev` -- it's a no-op during `next build`, and the catalogue pages'
+`generateStaticParams()` calls Supabase at build time via
+`process.env` directly.
 
 `open-next.config.ts` doesn't configure an R2/KV incremental cache, so
 `export const revalidate` on the catalogue pages doesn't get a durable
