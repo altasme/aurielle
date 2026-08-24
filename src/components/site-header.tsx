@@ -93,6 +93,12 @@ export function SiteHeader() {
           >
             {cartLabel}
           </Link>
+          <Link
+            href="/affiliate"
+            className="border border-burgundy bg-burgundy px-4 py-2 text-xs uppercase tracking-wide text-ivory transition-colors hover:bg-burgundy-dark"
+          >
+            Be an Affiliate
+          </Link>
         </nav>
 
         <button
@@ -129,6 +135,13 @@ export function SiteHeader() {
                 onClick={() => setMenuOpen(false)}
               >
                 {cartLabel}
+              </Link>
+              <Link
+                href="/affiliate"
+                className="mt-2 border border-burgundy bg-burgundy px-4 py-3 text-center text-sm uppercase tracking-wide text-ivory"
+                onClick={() => setMenuOpen(false)}
+              >
+                Be an Affiliate
               </Link>
             </div>
           </nav>

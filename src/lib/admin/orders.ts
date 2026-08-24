@@ -26,6 +26,7 @@ export type OrderListItem = {
   paymentStatus: PaymentStatus;
   orderStatus: OrderStatus;
   createdAt: string;
+  viewedAt: string | null;
 };
 
 export type OrderItem = {
@@ -48,11 +49,13 @@ export type OrderDetail = OrderListItem & {
   subtotal: number;
   shippingCost: number;
   proofPath: string | null;
+  courierName: string | null;
+  trackingNumber: string | null;
   items: OrderItem[];
 };
 
 const LIST_SELECT =
-  "id, order_number, business_line, customer_name, customer_email, currency, total, payment_method, payment_status, order_status, created_at";
+  "id, order_number, business_line, customer_name, customer_email, currency, total, payment_method, payment_status, order_status, created_at, viewed_at";
 
 type ListRow = {
   id: string;
@@ -66,6 +69,7 @@ type ListRow = {
   payment_status: PaymentStatus;
   order_status: OrderStatus;
   created_at: string;
+  viewed_at: string | null;
 };
 
 function mapListRow(row: ListRow): OrderListItem {
@@ -81,6 +85,7 @@ function mapListRow(row: ListRow): OrderListItem {
     paymentStatus: row.payment_status,
     orderStatus: row.order_status,
     createdAt: row.created_at,
+    viewedAt: row.viewed_at,
   };
 }
 
@@ -114,12 +119,32 @@ export async function listOrders(params: {
   return (data ?? []).map(mapListRow);
 }
 
+export async function countUnviewedOrders(): Promise<number> {
+  const supabase = getSupabaseAdminClient();
+  const { count, error } = await supabase
+    .from("orders")
+    .select("id", { count: "exact", head: true })
+    .is("viewed_at", null);
+
+  if (error) throw new Error(`Failed to count unviewed orders: ${error.message}`);
+  return count ?? 0;
+}
+
+// Called only from the order detail page itself (not from getOrder(),
+// which is also reused internally by the PATCH route) so opening an
+// order for editing doesn't get conflated with an admin actually having
+// seen it -- though in practice those happen together.
+export async function markOrderViewed(id: string): Promise<void> {
+  const supabase = getSupabaseAdminClient();
+  await supabase.from("orders").update({ viewed_at: new Date().toISOString() }).eq("id", id).is("viewed_at", null);
+}
+
 export async function getOrder(id: string): Promise<OrderDetail | null> {
   const supabase = getSupabaseAdminClient();
   const { data, error } = await supabase
     .from("orders")
     .select(
-      `${LIST_SELECT}, customer_phone, customer_country, billing_address, shipping_address, shipping_same_as_billing, subtotal, shipping_cost, proof_url`,
+      `${LIST_SELECT}, customer_phone, customer_country, billing_address, shipping_address, shipping_same_as_billing, subtotal, shipping_cost, proof_url, courier_name, tracking_number`,
     )
     .eq("id", id)
     .maybeSingle();
@@ -143,6 +168,8 @@ export async function getOrder(id: string): Promise<OrderDetail | null> {
     subtotal: Number(data.subtotal),
     shippingCost: Number(data.shipping_cost),
     proofPath: data.proof_url,
+    courierName: data.courier_name,
+    trackingNumber: data.tracking_number,
     items: (itemRows ?? []).map((row) => ({
       id: row.id,
       nameSnapshot: row.name_snapshot,
@@ -158,7 +185,12 @@ export async function getOrder(id: string): Promise<OrderDetail | null> {
 
 export async function updateOrderStatus(
   id: string,
-  input: { orderStatus: OrderStatus; paymentStatus: PaymentStatus },
+  input: {
+    orderStatus: OrderStatus;
+    paymentStatus: PaymentStatus;
+    courierName?: string;
+    trackingNumber?: string;
+  },
 ): Promise<void> {
   const supabase = getSupabaseAdminClient();
   const { error } = await supabase
@@ -166,6 +198,8 @@ export async function updateOrderStatus(
     .update({
       order_status: input.orderStatus,
       payment_status: input.paymentStatus,
+      courier_name: input.courierName ?? null,
+      tracking_number: input.trackingNumber ?? null,
       updated_at: new Date().toISOString(),
     })
     .eq("id", id);

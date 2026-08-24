@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { countUnviewedOrders } from "@/lib/admin/orders";
 
 const MODULES = [
   {
@@ -12,6 +13,11 @@ const MODULES = [
     href: "/admin/products",
   },
   {
+    title: "Affiliate Management",
+    description: "Applications submitted through the public \"Be an Affiliate\" form.",
+    href: "/admin/affiliates",
+  },
+  {
     title: "Promotion",
     description: "Discount codes, promotional pricing, campaigns, product-specific promotions.",
     href: null,
@@ -23,7 +29,9 @@ const MODULES = [
   },
 ];
 
-export default function AdminDashboardPage() {
+export default async function AdminDashboardPage() {
+  const unviewedOrders = await countUnviewedOrders();
+
   return (
     <div>
       <h1 className="font-serif text-2xl text-ink">Dashboard</h1>
@@ -37,7 +45,14 @@ export default function AdminDashboardPage() {
               href={mod.href}
               className="border border-taupe/20 bg-white p-6 transition-colors hover:border-burgundy"
             >
-              <h2 className="font-serif text-lg text-ink">{mod.title}</h2>
+              <div className="flex items-center justify-between">
+                <h2 className="font-serif text-lg text-ink">{mod.title}</h2>
+                {mod.title === "Order Management" && unviewedOrders > 0 && (
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-burgundy px-1.5 text-[11px] font-medium text-ivory">
+                    {unviewedOrders}
+                  </span>
+                )}
+              </div>
               <p className="mt-2 text-sm text-ink/60">{mod.description}</p>
             </Link>
           ) : (

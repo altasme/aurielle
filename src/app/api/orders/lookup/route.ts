@@ -19,7 +19,7 @@ export const GET = withErrorHandling(async (request: Request) => {
   const { data: order, error } = await supabase
     .from("orders")
     .select(
-      "id, order_number, business_line, customer_name, customer_email, currency, subtotal, shipping_cost, total, payment_method, payment_status, order_status, created_at",
+      "id, order_number, business_line, customer_name, customer_email, currency, subtotal, shipping_cost, total, payment_method, payment_status, order_status, courier_name, tracking_number, created_at",
     )
     .eq("order_number", orderNumber)
     .eq("customer_email", email)

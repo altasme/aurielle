@@ -9,6 +9,7 @@ import { FormField, FIELD_CLASSES } from "./form-field";
 import { SubmitButton } from "./submit-button";
 import { useSubmit } from "@/lib/use-submit";
 import { formatMoney } from "@/lib/format-money";
+import { COUNTRIES } from "@/lib/countries";
 
 type BusinessLine = "collection" | "atelier_supply";
 
@@ -29,14 +30,12 @@ export function CheckoutForm({ businessLine }: { businessLine: BusinessLine }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [customerCountry, setCustomerCountry] = useState("");
 
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [stateProvince, setStateProvince] = useState("");
   const [postalCode, setPostalCode] = useState("");
-  const [billingCountry, setBillingCountry] = useState("");
-  const [shippingSameAsBilling, setShippingSameAsBilling] = useState(true);
+  const [country, setCountry] = useState("");
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | "">("");
   const [proofFile, setProofFile] = useState<File | null>(null);
@@ -129,9 +128,9 @@ export function CheckoutForm({ businessLine }: { businessLine: BusinessLine }) {
         customerName: name,
         customerEmail: email,
         customerPhone: phone,
-        customerCountry,
-        billing: { address, city, stateProvince, postalCode, country: billingCountry },
-        shippingSameAsBilling,
+        customerCountry: country,
+        billing: { address, city, stateProvince, postalCode, country },
+        shippingSameAsBilling: true,
         shipping: null,
         paymentMethod,
         items: items.map((item) => ({ slug: item.slug, quantity: item.quantity })),
@@ -190,19 +189,11 @@ export function CheckoutForm({ businessLine }: { businessLine: BusinessLine }) {
             <FormField label="Full Name" value={name} onChange={setName} required />
             <FormField label="Email" type="email" value={email} onChange={setEmail} required />
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <FormField label="Phone" value={phone} onChange={setPhone} />
-            <FormField
-              label="Country"
-              value={customerCountry}
-              onChange={setCustomerCountry}
-              required
-            />
-          </div>
+          <FormField label="Phone" value={phone} onChange={setPhone} />
         </fieldset>
 
         <fieldset className="space-y-4">
-          <legend className="font-serif text-xl text-ink">Billing Address</legend>
+          <legend className="font-serif text-xl text-ink">Shipping Address</legend>
           <FormField label="Address" value={address} onChange={setAddress} required />
           <div className="grid gap-4 sm:grid-cols-2">
             <FormField label="City" value={city} onChange={setCity} required />
@@ -219,21 +210,25 @@ export function CheckoutForm({ businessLine }: { businessLine: BusinessLine }) {
               onChange={setPostalCode}
               required
             />
-            <FormField
-              label="Country"
-              value={billingCountry}
-              onChange={setBillingCountry}
-              required
-            />
+            <div>
+              <label className="text-xs uppercase tracking-wide text-ink/60">Country *</label>
+              <select
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                required
+                className={`mt-2 ${FIELD_CLASSES}`}
+              >
+                <option value="" disabled>
+                  Select a country
+                </option>
+                {COUNTRIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-          <label className="flex items-center gap-2 text-sm text-ink/70">
-            <input
-              type="checkbox"
-              checked={shippingSameAsBilling}
-              onChange={(e) => setShippingSameAsBilling(e.target.checked)}
-            />
-            Shipping address same as billing
-          </label>
         </fieldset>
 
         <fieldset className="space-y-3">

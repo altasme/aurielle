@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { FIELD_CLASSES } from "@/components/form-field";
+import { FormField, FIELD_CLASSES } from "@/components/form-field";
 import { SubmitButton } from "@/components/submit-button";
 import { useSubmit } from "@/lib/use-submit";
 import {
@@ -20,7 +20,11 @@ export function OrderStatusForm({ order }: { order: OrderDetail }) {
   const { submitting, error, submit } = useSubmit();
   const [orderStatus, setOrderStatus] = useState<OrderStatus>(order.orderStatus);
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>(order.paymentStatus);
+  const [courierName, setCourierName] = useState(order.courierName ?? "");
+  const [trackingNumber, setTrackingNumber] = useState(order.trackingNumber ?? "");
   const [saved, setSaved] = useState(false);
+
+  const isShippedOut = orderStatus === "shipped_out";
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -29,7 +33,12 @@ export function OrderStatusForm({ order }: { order: OrderDetail }) {
       const res = await fetch(`/api/admin/orders/${order.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderStatus, paymentStatus }),
+        body: JSON.stringify({
+          orderStatus,
+          paymentStatus,
+          courierName: isShippedOut ? courierName : undefined,
+          trackingNumber: isShippedOut ? trackingNumber : undefined,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Failed to update order");
@@ -57,6 +66,13 @@ export function OrderStatusForm({ order }: { order: OrderDetail }) {
           ))}
         </select>
       </div>
+
+      {isShippedOut && (
+        <>
+          <FormField label="Courier Name" value={courierName} onChange={setCourierName} required />
+          <FormField label="Tracking Number" value={trackingNumber} onChange={setTrackingNumber} required />
+        </>
+      )}
 
       <div>
         <label className="text-xs uppercase tracking-wide text-ink/60">Payment Status</label>

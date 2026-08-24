@@ -15,6 +15,8 @@ type LookupResult = {
     payment_method: string;
     payment_status: string;
     order_status: string;
+    courier_name: string | null;
+    tracking_number: string | null;
     created_at: string;
   };
   items: {
@@ -28,9 +30,9 @@ type LookupResult = {
 
 const ORDER_STATUS_LABELS: Record<string, string> = {
   pending_verification: "Awaiting payment verification",
-  received: "Received",
-  processing: "Processing",
-  fulfilled: "Fulfilled",
+  to_pack: "Being Packed",
+  to_ship: "Preparing to Ship",
+  shipped_out: "Shipped Out",
   cancelled: "Cancelled",
 };
 
@@ -84,6 +86,12 @@ export function OrderLookupForm() {
           <p className="mt-1 text-burgundy">
             {ORDER_STATUS_LABELS[result.order.order_status] ?? result.order.order_status}
           </p>
+          {result.order.order_status === "shipped_out" && result.order.tracking_number && (
+            <p className="mt-1 text-ink/70">
+              {result.order.courier_name ? `${result.order.courier_name} — ` : ""}
+              Tracking: {result.order.tracking_number}
+            </p>
+          )}
           <div className="mt-4 space-y-2">
             {result.items.map((item) => (
               <div

@@ -19,9 +19,9 @@ function isOrderStatus(value: string | undefined): value is OrderStatus {
 
 const STATUS_BADGE: Record<OrderStatus, string> = {
   pending_verification: "bg-beige text-ink/60",
-  received: "bg-blue-100 text-blue-800",
-  processing: "bg-amber-100 text-amber-800",
-  fulfilled: "bg-green-100 text-green-800",
+  to_pack: "bg-blue-100 text-blue-800",
+  to_ship: "bg-amber-100 text-amber-800",
+  shipped_out: "bg-green-100 text-green-800",
   cancelled: "bg-red-100 text-red-800",
 };
 
@@ -103,7 +103,18 @@ export default async function AdminOrdersPage({ searchParams }: PageProps<"/admi
           <tbody>
             {orders.map((order) => (
               <tr key={order.id} className="border-b border-taupe/10 last:border-0">
-                <td className="px-4 py-3 text-ink">{order.orderNumber}</td>
+                <td className="px-4 py-3 text-ink">
+                  <span className="flex items-center gap-2">
+                    {!order.viewedAt && (
+                      <span
+                        className="h-2 w-2 shrink-0 rounded-full bg-burgundy"
+                        aria-label="Unviewed"
+                        title="Unviewed"
+                      />
+                    )}
+                    {order.orderNumber}
+                  </span>
+                </td>
                 <td className="px-4 py-3 text-ink/70">
                   <div>{order.customerName}</div>
                   <div className="text-xs text-ink/50">{order.customerEmail}</div>

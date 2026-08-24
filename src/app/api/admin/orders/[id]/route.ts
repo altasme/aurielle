@@ -24,7 +24,12 @@ export const PATCH = withErrorHandling(async (request: Request, { params }: Para
   const existing = await getOrder(id);
   if (!existing) return NextResponse.json({ error: "Order not found" }, { status: 404 });
 
-  let body: { orderStatus?: OrderStatus; paymentStatus?: PaymentStatus };
+  let body: {
+    orderStatus?: OrderStatus;
+    paymentStatus?: PaymentStatus;
+    courierName?: string;
+    trackingNumber?: string;
+  };
   try {
     body = await request.json();
   } catch {
@@ -37,7 +42,18 @@ export const PATCH = withErrorHandling(async (request: Request, { params }: Para
   if (!body.paymentStatus || !PAYMENT_STATUSES.includes(body.paymentStatus)) {
     return NextResponse.json({ error: "Invalid payment status" }, { status: 400 });
   }
+  if (body.orderStatus === "shipped_out" && (!body.courierName?.trim() || !body.trackingNumber?.trim())) {
+    return NextResponse.json(
+      { error: "Courier name and tracking number are required for Shipped Out" },
+      { status: 400 },
+    );
+  }
 
-  await updateOrderStatus(id, { orderStatus: body.orderStatus, paymentStatus: body.paymentStatus });
+  await updateOrderStatus(id, {
+    orderStatus: body.orderStatus,
+    paymentStatus: body.paymentStatus,
+    courierName: body.courierName?.trim(),
+    trackingNumber: body.trackingNumber?.trim(),
+  });
   return NextResponse.json({ ok: true });
 });
