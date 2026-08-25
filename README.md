@@ -128,11 +128,16 @@ Real photography is wired in under `public/images/`:
   and `cancelled` unchanged) and migrates existing rows onto the closest
   new value; adds `orders.courier_name`/`tracking_number`, captured when
   an order moves to Shipped Out.
+- `0011_affiliate_approval.sql`: affiliate applications become subject
+  to admin approval. Adds `affiliate_applications.status` (`pending` /
+  `approved` / `rejected`, default `pending`); the admin Affiliates
+  page's New/Approved/Rejected tabs and the nav "new applications"
+  counter badge both key off this.
 - `supabase/seed/*.sql`: the old v3 live-catalogue seed data, superseded
   by 0006 above. Not used.
-- Run migrations **0001 → 0002 → 0003 → 0004 → 0005 → 0006 → 0007 → 0010**
-  in order in the Supabase SQL Editor (all manual; there is no migration
-  runner).
+- Run migrations **0001 → 0002 → 0003 → 0004 → 0005 → 0006 → 0007 → 0010
+  → 0011** in order in the Supabase SQL Editor (all manual; there is no
+  migration runner).
 - After 0005/0006 are applied, create the first admin login:
   `ADMIN_USERNAME=... ADMIN_PASSWORD=... node scripts/seed-admin-user.mjs`
   prints an `insert into admin_users ...` statement (password scrypt-

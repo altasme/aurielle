@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { countUnviewedOrders } from "@/lib/admin/orders";
+import { countNewAffiliateApplications } from "@/lib/admin/affiliates";
 
 const MODULES = [
   {
@@ -30,7 +31,10 @@ const MODULES = [
 ];
 
 export default async function AdminDashboardPage() {
-  const unviewedOrders = await countUnviewedOrders();
+  const [unviewedOrders, newAffiliates] = await Promise.all([
+    countUnviewedOrders(),
+    countNewAffiliateApplications(),
+  ]);
 
   return (
     <div>
@@ -47,9 +51,10 @@ export default async function AdminDashboardPage() {
             >
               <div className="flex items-center justify-between">
                 <h2 className="font-serif text-lg text-ink">{mod.title}</h2>
-                {mod.title === "Order Management" && unviewedOrders > 0 && (
+                {((mod.title === "Order Management" && unviewedOrders > 0) ||
+                  (mod.title === "Affiliate Management" && newAffiliates > 0)) && (
                   <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-burgundy px-1.5 text-[11px] font-medium text-ivory">
-                    {unviewedOrders}
+                    {mod.title === "Order Management" ? unviewedOrders : newAffiliates}
                   </span>
                 )}
               </div>

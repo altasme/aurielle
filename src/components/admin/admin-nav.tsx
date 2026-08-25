@@ -10,7 +10,15 @@ const NAV_LINKS = [
   { href: "/admin/affiliates", label: "Affiliate Management" },
 ];
 
-export function AdminNav({ username, unviewedOrders }: { username: string; unviewedOrders: number }) {
+export function AdminNav({
+  username,
+  unviewedOrders,
+  newAffiliates,
+}: {
+  username: string;
+  unviewedOrders: number;
+  newAffiliates: number;
+}) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -29,6 +37,8 @@ export function AdminNav({ username, unviewedOrders }: { username: string; unvie
       <nav className="flex-1 px-3 py-4">
         {NAV_LINKS.map((link) => {
           const active = link.href === "/admin" ? pathname === "/admin" : pathname.startsWith(link.href);
+          const badgeCount =
+            link.href === "/admin/orders" ? unviewedOrders : link.href === "/admin/affiliates" ? newAffiliates : 0;
           return (
             <Link
               key={link.href}
@@ -38,9 +48,9 @@ export function AdminNav({ username, unviewedOrders }: { username: string; unvie
               }`}
             >
               {link.label}
-              {link.href === "/admin/orders" && unviewedOrders > 0 && (
+              {badgeCount > 0 && (
                 <span className="ml-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-burgundy px-1.5 text-[11px] font-medium text-ivory">
-                  {unviewedOrders}
+                  {badgeCount}
                 </span>
               )}
             </Link>
