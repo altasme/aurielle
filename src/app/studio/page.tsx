@@ -4,7 +4,7 @@ import { Reveal } from "@/components/reveal";
 import { ButtonLink } from "@/components/button-link";
 import { StudioQuoteForm } from "@/components/studio-quote-form";
 import { StudioImageSlot } from "@/components/studio-image-slot";
-import { StudioChipLink } from "@/components/studio-chip-link";
+import { StudioGroupingGallery } from "@/components/studio-grouping-gallery";
 import { StudioStepIcon, type StudioStepIconName } from "@/components/studio-step-icon";
 import { FinishTile } from "@/components/finish-tile";
 import { StickyQuoteButton } from "@/components/sticky-quote-button";
@@ -68,7 +68,7 @@ export default function CustomisationStudioPage() {
           <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-5">
             {STUDIO_FINISHES.map((finish, i) => (
               <Reveal key={finish.name} delayMs={i * 60}>
-                <FinishTile name={finish.name} description={finish.description} />
+                <FinishTile name={finish.name} description={finish.description} image={finish.image} />
               </Reveal>
             ))}
           </div>
@@ -77,59 +77,14 @@ export default function CustomisationStudioPage() {
 
       {/* 3-6. FOUR GROUPINGS, alternating image side */}
       <div className="space-y-0">
-        {STUDIO_GROUPINGS.map((grouping, i) => {
-          const imageFirst = i % 2 === 0;
-          return (
-            <section
-              key={grouping.slug}
-              className={i % 2 === 0 ? "bg-beige px-6 py-20 lg:px-10" : "px-6 py-20 lg:px-10"}
-            >
-              <div
-                className={`mx-auto grid max-w-6xl gap-10 lg:grid-cols-2 lg:items-center ${
-                  imageFirst ? "" : "lg:[&>*:first-child]:order-2"
-                }`}
-              >
-                <Reveal>
-                  <StudioImageSlot
-                    src={grouping.image}
-                    alt={grouping.image ? `${grouping.name} sample work` : ""}
-                    slotName={`grouping-image: ${grouping.name}`}
-                    canvas="640x520"
-                    aspectRatio="11:9"
-                    sizes="(min-width: 1024px) 50vw, 100vw"
-                    className="relative aspect-[11/9] w-full"
-                  />
-                </Reveal>
-                <Reveal delayMs={100}>
-                  <h2 className="font-serif text-2xl text-ink">{grouping.name}</h2>
-                  <p className="mt-3 max-w-md text-sm text-ink/60">{grouping.intro}</p>
-                  <div className="mt-6 flex flex-wrap gap-2">
-                    {grouping.items.map((item) => (
-                      <StudioChipLink
-                        key={item}
-                        href={`/studio?grouping=${encodeURIComponent(grouping.name)}&item=${encodeURIComponent(item)}#quote`}
-                        grouping={grouping.name}
-                        item={item}
-                        className="rounded-sm border border-taupe/30 bg-ivory px-3 py-1.5 text-xs text-ink/70 transition-colors hover:border-burgundy hover:text-burgundy"
-                      >
-                        {item}
-                      </StudioChipLink>
-                    ))}
-                  </div>
-                  <div className="mt-6">
-                    <StudioChipLink
-                      href={`/studio?grouping=${encodeURIComponent(grouping.name)}#quote`}
-                      grouping={grouping.name}
-                      className="inline-block border border-burgundy px-6 py-2.5 text-xs uppercase tracking-[0.2em] text-burgundy transition-colors hover:bg-burgundy hover:text-ivory"
-                    >
-                      Request a Quote
-                    </StudioChipLink>
-                  </div>
-                </Reveal>
-              </div>
-            </section>
-          );
-        })}
+        {STUDIO_GROUPINGS.map((grouping, i) => (
+          <section
+            key={grouping.slug}
+            className={i % 2 === 0 ? "bg-beige px-6 py-20 lg:px-10" : "px-6 py-20 lg:px-10"}
+          >
+            <StudioGroupingGallery grouping={grouping} imageFirst={i % 2 === 0} />
+          </section>
+        ))}
       </div>
 
       {/* 7. HOW IT WORKS */}

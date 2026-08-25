@@ -17,9 +17,14 @@ export type StudioGrouping = {
   items: string[];
   // Real print-work photo path, or undefined when none exists yet --
   // the page renders the spec's labeled placeholder block instead of
-  // a fabricated stock photo (launch-integrity rule).
+  // a fabricated stock photo (launch-integrity rule). Shown by default
+  // and whenever the selected item below has no photo of its own.
   image?: string;
   imageBrief: string;
+  // Per-item real photos, keyed by the exact string in `items`. Not
+  // every item needs an entry -- StudioGroupingGallery falls back to
+  // `image` (or a placeholder) for items without one yet.
+  itemImages?: Record<string, string>;
 };
 
 export const STUDIO_GROUPINGS: StudioGrouping[] = [
@@ -29,7 +34,7 @@ export const STUDIO_GROUPINGS: StudioGrouping[] = [
     spotlight: true,
     intro:
       "Perfume and beauty packaging, metal and mini labels, brand plates, acrylic awards and crystal UV stickers -- finished with the same craftsmanship as the Aurielle Collection itself.",
-    image: "/images/atelier/custom-label.jpg",
+    image: "/images/studio/luxury-packaging-branding/perfume-bottle-printing.jpg",
     imageBrief: "Perfume packaging, metal labels",
     items: [
       "Perfume Bottle Printing",
@@ -40,6 +45,15 @@ export const STUDIO_GROUPINGS: StudioGrouping[] = [
       "Acrylic Awards",
       "Crystal / UV Luxury Stickers",
     ],
+    itemImages: {
+      "Perfume Bottle Printing": "/images/studio/luxury-packaging-branding/perfume-bottle-printing.jpg",
+      "Cosmetic Packaging": "/images/studio/luxury-packaging-branding/cosmetic-packaging.jpg",
+      "Metal Labels": "/images/studio/luxury-packaging-branding/metal-labels.jpg",
+      "Mini Labels": "/images/studio/luxury-packaging-branding/mini-labels.jpg",
+      "Brand Plates": "/images/studio/luxury-packaging-branding/brand-plates.jpg",
+      "Acrylic Awards": "/images/studio/luxury-packaging-branding/acrylic-awards.jpg",
+      "Crystal / UV Luxury Stickers": "/images/studio/luxury-packaging-branding/crystal-uv-sticker.jpg",
+    },
   },
   {
     slug: "personal-gifts",
@@ -47,6 +61,7 @@ export const STUDIO_GROUPINGS: StudioGrouping[] = [
     spotlight: false,
     intro:
       "Custom printing for the people and moments in your life -- phone cases, home decor, wedding keepsakes, souvenirs and fashion accessories.",
+    image: "/images/studio/personal-gifts/phone-cases.jpg",
     imageBrief: "Phone case or keepsake",
     items: [
       "Phone & Electronics Cases",
@@ -55,6 +70,13 @@ export const STUDIO_GROUPINGS: StudioGrouping[] = [
       "Souvenirs",
       "Fashion Accessories",
     ],
+    itemImages: {
+      "Phone & Electronics Cases": "/images/studio/personal-gifts/phone-cases.jpg",
+      "Home Decoration": "/images/studio/personal-gifts/home-decoration.jpg",
+      "Wedding & Event Keepsakes": "/images/studio/personal-gifts/wedding-event-keepsakes.jpg",
+      "Souvenirs": "/images/studio/personal-gifts/souvenirs.jpg",
+      "Fashion Accessories": "/images/studio/personal-gifts/fashion-accessories.jpg",
+    },
   },
   {
     slug: "business-solutions",

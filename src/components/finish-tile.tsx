@@ -4,10 +4,16 @@ import { useState } from "react";
 import { StudioImageSlot } from "./studio-image-slot";
 
 // Hover reveals the description on desktop (CSS group-hover); tap
-// toggles it on touch devices, since hover doesn't fire reliably
-// there. No image asset exists yet for any finish, so each tile is
-// the spec's labeled placeholder block until real macro shots come in.
-export function FinishTile({ name, description }: { name: string; description: string }) {
+// toggles it on touch devices, since hover doesn't fire reliably there.
+export function FinishTile({
+  name,
+  description,
+  image,
+}: {
+  name: string;
+  description: string;
+  image?: string;
+}) {
   const [tapped, setTapped] = useState(false);
 
   return (
@@ -17,6 +23,7 @@ export function FinishTile({ name, description }: { name: string; description: s
       className="group relative aspect-square w-full overflow-hidden border border-taupe/30 text-left"
     >
       <StudioImageSlot
+        src={image}
         slotName={`Finish: ${name}`}
         canvas="240x240"
         aspectRatio="1:1"

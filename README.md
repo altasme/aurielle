@@ -234,24 +234,26 @@ Real photography is wired in under `public/images/`:
   into a full visual page: hero, a finishes strip (`FinishTile`, hover/
   tap reveal), then the 4 curated groupings
   (`src/lib/data/studio-groupings.ts`) -- Luxury Packaging & Branding,
-  Personal Gifts, Business Solutions, Industrial Printing -- each with
-  an alternating-side image and clickable item chips
-  (`StudioChipLink`) that prefill the quote form's grouping/item and
-  scroll to it, a "How It Works" stepper (`StudioStepIcon`, line-art
-  only, no photos needed), then the quote form and a sticky "Request a
+  Personal Gifts, Business Solutions, Industrial Printing -- each
+  rendered by `StudioGroupingGallery`: an alternating-side image that
+  swaps to a per-item real photo (`itemImages`) when you click an item
+  chip, like a product gallery, and a "Request a Quote" button that
+  carries whichever item is currently selected to prefill the quote
+  form. A "How It Works" stepper (`StudioStepIcon`, line-art only, no
+  photos needed) follows, then the quote form and a sticky "Request a
   Quote" button on scroll. Editing the groupings/items/finishes means
   editing those data files and redeploying -- no CMS, per spec.
-  **Recent Work (a real-photo gallery) is intentionally omitted**:
-  only one real print-work photo exists
-  (`/images/atelier/custom-label.jpg`, reused for the hero and the
-  Luxury grouping), not enough for an honest gallery -- the spec is
-  explicit that this section stays empty rather than filled with
-  fabricated samples. Every other image slot without a real photo yet
-  (the other 3 groupings' images, all 5 finish tiles) renders as a
-  labeled placeholder block (`StudioImageSlot`) naming the slot,
-  canvas size and aspect ratio, per the spec's own placeholder
-  convention, so what's still needed from the client is obvious at a
-  glance rather than silently missing.
+  **Recent Work (a standalone real-photo gallery) is intentionally
+  omitted** even though real photos now exist for two groupings (Luxury
+  Packaging & Branding, Personal Gifts): the per-item gallery above
+  already shows that work in context, and Business Solutions /
+  Industrial Printing don't have per-item photos yet, so a separate
+  gallery would be uneven. Image slots without a real photo yet (the
+  Business Solutions grouping image and its items) render as a labeled
+  placeholder block (`StudioImageSlot`) naming the slot, canvas size
+  and aspect ratio, per the spec's own placeholder convention, so
+  what's still needed from the client is obvious at a glance rather
+  than silently missing.
 - `src/lib/analytics.ts`: a `track()` stub (no provider wired up yet,
   same as the rest of the site -- see "What's scaffolded vs. not yet
   built"). Fires `Studio Category Clicked` on chip click and `Quote

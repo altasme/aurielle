@@ -26,8 +26,14 @@ export function StudioImageSlot({
   className?: string;
 }) {
   if (src) {
+    // No baked-in "relative" here: callers must supply their own
+    // position utility (e.g. "absolute inset-0" for a full-bleed hero,
+    // "relative ..." elsewhere). Tailwind v4 emits .absolute before
+    // .relative in its generated stylesheet, so a hardcoded "relative"
+    // here would always beat a caller's "absolute" at equal
+    // specificity, silently collapsing the wrapper to 0x0.
     return (
-      <div className={`relative overflow-hidden ${className}`}>
+      <div className={`overflow-hidden ${className}`}>
         <Image src={src} alt={alt} fill priority={priority} sizes={sizes} className="object-cover" />
       </div>
     );
