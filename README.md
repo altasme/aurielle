@@ -21,14 +21,20 @@ A third pillar was added on top of this per
 [`docs/spec/AURIELLE_SPEC_v5_ADDENDUM.md`](docs/spec/AURIELLE_SPEC_v5_ADDENDUM.md):
 the **Customisation Studio** (UV-printing/custom branding), a quote-based
 showcase with no cart or pricing. See "Customisation Studio" below. The
-homepage's information architecture was then reworked per
+homepage went through two further IA passes:
 [`docs/spec/AURIELLE_LANDING_IMPROVEMENT_v5.1.md`](docs/spec/AURIELLE_LANDING_IMPROVEMENT_v5.1.md)
-(build review): the same sections, regrouped into three uninterrupted
-per-pillar runs (perfume → supply → studio, Option A "balanced
-three-pillar") instead of interleaving all three audiences, plus a hard
-Supply/Studio copy boundary (Supply sources materials, Studio prints/
-brands them), nav label/emphasis fixes, and the shoppable perfume grid
-moved up near the top instead of ~7 sections down.
+regrouped the same sections into three uninterrupted per-pillar runs
+instead of interleaving all three audiences; then
+[`docs/spec/AURIELLE_LANDING_REBALANCE_v5.2.md`](docs/spec/AURIELLE_LANDING_REBALANCE_v5.2.md)
+(supersedes v5.1) found the reorder wasn't enough -- the page was still
+~70% fragrance by real estate -- and cut it down to a **lean, equal-thirds
+gateway**: one parallel block per pillar (heading → a taste → one CTA to
+its own page), with the destination-grade content (mood filter,
+philosophy, story bottles, founder story, community, factory, fragrance-
+dev process) relocated to `/collection`, `/atelier-supply` and `/about`
+rather than deleted. Both passes also fixed the hard Supply/Studio copy
+boundary (Supply sources materials, Studio prints/brands them) and
+nav/affiliate emphasis.
 
 ## Stack
 

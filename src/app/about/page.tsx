@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { Reveal } from "@/components/reveal";
 import { ButtonLink } from "@/components/button-link";
 import { CUSTOMISATION_STUDIO_ENABLED } from "@/config/studio";
@@ -82,31 +83,106 @@ const SECTIONS: Section[] = [
 
 export default function AboutPage() {
   return (
-    <div className="mx-auto max-w-4xl px-6 py-20 lg:px-10">
-      <Reveal className="text-center">
-        <p className="font-script text-2xl text-burgundy">Let&apos;s begin</p>
-        <h1 className="mt-2 font-serif text-4xl text-ink">About Aurielle</h1>
-      </Reveal>
+    <div>
+      <div className="mx-auto max-w-4xl px-6 py-20 lg:px-10">
+        <Reveal className="text-center">
+          <p className="font-script text-2xl text-burgundy">Let&apos;s begin</p>
+          <h1 className="mt-2 font-serif text-4xl text-ink">About Aurielle</h1>
+        </Reveal>
 
-      <div className="mt-16 space-y-14">
-        {SECTIONS.map((section) => (
-          <Reveal key={section.title} className="border-t border-taupe/20 pt-8">
-            <h2 className="font-serif text-2xl text-ink">{section.title}</h2>
-            <div className="mt-3 max-w-md space-y-3 text-sm text-ink/60">
-              {section.paragraphs.map((paragraph, i) => (
-                <p key={i}>{paragraph}</p>
-              ))}
-            </div>
-            {section.cta && (
-              <div className="mt-6">
-                <ButtonLink href={section.cta.href} variant="secondary">
-                  {section.cta.label}
-                </ButtonLink>
+        <div className="mt-16 space-y-14">
+          {SECTIONS.map((section) => (
+            <Reveal key={section.title} className="border-t border-taupe/20 pt-8">
+              <h2 className="font-serif text-2xl text-ink">{section.title}</h2>
+              <div className="mt-3 max-w-md space-y-3 text-sm text-ink/60">
+                {section.paragraphs.map((paragraph, i) => (
+                  <p key={i}>{paragraph}</p>
+                ))}
               </div>
-            )}
-          </Reveal>
-        ))}
+              {section.cta && (
+                <div className="mt-6">
+                  <ButtonLink href={section.cta.href} variant="secondary">
+                    {section.cta.label}
+                  </ButtonLink>
+                </div>
+              )}
+            </Reveal>
+          ))}
+        </div>
       </div>
+
+      {/* THE STORY BEHIND AURIELLE -- relocated from the homepage
+          (v5.2). */}
+      <section className="bg-beige px-6 py-24 lg:px-10">
+        <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-2 lg:items-start">
+          <Reveal className="relative aspect-[4/3] overflow-hidden border border-taupe/30">
+            <Image
+              src="/images/atelier/founder.jpg"
+              alt="Portrait of the Aurielle Paris Atelier founder"
+              fill
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              className="object-cover"
+            />
+          </Reveal>
+          <Reveal delayMs={120}>
+            <h2 className="font-serif text-3xl text-ink">The Story Behind Aurielle</h2>
+            <p className="mt-4 text-sm text-ink/70">
+              A fragrance is more than a scent. It is a memory, an emotion, a
+              presence.
+            </p>
+            <p className="mt-4 text-sm text-ink/70">
+              Inspired by the timeless elegance of Paris and the artistry of
+              French perfumery, Aurielle Paris Atelier was created to make
+              fragrance feel personal.
+            </p>
+            <p className="mt-4 text-sm text-ink/70">
+              Our collection of refined perfume oils invites you into different
+              worlds of beauty, mystery, warmth and allure, with each
+              composition created to become part of your own signature.
+            </p>
+            <p className="mt-4 text-sm text-ink/70">
+              Beyond the collection, Atelier Supply supplies fragrance
+              materials to perfumers, creators and businesses, giving others
+              the opportunity to create something uniquely their own.
+            </p>
+            <div className="mt-6">
+              <ButtonLink href="/collection" variant="secondary">
+                Discover the World of Aurielle
+              </ButtonLink>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* FRAGRANCE IN THE REAL WORLD -- relocated from the homepage
+          (v5.2). Real event photography, not fabricated testimonials:
+          no verified customer quotes exist yet, so this stays
+          photo-only until real ones are supplied. */}
+      <section className="px-6 py-24 lg:px-10">
+        <div className="mx-auto max-w-4xl text-center">
+          <Reveal>
+            <h2 className="font-serif text-3xl text-ink">Fragrance in the Real World</h2>
+            <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
+              From personal signatures to growing fragrance businesses,
+              Aurielle is part of a community of people creating,
+              discovering and sharing fragrance.
+            </p>
+          </Reveal>
+
+          <Reveal
+            delayMs={100}
+            className="relative mx-auto mt-10 aspect-[16/9] max-w-3xl overflow-hidden border border-taupe/30"
+          >
+            <Image
+              src="/images/atelier/community-event.jpg"
+              alt="Guests exploring fragrance samples together at an Aurielle event"
+              fill
+              sizes="(min-width: 1024px) 768px, 100vw"
+              className="object-cover"
+            />
+          </Reveal>
+        </div>
+      </section>
     </div>
   );
 }
