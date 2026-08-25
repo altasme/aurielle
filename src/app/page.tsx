@@ -5,6 +5,7 @@ import { Reveal } from "@/components/reveal";
 import { getFeaturedPerfumes } from "@/lib/data/perfumes";
 import { CUSTOMISATION_STUDIO_ENABLED } from "@/config/studio";
 import { STUDIO_GROUPINGS } from "@/lib/data/studio-groupings";
+import { ATELIER_CAPABILITIES } from "@/lib/data/atelier-capabilities";
 
 const STUDIO_SPOTLIGHT = STUDIO_GROUPINGS.find((g) => g.spotlight);
 
@@ -15,26 +16,8 @@ const STUDIO_SPOTLIGHT = STUDIO_GROUPINGS.find((g) => g.spotlight);
 // -> a taste -> one CTA), with destination-grade content (mood filter,
 // philosophy, story bottles, founder story, community, factory,
 // fragrance-dev process) relocated to /collection, /atelier-supply and
-// /about, where it's still fully present, just not on the front door.
-
-const ATELIER_CAPABILITIES = [
-  {
-    title: "Fragrance Oils",
-    body: "Source fragrance oils and profiles for personal, creative or commercial applications.",
-  },
-  {
-    title: "Material Profiles",
-    body: "Explore documented fragrance material profiles to guide your next project.",
-  },
-  {
-    title: "OEM & ODM",
-    body: "Develop your own fragrance products with support from concept through finished product.",
-  },
-  {
-    title: "Sourcing & Logistics",
-    body: "Access supply and international shipping support for commercial fragrance projects.",
-  },
-];
+// /about, where it's still fully present, just not on the front door
+// (spec v5.4 completes those three receiving pages).
 
 const WHY_AURIELLE = [
   {

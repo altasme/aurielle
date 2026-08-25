@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { getPerfumes } from "@/lib/data/perfumes";
 import { CollectionBrowser } from "@/components/collection-browser";
+import { ButtonLink } from "@/components/button-link";
 import { Reveal } from "@/components/reveal";
 import { MOODS } from "@/lib/data/moods";
 
@@ -16,8 +17,7 @@ export const metadata: Metadata = {
 // Spec §11 "Every Bottle, a Story": reused, already-licensed product
 // photography as atmosphere, not fabricated reviews (no verified
 // customer testimonials exist yet). Relocated here from the homepage
-// per the v5.2 rebalance -- this is destination content, not a
-// front-door taste.
+// per the v5.2 rebalance; page structure completed per spec v5.4.
 const EXPERIENCE_IMAGES = [
   {
     slug: "paris-nocturne",
@@ -48,23 +48,67 @@ export default async function CollectionPage() {
 
   return (
     <div>
-      <div className="mx-auto max-w-6xl px-6 py-20 lg:px-10">
-        <Reveal className="text-center">
-          <h1 className="font-serif text-4xl text-ink">The Aurielle Collection</h1>
-          <p className="mt-3 text-sm text-ink/60">
-            Fragrance oils crafted to become part of your signature.
+      {/* PAGE HERO */}
+      <section className="relative flex min-h-[45vh] flex-col items-center justify-center gap-3 overflow-hidden px-6 py-20 text-center">
+        <Image
+          src="/images/perfumes/main/rosalie-elegance.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-ink/40" />
+        <Reveal className="relative z-10">
+          <p className="font-script text-2xl text-ivory">Fragrance, in full</p>
+          <h1 className="mt-2 font-serif text-4xl text-ivory sm:text-5xl">
+            The Aurielle Collection
+          </h1>
+          <p className="mx-auto mt-3 max-w-md text-sm text-ivory/90">
+            Refined perfume oils crafted to become part of your signature.
           </p>
         </Reveal>
+      </section>
 
-        <div className="mt-10">
-          <Suspense>
-            <CollectionBrowser perfumes={perfumes} />
-          </Suspense>
-        </div>
+      <div id="shop" className="mx-auto max-w-6xl scroll-mt-20 px-6 py-16 lg:px-10">
+        <Suspense>
+          <CollectionBrowser perfumes={perfumes} />
+        </Suspense>
       </div>
 
-      {/* EVERY BOTTLE, A STORY -- relocated from the homepage (v5.2). */}
+      {/* FIND YOUR SIGNATURE -- relocated from the homepage (v5.2):
+          mood-based discovery, not a formal fragrance-family
+          classification (unconfirmed by the client). Filters the
+          browser above via the mood query param. */}
       <section className="bg-beige px-6 py-24 lg:px-10">
+        <div className="mx-auto max-w-4xl text-center">
+          <Reveal>
+            <p className="font-script text-2xl text-burgundy">Find Your Scent</p>
+            <h2 className="mt-2 font-serif text-3xl text-ink">
+              A Fragrance for Every Mood
+            </h2>
+            <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
+              Discover scents inspired by femininity, mystery, elegance,
+              warmth and allure.
+            </p>
+          </Reveal>
+
+          <Reveal delayMs={120} className="mt-10 flex flex-wrap justify-center gap-3">
+            {MOODS.map((mood) => (
+              <Link
+                key={mood}
+                href={`/collection?mood=${encodeURIComponent(mood)}`}
+                className="border border-burgundy px-6 py-2.5 text-xs uppercase tracking-[0.2em] text-burgundy transition-colors hover:bg-burgundy hover:text-ivory"
+              >
+                {mood}
+              </Link>
+            ))}
+          </Reveal>
+        </div>
+      </section>
+
+      {/* EVERY BOTTLE, A STORY -- relocated from the homepage (v5.2). */}
+      <section className="px-6 py-24 lg:px-10">
         <div className="mx-auto max-w-6xl">
           <Reveal className="text-center">
             <p className="font-script text-2xl text-burgundy">Every Bottle, a Story</p>
@@ -97,37 +141,6 @@ export default async function CollectionPage() {
         </div>
       </section>
 
-      {/* FIND YOUR SIGNATURE -- relocated from the homepage (v5.2):
-          mood-based discovery, not a formal fragrance-family
-          classification (unconfirmed by the client). Filters the
-          browser above via the mood query param. */}
-      <section className="px-6 py-24 lg:px-10">
-        <div className="mx-auto max-w-4xl text-center">
-          <Reveal>
-            <p className="font-script text-2xl text-burgundy">Find Your Scent</p>
-            <h2 className="mt-2 font-serif text-3xl text-ink">
-              A Fragrance for Every Mood
-            </h2>
-            <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
-              Discover scents inspired by femininity, mystery, elegance,
-              warmth and allure.
-            </p>
-          </Reveal>
-
-          <Reveal delayMs={120} className="mt-10 flex flex-wrap justify-center gap-3">
-            {MOODS.map((mood) => (
-              <Link
-                key={mood}
-                href={`/collection?mood=${encodeURIComponent(mood)}`}
-                className="border border-burgundy px-6 py-2.5 text-xs uppercase tracking-[0.2em] text-burgundy transition-colors hover:bg-burgundy hover:text-ivory"
-              >
-                {mood}
-              </Link>
-            ))}
-          </Reveal>
-        </div>
-      </section>
-
       {/* THE AURIELLE PHILOSOPHY -- relocated from the homepage (v5.2). */}
       <Reveal className="mx-auto max-w-2xl px-6 py-24 text-center lg:px-10">
         <p className="font-script text-2xl text-burgundy">The Aurielle Philosophy</p>
@@ -140,10 +153,24 @@ export default async function CollectionPage() {
         </p>
         <p className="mx-auto mt-3 max-w-md text-sm text-ink/70">
           Aurielle was created around the belief that the right scent should
-          feel personal. Something that accompanies you, reflects you and
+          feel personal, something that accompanies you, reflects you and
           eventually becomes part of how you are remembered.
         </p>
       </Reveal>
+
+      {/* CLOSE CTA */}
+      <section className="bg-beige px-6 py-20 text-center lg:px-10">
+        <Reveal>
+          <ButtonLink href="/collection#shop">Shop All Perfumes</ButtonLink>
+          <p className="mt-4 text-sm text-ink/60">
+            Building your own line?{" "}
+            <Link href="/atelier-supply" className="text-burgundy underline">
+              Visit Atelier Supply
+            </Link>
+            .
+          </p>
+        </Reveal>
+      </section>
     </div>
   );
 }

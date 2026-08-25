@@ -8,111 +8,83 @@ export const metadata: Metadata = {
   title: "About | Aurielle Paris Atelier",
 };
 
-type Section = {
-  title: string;
-  paragraphs: string[];
-  cta?: { href: string; label: string };
-};
-
-const SECTIONS: Section[] = [
+// About carries the brand narrative for all three pillars, not just
+// fragrance (spec v5.4). "What We Do" replaces the previous separate
+// long-form Atelier Supply / Customisation Studio essays with a
+// leaner, parallel three-block summary matching the homepage's pillar
+// framing; those two pages now carry their own full story instead.
+const WHAT_WE_DO = [
   {
-    title: "Our Story",
-    paragraphs: [
-      "Aurielle Paris Atelier was created from a love of fragrance, elegance and the timeless art of perfumery.",
-      "Inspired by the beauty and character of Paris, Aurielle brings together refined perfume oils and fragrance materials for those who appreciate scent as more than an accessory.",
-      "Each fragrance is an invitation to discover a different mood, memory and expression of individuality. From delicate florals and luminous compositions to deeper woods, amber and mysterious evening scents, the Aurielle collection is designed to become part of your personal signature.",
-      "Beyond the collection, Atelier Supply extends this passion into fragrance creation, offering materials for perfumers, creators and businesses seeking to develop something of their own.",
-      "A world of fragrance, created to be discovered.",
-    ],
+    title: "The Collection",
+    body: "Refined perfume oils crafted to become part of your signature.",
+    href: "/collection",
+    cta: "Shop the Collection",
   },
   {
     title: "Atelier Supply",
-    paragraphs: [
-      "Where fragrance becomes possibility.",
-      "Atelier Supply is the sourcing side of our world, offering fragrance materials for perfumers, creators, manufacturers and businesses.",
-      "Whether you are developing your own fragrance, creating a new product line, or sourcing materials for your business, our collection of fragrance materials provides a starting point for your next creation.",
-      "Available materials are presented with their corresponding customer-facing pricing and supply information, making it easier to explore options for both smaller creative projects and larger requirements.",
-      "Discover the Atelier Supply collection and begin creating your own world of fragrance.",
-    ],
-    cta: { href: "/atelier-supply", label: "View Atelier Supply" },
+    body: "Fragrance oils and sourcing for creators and businesses building their own line.",
+    href: "/atelier-supply",
+    cta: "Explore Supply",
   },
   ...(CUSTOMISATION_STUDIO_ENABLED
     ? [
         {
-          title: "The Customisation Studio",
-          paragraphs: [
-            "Where craft becomes yours to keep.",
-            "The Customisation Studio is Aurielle's newest craft: made-to-order UV printing for luxury packaging, personal gifts, business branding and industrial production.",
-            "Whether you're printing a label for your own perfume line, branding a corporate gift, or producing a small batch of custom pieces, the Studio brings your artwork to life on the object itself.",
-            "Every piece is made to order, no fixed catalogue or stock pricing. Share your artwork and request a quote to begin.",
-            "Discover the Customisation Studio and bring your own design to life.",
-          ],
-          cta: { href: "/studio", label: "Explore the Studio" },
+          title: "Customisation Studio",
+          body: "Made-to-order UV printing, packaging, labels and branding finished to a luxury standard.",
+          href: "/studio",
+          cta: "Explore the Studio",
         },
       ]
     : []),
-  {
-    title: "Our Philosophy",
-    paragraphs: [
-      "We believe fragrance should be personal.",
-      "A beautiful scent does more than create an impression. It can evoke a memory, change a mood, become part of a ritual and eventually feel inseparable from the person who wears it.",
-      "That is why Aurielle approaches fragrance as an experience rather than simply a product.",
-      "Our collection explores different expressions of beauty, from soft and feminine to deep, mysterious and sensual, allowing every individual to discover a fragrance that feels uniquely their own.",
-      "Because the most memorable fragrance is the one that becomes part of your story.",
-    ],
-  },
-  {
-    title: "Fragrance Craftsmanship",
-    paragraphs: [
-      "Inspired by the artistry and elegance of French perfumery.",
-      "Aurielle's fragrance collection is centered around refined perfume oils designed to offer a distinctive and lasting fragrance experience.",
-      "Each composition is given its own character and atmosphere, creating a collection that moves between floral, woody, warm, sensual and sophisticated expressions.",
-      "From the finished Aurielle collection to the fragrance materials offered through Atelier Supply, our world is built around one idea:",
-      "Fragrance is an art of composition, discovery and personal expression.",
-    ],
-  },
-  {
-    title: "Rooted in French Fragrance Tradition",
-    paragraphs: [
-      "Aurielle Paris Atelier presents a collection of refined perfume oils crafted in France, inspired by the elegance, artistry and enduring influence of French perfumery.",
-      "From the compositions themselves to the atmosphere surrounding the brand, France serves as an important part of the Aurielle identity.",
-      "A French-inspired world of fragrance, created for discovery.",
-    ],
-  },
 ];
 
 export default function AboutPage() {
   return (
     <div>
-      <div className="mx-auto max-w-4xl px-6 py-20 lg:px-10">
-        <Reveal className="text-center">
-          <p className="font-script text-2xl text-burgundy">Let&apos;s begin</p>
-          <h1 className="mt-2 font-serif text-4xl text-ink">About Aurielle</h1>
+      {/* PAGE HERO */}
+      <section className="relative flex min-h-[40vh] flex-col items-center justify-center gap-3 overflow-hidden px-6 py-20 text-center">
+        <Image
+          src="/images/hero.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-ink/40" />
+        <Reveal className="relative z-10">
+          <p className="font-script text-2xl text-ivory">Let&apos;s begin</p>
+          <h1 className="mt-2 font-serif text-4xl text-ivory sm:text-5xl">
+            The Aurielle Paris Atelier
+          </h1>
+          <p className="mx-auto mt-3 max-w-md text-sm text-ivory/90">
+            One house, three crafts, one atelier standard across everything
+            we make.
+          </p>
         </Reveal>
+      </section>
 
-        <div className="mt-16 space-y-14">
-          {SECTIONS.map((section) => (
-            <Reveal key={section.title} className="border-t border-taupe/20 pt-8">
-              <h2 className="font-serif text-2xl text-ink">{section.title}</h2>
-              <div className="mt-3 max-w-md space-y-3 text-sm text-ink/60">
-                {section.paragraphs.map((paragraph, i) => (
-                  <p key={i}>{paragraph}</p>
-                ))}
-              </div>
-              {section.cta && (
-                <div className="mt-6">
-                  <ButtonLink href={section.cta.href} variant="secondary">
-                    {section.cta.label}
-                  </ButtonLink>
-                </div>
-              )}
-            </Reveal>
-          ))}
-        </div>
-      </div>
+      {/* OUR STORY */}
+      <section className="mx-auto max-w-3xl px-6 py-20 text-center lg:px-10">
+        <Reveal>
+          <h2 className="font-serif text-2xl text-ink">Our Story</h2>
+          <div className="mx-auto mt-4 max-w-md space-y-3 text-sm text-ink/60">
+            <p>
+              Aurielle Paris Atelier was created from a love of fragrance,
+              elegance and the timeless art of perfumery.
+            </p>
+            <p>
+              Inspired by the beauty and character of Paris, Aurielle brings
+              together refined perfume oils, fragrance materials and, more
+              recently, custom UV printing, for those who want to build
+              something distinctly their own.
+            </p>
+            <p>A world of craft, created to be discovered.</p>
+          </div>
+        </Reveal>
+      </section>
 
-      {/* THE STORY BEHIND AURIELLE -- relocated from the homepage
-          (v5.2). */}
+      {/* THE STORY BEHIND AURIELLE (founder) */}
       <section className="bg-beige px-6 py-24 lg:px-10">
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-2 lg:items-start">
           <Reveal className="relative aspect-[4/3] overflow-hidden border border-taupe/30">
@@ -136,36 +108,61 @@ export default function AboutPage() {
               fragrance feel personal.
             </p>
             <p className="mt-4 text-sm text-ink/70">
-              Our collection of refined perfume oils invites you into different
-              worlds of beauty, mystery, warmth and allure, with each
-              composition created to become part of your own signature.
+              As the atelier grew, so did its craft. What began with
+              perfume oils and fragrance materials has expanded into a full
+              house of craft, giving others the opportunity to create
+              something uniquely their own.
             </p>
-            <p className="mt-4 text-sm text-ink/70">
-              Beyond the collection, Atelier Supply supplies fragrance
-              materials to perfumers, creators and businesses, giving others
-              the opportunity to create something uniquely their own.
-            </p>
-            <div className="mt-6">
-              <ButtonLink href="/collection" variant="secondary">
-                Discover the World of Aurielle
-              </ButtonLink>
-            </div>
           </Reveal>
         </div>
       </section>
 
-      {/* FRAGRANCE IN THE REAL WORLD -- relocated from the homepage
-          (v5.2). Real event photography, not fabricated testimonials:
-          no verified customer quotes exist yet, so this stays
-          photo-only until real ones are supplied. */}
+      {/* WHAT WE DO */}
       <section className="px-6 py-24 lg:px-10">
+        <div className="mx-auto max-w-6xl text-center">
+          <Reveal>
+            <h2 className="font-serif text-3xl text-ink">What We Do</h2>
+            <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
+              One atelier standard across three crafts.
+            </p>
+          </Reveal>
+
+          <div
+            className={`mx-auto mt-12 grid gap-6 sm:grid-cols-2 ${
+              WHAT_WE_DO.length === 3 ? "lg:grid-cols-3" : ""
+            }`}
+          >
+            {WHAT_WE_DO.map((item, i) => (
+              <Reveal
+                key={item.title}
+                delayMs={i * 100}
+                className="border border-taupe/30 p-8 text-center"
+              >
+                <h3 className="font-serif text-lg text-ink">{item.title}</h3>
+                <p className="mt-2 text-sm text-ink/70">{item.body}</p>
+                <div className="mt-5">
+                  <ButtonLink href={item.href} variant="secondary">
+                    {item.cta}
+                  </ButtonLink>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FRAGRANCE IN THE REAL WORLD (community). Real event
+          photography, not fabricated testimonials: no verified
+          customer quotes exist yet, so this stays photo-only until
+          real ones are supplied. */}
+      <section className="bg-beige px-6 py-24 lg:px-10">
         <div className="mx-auto max-w-4xl text-center">
           <Reveal>
             <h2 className="font-serif text-3xl text-ink">Fragrance in the Real World</h2>
             <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
               From personal signatures to growing fragrance businesses,
               Aurielle is part of a community of people creating,
-              discovering and sharing fragrance.
+              discovering and sharing their craft.
             </p>
           </Reveal>
 
@@ -182,6 +179,16 @@ export default function AboutPage() {
             />
           </Reveal>
         </div>
+      </section>
+
+      {/* CLOSE CTA */}
+      <section className="px-6 py-20 text-center lg:px-10">
+        <Reveal className="flex flex-col justify-center gap-4 sm:flex-row">
+          <ButtonLink href="/collection">Explore the Collection</ButtonLink>
+          <ButtonLink href="/business" variant="secondary">
+            Talk to the Atelier
+          </ButtonLink>
+        </Reveal>
       </section>
     </div>
   );

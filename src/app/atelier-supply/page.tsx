@@ -4,6 +4,8 @@ import { getSupplyMaterials } from "@/lib/data/supply-materials";
 import { SupplyCatalogueBrowser } from "@/components/supply-catalogue-browser";
 import { ButtonLink } from "@/components/button-link";
 import { Reveal } from "@/components/reveal";
+import { ProcessStepIcon, type ProcessStepIconName } from "@/components/process-step-icon";
+import { ATELIER_CAPABILITIES } from "@/lib/data/atelier-capabilities";
 
 export const metadata: Metadata = {
   title: "Atelier Supply | Aurielle Paris Atelier",
@@ -11,29 +13,28 @@ export const metadata: Metadata = {
     "Browse the Atelier Supply catalogue: fragrance materials, bottles, pouches, boxes and labels for creators, perfumers and businesses.",
 };
 
-// Relocated from the homepage per the v5.2 rebalance -- this is
-// destination content once a visitor has chosen the Supply pillar,
-// not a front-door taste. Step 03 hands labeling/branding off to the
+// Relocated from the homepage per the v5.2 rebalance, page structure
+// completed per spec v5.4. Step 03 hands labeling/branding off to the
 // Customisation Studio rather than implying Supply prints it (the
-// same Supply/Studio boundary established in the v5.1 pass).
-const CONCEPT_STEPS = [
+// Supply/Studio boundary established in the v5.1 pass).
+const CONCEPT_STEPS: { icon: ProcessStepIconName; title: string; body: string }[] = [
   {
-    number: "01",
+    icon: "scent",
     title: "Develop Your Scent",
     body: "Select from available fragrance profiles or work toward a scent identity suited to your product and brand.",
   },
   {
-    number: "02",
+    icon: "packaging",
     title: "Choose Your Packaging",
     body: "Explore bottles, caps, boxes, pouches and other packaging components.",
   },
   {
-    number: "03",
+    icon: "branding",
     title: "Make It Yours",
     body: "Bring your labels, branding and finishes to life through the Customisation Studio.",
   },
   {
-    number: "04",
+    icon: "market",
     title: "Bring It to Market",
     body: "Coordinate production, sourcing and supply for your finished fragrance products.",
   },
@@ -48,23 +49,46 @@ export default async function AtelierSupplyPage() {
 
   return (
     <div>
-      <div className="mx-auto max-w-6xl px-6 py-20 lg:px-10">
-        <div className="text-center">
-          <h1 className="font-serif text-4xl text-ink">Atelier Supply</h1>
-          <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
-            Fragrance materials, bottles, pouches, boxes and labels for your
-            next creation &mdash; browse by category or search the full
-            catalogue.
+      {/* PAGE HERO */}
+      <section className="relative flex min-h-[45vh] flex-col items-center justify-center gap-3 overflow-hidden px-6 py-20 text-center">
+        <Image
+          src="/images/atelier/production.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-ink/40" />
+        <Reveal className="relative z-10">
+          <h1 className="font-serif text-4xl text-ivory sm:text-5xl">Atelier Supply</h1>
+          <p className="mx-auto mt-3 max-w-md text-sm text-ivory/90">
+            Fragrance materials and sourcing for creators and businesses
+            building their own line.
           </p>
-        </div>
+        </Reveal>
+      </section>
 
-        <div className="mt-10">
-          <SupplyCatalogueBrowser materials={materials} />
+      {/* CAPABILITY CARDS */}
+      <section className="px-6 py-20 lg:px-10">
+        <div className="mx-auto max-w-6xl">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {ATELIER_CAPABILITIES.map((item, i) => (
+              <Reveal
+                key={item.title}
+                delayMs={i * 100}
+                className="border border-taupe/30 bg-beige/40 p-8 text-left"
+              >
+                <h3 className="font-serif text-lg text-ink">{item.title}</h3>
+                <p className="mt-2 text-sm text-ink/70">{item.body}</p>
+              </Reveal>
+            ))}
+          </div>
         </div>
-      </div>
+      </section>
 
       {/* FROM CONCEPT TO FINISHED PRODUCT -- relocated from the
-          homepage (v5.2). */}
+          homepage (v5.2); icons instead of numbered badges per v5.4. */}
       <section className="bg-beige px-6 py-24 lg:px-10">
         <div className="mx-auto max-w-6xl">
           <Reveal className="text-center">
@@ -79,9 +103,9 @@ export default async function AtelierSupplyPage() {
 
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {CONCEPT_STEPS.map((step, i) => (
-              <Reveal key={step.number} delayMs={i * 100} className="text-left">
-                <p className="font-script text-xl text-burgundy">{step.number}</p>
-                <h3 className="mt-1 font-serif text-lg text-ink">{step.title}</h3>
+              <Reveal key={step.title} delayMs={i * 100} className="text-left">
+                <ProcessStepIcon name={step.icon} className="h-8 w-8 text-burgundy" />
+                <h3 className="mt-3 font-serif text-lg text-ink">{step.title}</h3>
                 <p className="mt-2 text-sm text-ink/70">{step.body}</p>
               </Reveal>
             ))}
@@ -134,6 +158,31 @@ export default async function AtelierSupplyPage() {
             ))}
           </div>
         </div>
+      </section>
+
+      {/* THE CATALOGUE */}
+      <section id="catalogue" className="scroll-mt-20 bg-beige px-6 py-24 lg:px-10">
+        <div className="mx-auto max-w-6xl">
+          <Reveal className="text-center">
+            <h2 className="font-serif text-3xl text-ink">The Catalogue</h2>
+            <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
+              Fragrance materials, bottles, pouches, boxes and labels, priced
+              in USD per kilogram. Browse by category or search the full
+              catalogue.
+            </p>
+          </Reveal>
+
+          <div className="mt-10">
+            <SupplyCatalogueBrowser materials={materials} />
+          </div>
+        </div>
+      </section>
+
+      {/* CLOSE CTA */}
+      <section className="px-6 py-20 text-center lg:px-10">
+        <Reveal>
+          <ButtonLink href="/business">Talk to the Atelier</ButtonLink>
+        </Reveal>
       </section>
     </div>
   );

@@ -35,6 +35,17 @@ dev process) relocated to `/collection`, `/atelier-supply` and `/about`
 rather than deleted. Both passes also fixed the hard Supply/Studio copy
 boundary (Supply sources materials, Studio prints/brands them) and
 nav/affiliate emphasis.
+[`docs/spec/AURIELLE_INTERNAL_PAGES_v5.4.md`](docs/spec/AURIELLE_INTERNAL_PAGES_v5.4.md)
+then completed the three receiving pages into full page structures
+(hero, then their relocated content, then a close CTA) rather than
+loose blocks: `/collection` is now the full fragrance experience
+(hero, product grid, mood filter, story bottles, philosophy, close
+CTA); `/atelier-supply` now also carries the capability cards
+(previously homepage-only) plus the fragrance-development process and
+factory grid before its catalogue browser; `/about` was restructured
+into the maison story for all three crafts (hero, Our Story, founder,
+a lean "What We Do" three-pillar summary replacing the previous
+long-form per-pillar essays, community, close CTA).
 
 ## Stack
 
