@@ -30,8 +30,8 @@ export default function CustomisationStudioPage() {
       {/* 1. VISUAL HERO */}
       <section className="relative flex min-h-[45vh] flex-col items-center justify-center gap-3 overflow-hidden px-6 py-20 text-center">
         <StudioImageSlot
-          src="/images/atelier/custom-label.jpg"
-          alt="Close-up of custom-printed perfume bottles and metal labels bearing different private-label brand names"
+          src="/images/headers/studio-hero.jpg"
+          alt="The Aurielle Studio's A3 UV DTF printer mid-print on a floral design"
           slotName="studio-hero"
           canvas="1920x640"
           aspectRatio="3:1"
@@ -39,8 +39,8 @@ export default function CustomisationStudioPage() {
           sizes="100vw"
           className="absolute inset-0"
         />
-        <div className="absolute inset-0 bg-ink/45" />
-        <Reveal className="relative z-10">
+        <div className="absolute inset-0 bg-ink/50" />
+        <Reveal className="relative z-10 [text-shadow:0_2px_16px_rgba(0,0,0,0.55)]">
           <p className="font-script text-2xl text-ivory">The Customisation Studio</p>
           <h1 className="mt-2 font-serif text-4xl text-ivory sm:text-5xl">
             Made-to-Order UV Printing

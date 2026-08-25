@@ -52,15 +52,15 @@ export default async function AtelierSupplyPage() {
       {/* PAGE HERO */}
       <section className="relative flex min-h-[45vh] flex-col items-center justify-center gap-3 overflow-hidden px-6 py-20 text-center">
         <Image
-          src="/images/atelier/production.jpg"
+          src="/images/headers/atelier-supply-hero.jpg"
           alt=""
           fill
           priority
           sizes="100vw"
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-ink/40" />
-        <Reveal className="relative z-10">
+        <div className="absolute inset-0 bg-ink/50" />
+        <Reveal className="relative z-10 [text-shadow:0_2px_16px_rgba(0,0,0,0.55)]">
           <h1 className="font-serif text-4xl text-ivory sm:text-5xl">Atelier Supply</h1>
           <p className="mx-auto mt-3 max-w-md text-sm text-ivory/90">
             Fragrance materials and sourcing for creators and businesses

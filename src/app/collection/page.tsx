@@ -48,18 +48,21 @@ export default async function CollectionPage() {
 
   return (
     <div>
-      {/* PAGE HERO */}
+      {/* PAGE HERO. Source photo is very bright (pale pink, ~183/255
+          average luminance in the text band), so it needs a much
+          stronger scrim than a typical hero photo to keep white text
+          legible -- measured, not guessed, at bg-ink/75. */}
       <section className="relative flex min-h-[45vh] flex-col items-center justify-center gap-3 overflow-hidden px-6 py-20 text-center">
         <Image
-          src="/images/perfumes/main/rosalie-elegance.jpg"
+          src="/images/headers/collection-hero.jpg"
           alt=""
           fill
           priority
           sizes="100vw"
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-ink/40" />
-        <Reveal className="relative z-10">
+        <div className="absolute inset-0 bg-ink/75" />
+        <Reveal className="relative z-10 [text-shadow:0_2px_16px_rgba(0,0,0,0.55)]">
           <p className="font-script text-2xl text-ivory">Fragrance, in full</p>
           <h1 className="mt-2 font-serif text-4xl text-ivory sm:text-5xl">
             The Aurielle Collection

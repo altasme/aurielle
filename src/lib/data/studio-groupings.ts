@@ -78,6 +78,7 @@ export const STUDIO_GROUPINGS: StudioGrouping[] = [
     spotlight: false,
     intro:
       "Small-batch and prototype production for manufacturers and private-label brands -- metal printing, small plastics, labels and tags.",
+    image: "/images/headers/studio-hero.jpg",
     imageBrief: "The A3 UV DTF printer",
     items: [
       "Metal Printing",
