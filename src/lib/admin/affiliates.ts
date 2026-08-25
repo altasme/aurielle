@@ -85,3 +85,9 @@ export async function updateAffiliateStatus(id: string, status: AffiliateStatus)
   const { error } = await supabase.from("affiliate_applications").update({ status }).eq("id", id);
   if (error) throw new Error(`Failed to update affiliate application status: ${error.message}`);
 }
+
+export async function deleteAffiliateApplication(id: string): Promise<void> {
+  const supabase = getSupabaseAdminClient();
+  const { error } = await supabase.from("affiliate_applications").delete().eq("id", id);
+  if (error) throw new Error(`Failed to delete affiliate application: ${error.message}`);
+}

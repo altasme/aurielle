@@ -1,6 +1,7 @@
 import { listAffiliateApplications, countAffiliateApplicationsByStatus } from "@/lib/admin/affiliates";
 import { AFFILIATE_STATUSES, AFFILIATE_STATUS_LABELS, type AffiliateStatus } from "@/lib/admin/affiliate-constants";
 import { AffiliateStatusActions } from "@/components/admin/affiliate-status-actions";
+import { DeleteAffiliateButton } from "@/components/admin/delete-affiliate-button";
 import Link from "next/link";
 
 const STATUS_BADGE: Record<AffiliateStatus, string> = {
@@ -87,7 +88,10 @@ export default async function AdminAffiliatesPage({ searchParams }: PageProps<"/
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <AffiliateStatusActions id={app.id} status={app.status} />
+                  <div className="flex flex-col gap-2">
+                    <AffiliateStatusActions id={app.id} status={app.status} />
+                    <DeleteAffiliateButton id={app.id} name={app.name} />
+                  </div>
                 </td>
               </tr>
             ))}
