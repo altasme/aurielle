@@ -17,6 +17,11 @@ save), not static-from-CSV. See "Admin panel" below. Everything else v4
 decided (manual GCash/bank-transfer order flow, no Stripe, order/inquiry
 writes) is unchanged.
 
+A third pillar was added on top of this per
+[`docs/spec/AURIELLE_SPEC_v5_ADDENDUM.md`](docs/spec/AURIELLE_SPEC_v5_ADDENDUM.md):
+the **Customisation Studio** (UV-printing/custom branding), a quote-based
+showcase with no cart or pricing. See "Customisation Studio" below.
+
 ## Stack
 
 Next.js (App Router, fully static in Phase 1) · Tailwind CSS v4 · Supabase
@@ -133,11 +138,16 @@ Real photography is wired in under `public/images/`:
   `approved` / `rejected`, default `pending`); the admin Affiliates
   page's New/Approved/Rejected tabs and the nav "new applications"
   counter badge both key off this.
+- `0012_customisation_studio.sql`: spec v5 addendum. Adds
+  `customisation_quotes` (public Customisation Studio quote-request
+  form: name/email/phone/country/grouping/item/quantity/message +
+  optional artwork upload) and the private `customisation-artwork`
+  Storage bucket, mirroring `payment-proofs` (0004).
 - `supabase/seed/*.sql`: the old v3 live-catalogue seed data, superseded
   by 0006 above. Not used.
 - Run migrations **0001 → 0002 → 0003 → 0004 → 0005 → 0006 → 0007 → 0010
-  → 0011** in order in the Supabase SQL Editor (all manual; there is no
-  migration runner).
+  → 0011 → 0012** in order in the Supabase SQL Editor (all manual; there
+  is no migration runner).
 - After 0005/0006 are applied, create the first admin login:
   `ADMIN_USERNAME=... ADMIN_PASSWORD=... node scripts/seed-admin-user.mjs`
   prints an `insert into admin_users ...` statement (password scrypt-
@@ -155,9 +165,10 @@ Real photography is wired in under `public/images/`:
   `admin-aurielle.altasme.com` with no path lands on the admin panel
   instead of the public homepage. Everything else (including `/admin/*`
   itself) is untouched by the rewrite.
-- `/admin/login` → `/admin` (dashboard: Product & Pricing is the only
-  active MVP module; Order Management, Promotion, and Reports &
-  Analytics are disabled "Coming Soon" placeholders per spec).
+- `/admin/login` → `/admin` (dashboard: Product & Pricing, Order
+  Management, Affiliate Management, and Customisation Quotes are active
+  modules; Promotion and Reports & Analytics remain disabled "Coming
+  Soon" placeholders).
 - Auth: a dedicated `admin_users` table (not Supabase Auth), scrypt
   password hashing (`node:crypto`, Workers-compatible), session cookies
   (httpOnly/secure/sameSite=lax, 7-day expiry, only the session token's
@@ -181,6 +192,40 @@ Real photography is wired in under `public/images/`:
   page, the product's detail page, and the homepage (which features
   Aurielle Collection products) so changes go live immediately, without
   waiting for the `revalidate = 3600` fallback on those pages.
+
+## Customisation Studio (spec v5 addendum)
+
+- A third pillar alongside Aurielle Collection and Atelier Supply:
+  made-to-order UV DTF printing. **Quote-based, not commerce** -- no
+  cart, no Stripe, no SKUs, no prices. Gated behind
+  `CUSTOMISATION_STUDIO_ENABLED` in `src/config/studio.ts`, which turns
+  off the pillar's nav link, `/studio` page, and homepage
+  band/spotlight together; every other pillar is unaffected either way.
+- `/studio`: static content (same pattern as `/about`/`/business`, no
+  DB read) listing the 14 raw UV-printing categories collapsed into 4
+  curated groupings (`src/lib/data/studio-groupings.ts`) -- Luxury
+  Packaging & Branding, Personal Gifts, Business Solutions, Industrial
+  Printing -- each with representative item chips (iconography/text,
+  not fabricated sample photos, since no real Studio portfolio exists
+  yet) and a "Request a Quote" CTA into the quote form at the bottom of
+  the page. Editing the groupings/items means editing that data file
+  and redeploying -- no CMS, per spec.
+- The homepage's two-door pillar band ("A World of Fragrance") becomes
+  a three-door band with a Studio card when the flag is on; a new
+  "Studio Spotlight" section (luxury face only -- the other three
+  groupings stay inside `/studio`, never the homepage) sits right
+  after the Atelier introduction section.
+- Quote requests write to `customisation_quotes`
+  (`0012_customisation_studio.sql`) via `POST /api/studio-quote`, same
+  shape as the order/inquiry write routes: validates name/email,
+  uploads an optional artwork/logo file to the private
+  `customisation-artwork` Storage bucket (mirrors `payment-proofs`),
+  everything wrapped in `withErrorHandling`.
+- Admin: `/admin/customisation-quotes`, a plain list view (same table
+  pattern as Affiliate Management) showing contact details, grouping/
+  item of interest, quantity, message, and the artwork file via a
+  300-second signed URL (same on-demand-signing pattern as order
+  proof-of-payment), never a persistent public link.
 
 ## Orders (manual / Kolekta pattern)
 

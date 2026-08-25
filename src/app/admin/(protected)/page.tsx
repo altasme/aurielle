@@ -19,6 +19,11 @@ const MODULES = [
     href: "/admin/affiliates",
   },
   {
+    title: "Customisation Quotes",
+    description: "Quote requests submitted through the public Customisation Studio page.",
+    href: "/admin/customisation-quotes",
+  },
+  {
     title: "Promotion",
     description: "Discount codes, promotional pricing, campaigns, product-specific promotions.",
     href: null,

@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { href: "/admin/orders", label: "Order Management" },
   { href: "/admin/products", label: "Product & Pricing" },
   { href: "/admin/affiliates", label: "Affiliate Management" },
+  { href: "/admin/customisation-quotes", label: "Customisation Quotes" },
 ];
 
 export function AdminNav({

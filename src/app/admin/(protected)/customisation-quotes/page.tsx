@@ -1,0 +1,65 @@
+import { listCustomisationQuotes } from "@/lib/admin/customisation-quotes";
+import { CustomisationQuoteArtworkViewer } from "@/components/admin/customisation-quote-artwork-viewer";
+
+export default async function AdminCustomisationQuotesPage() {
+  const quotes = await listCustomisationQuotes();
+
+  return (
+    <div>
+      <h1 className="font-serif text-2xl text-ink">Customisation Quotes</h1>
+      <p className="mt-1 text-sm text-ink/60">
+        Quote requests submitted through the public Customisation Studio page.
+      </p>
+
+      <div className="mt-6 overflow-x-auto border border-taupe/20 bg-white">
+        <table className="w-full min-w-[1000px] text-left text-sm">
+          <thead className="border-b border-taupe/20 bg-beige/40 text-xs uppercase tracking-wide text-ink/60">
+            <tr>
+              <th className="px-4 py-3">Name</th>
+              <th className="px-4 py-3">Contact</th>
+              <th className="px-4 py-3">Grouping</th>
+              <th className="px-4 py-3">Item</th>
+              <th className="px-4 py-3">Qty</th>
+              <th className="px-4 py-3">Message</th>
+              <th className="px-4 py-3">Artwork</th>
+              <th className="px-4 py-3">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {quotes.map((quote) => (
+              <tr key={quote.id} className="border-b border-taupe/10 last:border-0 align-top">
+                <td className="px-4 py-3 text-ink">
+                  {quote.name}
+                  {quote.country && <div className="text-xs text-ink/50">{quote.country}</div>}
+                </td>
+                <td className="px-4 py-3 text-ink/70">
+                  <div>{quote.email}</div>
+                  {quote.phone && <div className="text-xs text-ink/50">{quote.phone}</div>}
+                </td>
+                <td className="px-4 py-3 text-ink/70">{quote.grouping ?? "—"}</td>
+                <td className="px-4 py-3 text-ink/70">{quote.itemInterest ?? "—"}</td>
+                <td className="px-4 py-3 text-ink/70">{quote.quantity ?? "—"}</td>
+                <td className="px-4 py-3 max-w-xs text-ink/70">{quote.message ?? "—"}</td>
+                <td className="px-4 py-3">
+                  {quote.artworkPath ? (
+                    <CustomisationQuoteArtworkViewer quoteId={quote.id} />
+                  ) : (
+                    <span className="text-xs text-ink/40">None</span>
+                  )}
+                </td>
+                <td className="px-4 py-3 text-ink/70">{new Date(quote.createdAt).toLocaleDateString()}</td>
+              </tr>
+            ))}
+            {quotes.length === 0 && (
+              <tr>
+                <td colSpan={8} className="px-4 py-10 text-center text-sm text-ink/50">
+                  No customisation quote requests yet.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

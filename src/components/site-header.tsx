@@ -5,10 +5,12 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/lib/cart/cart-context";
+import { CUSTOMISATION_STUDIO_ENABLED } from "@/config/studio";
 
 const NAV_LINKS = [
   { href: "/collection", label: "Collection" },
   { href: "/atelier-supply", label: "Atelier" },
+  ...(CUSTOMISATION_STUDIO_ENABLED ? [{ href: "/studio", label: "Studio" }] : []),
   { href: "/about", label: "About" },
   { href: "/business", label: "Business" },
   { href: "/contact", label: "Contact" },

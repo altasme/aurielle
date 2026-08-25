@@ -5,6 +5,10 @@ import { PerfumeCard } from "@/components/perfume-card";
 import { Reveal } from "@/components/reveal";
 import { getFeaturedPerfumes } from "@/lib/data/perfumes";
 import { MOODS } from "@/lib/data/moods";
+import { CUSTOMISATION_STUDIO_ENABLED } from "@/config/studio";
+import { STUDIO_GROUPINGS } from "@/lib/data/studio-groupings";
+
+const STUDIO_SPOTLIGHT = STUDIO_GROUPINGS.find((g) => g.spotlight);
 
 // Homepage restructure per client-supplied "Homepage Improvement &
 // Content Specification": Aurielle (B2C) and Atelier (B2B supply /
@@ -119,13 +123,14 @@ export default async function Home() {
             Aurielle Paris Atelier
           </p>
           <h1 className="hero-in hero-in-delay-1 max-w-3xl font-serif text-4xl leading-tight text-ink sm:text-6xl">
-            THE ART OF FRAGRANCE
+            {CUSTOMISATION_STUDIO_ENABLED
+              ? "FRAGRANCE · CRAFT · CUSTOMISATION"
+              : "THE ART OF FRAGRANCE"}
           </h1>
           <p className="hero-in hero-in-delay-2 max-w-md text-base text-ink sm:text-lg">
-            From signature scents to fragrance supply and private-label
-            creation, Aurielle Paris brings together refined fragrances,
-            quality fragrance materials, custom packaging and product
-            development support for individuals, creators and businesses.
+            {CUSTOMISATION_STUDIO_ENABLED
+              ? "From signature scents to fragrance supply and made-to-order UV printing, Aurielle Paris brings together refined fragrances, quality materials and custom craftsmanship for individuals, creators and businesses."
+              : "From signature scents to fragrance supply and private-label creation, Aurielle Paris brings together refined fragrances, quality fragrance materials, custom packaging and product development support for individuals, creators and businesses."}
           </p>
           <div className="hero-in hero-in-delay-3 mt-4 flex flex-col gap-4 sm:flex-row">
             <ButtonLink href="/collection">Discover Aurielle</ButtonLink>
@@ -136,9 +141,18 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* A WORLD OF FRAGRANCE, spec §5 */}
-      <section className="mx-auto grid max-w-6xl gap-10 px-6 py-24 lg:grid-cols-2 lg:px-10">
-        <Reveal className="text-center lg:col-span-2 lg:text-center">
+      {/* A WORLD OF FRAGRANCE, spec §5 -- extended to a three-door
+          pillar band (spec v5 addendum) when the Studio is enabled. */}
+      <section
+        className={`mx-auto grid max-w-6xl gap-10 px-6 py-24 lg:px-10 ${
+          CUSTOMISATION_STUDIO_ENABLED ? "lg:grid-cols-3" : "lg:grid-cols-2"
+        }`}
+      >
+        <Reveal
+          className={`text-center lg:text-center ${
+            CUSTOMISATION_STUDIO_ENABLED ? "lg:col-span-3" : "lg:col-span-2"
+          }`}
+        >
           <p className="font-script text-2xl text-burgundy">A World of Fragrance</p>
         </Reveal>
         <Reveal className="border border-taupe/30 p-10 text-center">
@@ -173,6 +187,23 @@ export default async function Home() {
             </ButtonLink>
           </div>
         </Reveal>
+        {CUSTOMISATION_STUDIO_ENABLED && (
+          <Reveal className="border border-taupe/30 p-10 text-center" delayMs={240}>
+            <h2 className="font-serif text-2xl text-ink">Studio</h2>
+            <p className="mt-1 text-xs uppercase tracking-wide text-burgundy">
+              Customisation Studio
+            </p>
+            <p className="mx-auto mt-4 max-w-xs text-sm text-ink/70">
+              Made-to-order UV printing for luxury packaging, personal gifts,
+              business branding and industrial production.
+            </p>
+            <div className="mt-6">
+              <ButtonLink href="/studio" variant="secondary">
+                Explore the Studio
+              </ButtonLink>
+            </div>
+          </Reveal>
+        )}
       </section>
 
       {/* ATELIER INTRODUCTION, spec §6 */}
@@ -208,6 +239,37 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      {/* STUDIO SPOTLIGHT, spec v5 addendum: the Customisation Studio's
+          luxury face only (fridge magnets etc. stay inside /studio,
+          never the homepage). Iconography chips, not fabricated
+          sample photos -- no real Studio portfolio exists yet. */}
+      {CUSTOMISATION_STUDIO_ENABLED && STUDIO_SPOTLIGHT && (
+        <section className="px-6 py-24 lg:px-10">
+          <div className="mx-auto max-w-6xl text-center">
+            <Reveal>
+              <p className="font-script text-2xl text-burgundy">The Customisation Studio</p>
+              <h2 className="mt-2 font-serif text-3xl text-ink">{STUDIO_SPOTLIGHT.name}</h2>
+              <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">{STUDIO_SPOTLIGHT.intro}</p>
+            </Reveal>
+
+            <Reveal delayMs={120} className="mt-10 flex flex-wrap justify-center gap-3">
+              {STUDIO_SPOTLIGHT.items.map((item) => (
+                <span
+                  key={item}
+                  className="border border-taupe/30 bg-beige/40 px-5 py-2.5 text-xs uppercase tracking-[0.15em] text-ink/70"
+                >
+                  {item}
+                </span>
+              ))}
+            </Reveal>
+
+            <div className="mt-12">
+              <ButtonLink href="/studio">Explore the Customisation Studio</ButtonLink>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* REAL-WORLD BUSINESS PROOF, spec §7. Naming stays neutral
           ("Behind the Supply") since ownership of the pictured facility
