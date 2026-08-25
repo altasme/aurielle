@@ -36,7 +36,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Aurielle Paris Atelier",
     description,
-    images: ["/images/og-share.jpg"],
+    // Explicit width/height so platforms that don't fetch the image to
+    // measure it (some link-unfurlers skip that step) still render the
+    // large-card layout instead of falling back to no preview at all.
+    images: [{ url: "/images/og-share.jpg", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",

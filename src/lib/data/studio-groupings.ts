@@ -84,6 +84,7 @@ export const STUDIO_GROUPINGS: StudioGrouping[] = [
     spotlight: false,
     intro:
       "Branded materials for restaurants, offices and storefronts -- corporate gifts, hospitality items, access cards, signage and name plates.",
+    image: "/images/studio/business-solutions/corporate-gifts.jpg",
     imageBrief: "Signage, cards, name plates",
     items: [
       "Corporate Gifts",
@@ -93,6 +94,14 @@ export const STUDIO_GROUPINGS: StudioGrouping[] = [
       "QR Displays",
       "Name Plates",
     ],
+    itemImages: {
+      "Corporate Gifts": "/images/studio/business-solutions/corporate-gifts.jpg",
+      "Restaurant & Hospitality Items": "/images/studio/business-solutions/restaurant-hospitality-items.jpg",
+      "PVC / Loyalty / Access Cards": "/images/studio/business-solutions/pvc-loyalty-access-cards.jpg",
+      "Acrylic Signage": "/images/studio/business-solutions/acrylic-signage.jpg",
+      "QR Displays": "/images/studio/business-solutions/qr-displays.jpg",
+      "Name Plates": "/images/studio/business-solutions/name-plates.jpg",
+    },
   },
   {
     slug: "industrial-printing",
@@ -100,7 +109,7 @@ export const STUDIO_GROUPINGS: StudioGrouping[] = [
     spotlight: false,
     intro:
       "Small-batch and prototype production for manufacturers and private-label brands -- metal printing, small plastics, labels and tags.",
-    image: "/images/headers/studio-hero.jpg",
+    image: "/images/studio/industrial-printing/metal-printing.jpg",
     imageBrief: "The A3 UV DTF printer",
     items: [
       "Metal Printing",
@@ -108,5 +117,12 @@ export const STUDIO_GROUPINGS: StudioGrouping[] = [
       "Custom Manufacturing (Prototype / Small-Batch / Private-Label)",
       "Labels & Tags",
     ],
+    itemImages: {
+      "Metal Printing": "/images/studio/industrial-printing/metal-printing.jpg",
+      "Small Plastics": "/images/studio/industrial-printing/small-plastics.jpg",
+      "Custom Manufacturing (Prototype / Small-Batch / Private-Label)":
+        "/images/studio/industrial-printing/custom-manufacturing.jpg",
+      "Labels & Tags": "/images/studio/industrial-printing/labels-tags.jpg",
+    },
   },
 ];
