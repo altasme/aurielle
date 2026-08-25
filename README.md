@@ -229,14 +229,34 @@ Real photography is wired in under `public/images/`:
   off the pillar's nav link, `/studio` page, and homepage
   band/spotlight together; every other pillar is unaffected either way.
 - `/studio`: static content (same pattern as `/about`/`/business`, no
-  DB read) listing the 14 raw UV-printing categories collapsed into 4
-  curated groupings (`src/lib/data/studio-groupings.ts`) -- Luxury
-  Packaging & Branding, Personal Gifts, Business Solutions, Industrial
-  Printing -- each with representative item chips (iconography/text,
-  not fabricated sample photos, since no real Studio portfolio exists
-  yet) and a "Request a Quote" CTA into the quote form at the bottom of
-  the page. Editing the groupings/items means editing that data file
-  and redeploying -- no CMS, per spec.
+  DB read) built per
+  [`docs/spec/AURIELLE_STUDIO_PAGE_SPEC.md`](docs/spec/AURIELLE_STUDIO_PAGE_SPEC.md)
+  into a full visual page: hero, a finishes strip (`FinishTile`, hover/
+  tap reveal), then the 4 curated groupings
+  (`src/lib/data/studio-groupings.ts`) -- Luxury Packaging & Branding,
+  Personal Gifts, Business Solutions, Industrial Printing -- each with
+  an alternating-side image and clickable item chips
+  (`StudioChipLink`) that prefill the quote form's grouping/item and
+  scroll to it, a "How It Works" stepper (`StudioStepIcon`, line-art
+  only, no photos needed), then the quote form and a sticky "Request a
+  Quote" button on scroll. Editing the groupings/items/finishes means
+  editing those data files and redeploying -- no CMS, per spec.
+  **Recent Work (a real-photo gallery) is intentionally omitted**:
+  only one real print-work photo exists
+  (`/images/atelier/custom-label.jpg`, reused for the hero and the
+  Luxury grouping), not enough for an honest gallery -- the spec is
+  explicit that this section stays empty rather than filled with
+  fabricated samples. Every other image slot without a real photo yet
+  (the other 3 groupings' images, all 5 finish tiles) renders as a
+  labeled placeholder block (`StudioImageSlot`) naming the slot,
+  canvas size and aspect ratio, per the spec's own placeholder
+  convention, so what's still needed from the client is obvious at a
+  glance rather than silently missing.
+- `src/lib/analytics.ts`: a `track()` stub (no provider wired up yet,
+  same as the rest of the site -- see "What's scaffolded vs. not yet
+  built"). Fires `Studio Category Clicked` on chip click and `Quote
+  Requested` on submit, ready to report the moment a real provider
+  (GA4, Meta Pixel, etc.) is dropped in.
 - The homepage's two-door pillar band ("A World of Fragrance") becomes
   a three-door band with a Studio card when the flag is on; a new
   "Studio Spotlight" section (luxury face only -- the other three

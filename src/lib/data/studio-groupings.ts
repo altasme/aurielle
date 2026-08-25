@@ -15,6 +15,11 @@ export type StudioGrouping = {
   spotlight: boolean;
   intro: string;
   items: string[];
+  // Real print-work photo path, or undefined when none exists yet --
+  // the page renders the spec's labeled placeholder block instead of
+  // a fabricated stock photo (launch-integrity rule).
+  image?: string;
+  imageBrief: string;
 };
 
 export const STUDIO_GROUPINGS: StudioGrouping[] = [
@@ -24,6 +29,8 @@ export const STUDIO_GROUPINGS: StudioGrouping[] = [
     spotlight: true,
     intro:
       "Perfume and beauty packaging, metal and mini labels, brand plates, acrylic awards and crystal UV stickers -- finished with the same craftsmanship as the Aurielle Collection itself.",
+    image: "/images/atelier/custom-label.jpg",
+    imageBrief: "Perfume packaging, metal labels",
     items: [
       "Perfume Bottle Printing",
       "Cosmetic Packaging",
@@ -40,6 +47,7 @@ export const STUDIO_GROUPINGS: StudioGrouping[] = [
     spotlight: false,
     intro:
       "Custom printing for the people and moments in your life -- phone cases, home decor, wedding keepsakes, souvenirs and fashion accessories.",
+    imageBrief: "Phone case or keepsake",
     items: [
       "Phone & Electronics Cases",
       "Home Decoration",
@@ -54,6 +62,7 @@ export const STUDIO_GROUPINGS: StudioGrouping[] = [
     spotlight: false,
     intro:
       "Branded materials for restaurants, offices and storefronts -- corporate gifts, hospitality items, access cards, signage and name plates.",
+    imageBrief: "Signage, cards, name plates",
     items: [
       "Corporate Gifts",
       "Restaurant & Hospitality Items",
@@ -69,6 +78,7 @@ export const STUDIO_GROUPINGS: StudioGrouping[] = [
     spotlight: false,
     intro:
       "Small-batch and prototype production for manufacturers and private-label brands -- metal printing, small plastics, labels and tags.",
+    imageBrief: "The A3 UV DTF printer",
     items: [
       "Metal Printing",
       "Small Plastics",

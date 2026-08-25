@@ -6,6 +6,7 @@ import { FormField, FIELD_CLASSES } from "./form-field";
 import { SubmitButton } from "./submit-button";
 import { useSubmit } from "@/lib/use-submit";
 import { STUDIO_GROUPINGS } from "@/lib/data/studio-groupings";
+import { track } from "@/lib/analytics";
 
 export function StudioQuoteForm() {
   const searchParams = useSearchParams();
@@ -46,7 +47,13 @@ export function StudioQuoteForm() {
       if (!res.ok) throw new Error(data.error ?? "Could not submit your quote request. Please try again.");
       return data;
     });
-    if (result) setSent(true);
+    if (result) {
+      // Fired on submission, not on payment/fulfillment (which happen
+      // offline), consistent with the site's "Quote Requested"
+      // submission-not-verified convention.
+      track("Quote Requested", { grouping, item: itemInterest });
+      setSent(true);
+    }
   }
 
   if (sent) {
