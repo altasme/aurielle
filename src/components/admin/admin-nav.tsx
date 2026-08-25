@@ -89,7 +89,7 @@ export function AdminNav({
                 </span>
                 <Badge count={badgeByHref[link.href] ?? 0} />
               </Link>
-              {link.children && (
+              {link.children && active && (
                 <div className="ml-3 mt-0.5 flex flex-col border-l border-taupe/20 pl-3">
                   {link.children.map((child) => {
                     const childActive = pathname.startsWith(child.href);
