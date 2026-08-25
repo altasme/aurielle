@@ -37,4 +37,9 @@ jobs:
           CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
           CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
           CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+          # Not a secret -- ends up in the compiled client bundle
+          # either way (NEXT_PUBLIC_*), so it's a literal here rather
+          # than a GitHub secret. Used only for metadataBase (OG image
+          # / canonical URL resolution) in src/app/layout.tsx.
+          NEXT_PUBLIC_SITE_URL: https://auriellefragrancestudio.com
         run: npm run cf:deploy

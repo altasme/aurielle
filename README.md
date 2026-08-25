@@ -170,15 +170,17 @@ Real photography is wired in under `public/images/`:
 
 ## Admin panel
 
-- Lives at `admin-aurielle.altasme.com` -- a second custom domain routed
-  at the same `aurielle` Worker (Cloudflare dashboard → Workers & Pages
-  → aurielle → Settings → Domains & Routes), not a separate deployment.
-  Same code, same database as the public site at `aurielle.altasme.com`;
-  `/admin/login` also still works on the public domain, `middleware.ts`
-  only rewrites that one domain's bare root ("/") to "/admin" so visiting
-  `admin-aurielle.altasme.com` with no path lands on the admin panel
-  instead of the public homepage. Everything else (including `/admin/*`
-  itself) is untouched by the rewrite.
+- `/admin` is a page like any other, not a separate deployment -- it
+  works on **any** custom domain routed to the `aurielle` Worker
+  (Cloudflare dashboard → Workers & Pages → aurielle → Settings →
+  Domains & Routes). Live on `auriellefragrancestudio.com` (the
+  commercial domain) and `aurielle.altasme.com` (kept working
+  alongside it); `admin-aurielle.altasme.com` additionally exists as a
+  convenience second custom domain, purely so visiting its bare root
+  ("/") with no path lands directly on the admin panel instead of the
+  public homepage -- `middleware.ts` rewrites only that one specific
+  hostname's "/"; `/admin/login` works on every domain regardless.
+  Same code, same database everywhere.
 - `/admin/login` → `/admin` (dashboard: Product & Pricing, Order
   Management, Affiliate Management, and Customisation Quotes are active
   modules; Promotion and Reports & Analytics remain disabled "Coming
@@ -303,7 +305,10 @@ vars on the build step (not just a written `.dev.vars` file) because
 `initOpenNextCloudflareForDev()` only loads `.dev.vars` inside `next
 dev` -- it's a no-op during `next build`, and the catalogue pages'
 `generateStaticParams()` calls Supabase at build time via
-`process.env` directly.
+`process.env` directly. It also sets `NEXT_PUBLIC_SITE_URL` (a literal
+in the workflow file, not a secret -- it ends up in the client bundle
+either way) to the commercial domain, used only for `metadataBase`
+(OG image / canonical URL resolution) in `src/app/layout.tsx`.
 
 `open-next.config.ts` doesn't configure an R2/KV incremental cache, so
 `export const revalidate` on the catalogue pages doesn't get a durable
