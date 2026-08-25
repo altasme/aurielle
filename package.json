@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "postinstall": "patch-package",
     "generate:catalogue": "node scripts/generate-catalogue.mjs",
     "prebuild": "npm run generate:catalogue",
     "predev": "npm run generate:catalogue",
@@ -31,6 +32,7 @@
     "csv-parse": "^7.0.2",
     "eslint": "^9",
     "eslint-config-next": "16.3.0",
+    "patch-package": "^8.0.1",
     "tailwindcss": "^4",
     "typescript": "^5",
     "wrangler": "^4.120.0"
