@@ -67,27 +67,11 @@ export default function AboutPage() {
         </Reveal>
       </section>
 
-      {/* OUR STORY */}
-      <section className="mx-auto max-w-3xl px-6 py-20 text-center lg:px-10">
-        <Reveal>
-          <h2 className="font-serif text-2xl text-ink">Our Story</h2>
-          <div className="mx-auto mt-4 max-w-md space-y-3 text-sm text-ink/60">
-            <p>
-              Aurielle Paris Atelier was created from a love of fragrance,
-              elegance and the timeless art of perfumery.
-            </p>
-            <p>
-              Inspired by the beauty and character of Paris, Aurielle brings
-              together refined perfume oils, fragrance materials and, more
-              recently, custom UV printing, for those who want to build
-              something distinctly their own.
-            </p>
-            <p>A world of craft, created to be discovered.</p>
-          </div>
-        </Reveal>
-      </section>
-
-      {/* THE STORY BEHIND AURIELLE (founder) */}
+      {/* THE STORY BEHIND AURIELLE (founder). Previously split across
+          two consecutive sections ("Our Story" + this one) that told
+          the same origin story twice, back to back, in near-identical
+          language (same Paris-inspiration beat, same fragrance-to-
+          full-house expansion beat). Merged into one telling. */}
       <section className="bg-beige px-6 py-24 lg:px-10">
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-2 lg:items-start">
           <Reveal className="relative aspect-[4/3] overflow-hidden border border-taupe/30">
@@ -113,8 +97,13 @@ export default function AboutPage() {
             <p className="mt-4 text-sm text-ink/70">
               As the atelier grew, so did its craft. What began with
               perfume oils and fragrance materials has expanded into a full
-              house of craft, giving others the opportunity to create
-              something uniquely their own.
+              house of craft
+              {CUSTOMISATION_STUDIO_ENABLED
+                ? ": refined perfumes, professional fragrance supply and made-to-order custom printing, each held to the same atelier standard."
+                : ", giving others the opportunity to create something uniquely their own."}
+            </p>
+            <p className="mt-4 text-sm text-ink/70">
+              A world of craft, created to be discovered.
             </p>
           </Reveal>
         </div>

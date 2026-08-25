@@ -11,10 +11,12 @@ export const metadata: Metadata = {
 export default function BusinessPage() {
   return (
     <Reveal className="mx-auto max-w-2xl px-6 py-20 text-center lg:px-10">
-      <h1 className="font-serif text-4xl text-ink">For Your Business</h1>
+      <p className="font-script text-2xl text-burgundy">Let&rsquo;s build something together.</p>
+      <h1 className="mt-2 font-serif text-4xl text-ink">For Your Business</h1>
       <p className="mt-4 text-sm text-ink/70">
         Looking for fragrance materials for your own creations, products or
-        business?
+        business? Tell us what you need and the atelier will follow up with
+        pricing, availability and next steps.
       </p>
       {CUSTOMISATION_STUDIO_ENABLED && (
         <p className="mt-2 text-xs text-ink/50">
