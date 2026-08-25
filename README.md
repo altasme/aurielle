@@ -20,7 +20,15 @@ writes) is unchanged.
 A third pillar was added on top of this per
 [`docs/spec/AURIELLE_SPEC_v5_ADDENDUM.md`](docs/spec/AURIELLE_SPEC_v5_ADDENDUM.md):
 the **Customisation Studio** (UV-printing/custom branding), a quote-based
-showcase with no cart or pricing. See "Customisation Studio" below.
+showcase with no cart or pricing. See "Customisation Studio" below. The
+homepage's information architecture was then reworked per
+[`docs/spec/AURIELLE_LANDING_IMPROVEMENT_v5.1.md`](docs/spec/AURIELLE_LANDING_IMPROVEMENT_v5.1.md)
+(build review): the same sections, regrouped into three uninterrupted
+per-pillar runs (perfume → supply → studio, Option A "balanced
+three-pillar") instead of interleaving all three audiences, plus a hard
+Supply/Studio copy boundary (Supply sources materials, Studio prints/
+brands them), nav label/emphasis fixes, and the shoppable perfume grid
+moved up near the top instead of ~7 sections down.
 
 ## Stack
 

@@ -9,7 +9,7 @@ import { CUSTOMISATION_STUDIO_ENABLED } from "@/config/studio";
 
 const NAV_LINKS = [
   { href: "/collection", label: "Collection" },
-  { href: "/atelier-supply", label: "Atelier" },
+  { href: "/atelier-supply", label: "Atelier Supply" },
   ...(CUSTOMISATION_STUDIO_ENABLED ? [{ href: "/studio", label: "Studio" }] : []),
   { href: "/about", label: "About" },
   { href: "/business", label: "Business" },
@@ -97,7 +97,7 @@ export function SiteHeader() {
           </Link>
           <Link
             href="/affiliate"
-            className="border border-burgundy bg-burgundy px-4 py-2 text-xs uppercase tracking-wide text-ivory transition-colors hover:bg-burgundy-dark"
+            className="border border-burgundy px-4 py-2 text-xs uppercase tracking-wide text-burgundy transition-colors hover:bg-burgundy hover:text-ivory"
           >
             Be an Affiliate
           </Link>
@@ -140,7 +140,7 @@ export function SiteHeader() {
               </Link>
               <Link
                 href="/affiliate"
-                className="mt-2 border border-burgundy bg-burgundy px-4 py-3 text-center text-sm uppercase tracking-wide text-ivory"
+                className="mt-2 border border-burgundy px-4 py-3 text-center text-sm uppercase tracking-wide text-burgundy"
                 onClick={() => setMenuOpen(false)}
               >
                 Be an Affiliate

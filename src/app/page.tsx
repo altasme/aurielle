@@ -11,8 +11,12 @@ import { STUDIO_GROUPINGS } from "@/lib/data/studio-groupings";
 const STUDIO_SPOTLIGHT = STUDIO_GROUPINGS.find((g) => g.spotlight);
 
 // Homepage restructure per client-supplied "Homepage Improvement &
-// Content Specification": Aurielle (B2C) and Atelier (B2B supply /
-// private-label) as one fragrance house with two connected worlds.
+// Content Specification" (v4) and, on top of that, the v5.1 landing-page
+// IA review: group into three uninterrupted per-pillar runs (perfume /
+// supply / studio) instead of interleaving all three audiences, and
+// draw a hard boundary so packaging *printing* reads as the Studio's
+// job while sourcing/formulation stays Supply's -- see ATELIER_CAPABILITIES
+// and CONCEPT_STEPS below.
 
 const ATELIER_CAPABILITIES = [
   {
@@ -20,8 +24,8 @@ const ATELIER_CAPABILITIES = [
     body: "Source fragrance materials and profiles for personal, creative or commercial applications.",
   },
   {
-    title: "Custom Packaging",
-    body: "Bottles, caps, boxes, pouches, labels and other packaging components designed around your brand.",
+    title: "Packaging Components",
+    body: "Source bottles, caps, boxes, pouches and other packaging components for your fragrance line.",
   },
   {
     title: "OEM & ODM",
@@ -47,7 +51,7 @@ const CONCEPT_STEPS = [
   {
     number: "03",
     title: "Make It Yours",
-    body: "Customize labels, branding, finishes and presentation around your identity.",
+    body: "Bring your labels, branding and finishes to life through the Customisation Studio.",
   },
   {
     number: "04",
@@ -141,8 +145,11 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* A WORLD OF FRAGRANCE, spec §5 -- extended to a three-door
-          pillar band (spec v5 addendum) when the Studio is enabled. */}
+      {/* PILLAR BAND, spec §5 + v5.1 landing review fix #4/#88: renamed
+          from "A World of Fragrance" (which re-narrowed the maison back
+          to perfume) to a path-choosing heading, and the Studio card
+          brought to copy parity with its two siblings rather than
+          reading as the weakest, most-ignored door. */}
       <section
         className={`mx-auto grid max-w-6xl gap-10 px-6 py-24 lg:px-10 ${
           CUSTOMISATION_STUDIO_ENABLED ? "lg:grid-cols-3" : "lg:grid-cols-2"
@@ -153,7 +160,9 @@ export default async function Home() {
             CUSTOMISATION_STUDIO_ENABLED ? "lg:col-span-3" : "lg:col-span-2"
           }`}
         >
-          <p className="font-script text-2xl text-burgundy">A World of Fragrance</p>
+          <p className="font-script text-2xl text-burgundy">
+            {CUSTOMISATION_STUDIO_ENABLED ? "One House, Three Crafts" : "A World of Fragrance"}
+          </p>
         </Reveal>
         <Reveal className="border border-taupe/30 p-10 text-center">
           <h2 className="font-serif text-2xl text-ink">Aurielle</h2>
@@ -194,8 +203,9 @@ export default async function Home() {
               Customisation Studio
             </p>
             <p className="mx-auto mt-4 max-w-xs text-sm text-ink/70">
-              Made-to-order UV printing for luxury packaging, personal gifts,
-              business branding and industrial production.
+              Made-to-order UV printing for luxury packaging, personal
+              gifts, business branding and industrial production. Bring
+              your own artwork and the Studio brings it to life.
             </p>
             <div className="mt-6">
               <ButtonLink href="/studio" variant="secondary">
@@ -206,180 +216,10 @@ export default async function Home() {
         )}
       </section>
 
-      {/* ATELIER INTRODUCTION, spec §6 */}
-      <section className="bg-beige px-6 py-24 lg:px-10">
-        <div className="mx-auto max-w-6xl text-center">
-          <Reveal>
-            <p className="font-script text-2xl text-burgundy">The Aurielle Atelier</p>
-            <h2 className="mt-2 font-serif text-3xl text-ink">
-              More Than Fragrance. A Supply Partner.
-            </h2>
-            <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
-              From fragrance oils and packaging to custom branding and
-              finished products, Aurielle Paris Atelier supports creators
-              and businesses throughout the fragrance development process.
-            </p>
-          </Reveal>
+      {/* ================= PERFUME RUN (B2C) ================= */}
 
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {ATELIER_CAPABILITIES.map((item, i) => (
-              <Reveal
-                key={item.title}
-                delayMs={i * 100}
-                className="border border-taupe/30 bg-ivory p-8 text-left"
-              >
-                <h3 className="font-serif text-lg text-ink">{item.title}</h3>
-                <p className="mt-2 text-sm text-ink/70">{item.body}</p>
-              </Reveal>
-            ))}
-          </div>
-
-          <div className="mt-12">
-            <ButtonLink href="/atelier-supply">Explore Atelier Supply</ButtonLink>
-          </div>
-        </div>
-      </section>
-
-      {/* STUDIO SPOTLIGHT, spec v5 addendum: the Customisation Studio's
-          luxury face only (fridge magnets etc. stay inside /studio,
-          never the homepage). Iconography chips, not fabricated
-          sample photos -- no real Studio portfolio exists yet. */}
-      {CUSTOMISATION_STUDIO_ENABLED && STUDIO_SPOTLIGHT && (
-        <section className="px-6 py-24 lg:px-10">
-          <div className="mx-auto max-w-6xl text-center">
-            <Reveal>
-              <p className="font-script text-2xl text-burgundy">The Customisation Studio</p>
-              <h2 className="mt-2 font-serif text-3xl text-ink">{STUDIO_SPOTLIGHT.name}</h2>
-              <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">{STUDIO_SPOTLIGHT.intro}</p>
-            </Reveal>
-
-            <Reveal delayMs={120} className="mt-10 flex flex-wrap justify-center gap-3">
-              {STUDIO_SPOTLIGHT.items.map((item) => (
-                <span
-                  key={item}
-                  className="border border-taupe/30 bg-beige/40 px-5 py-2.5 text-xs uppercase tracking-[0.15em] text-ink/70"
-                >
-                  {item}
-                </span>
-              ))}
-            </Reveal>
-
-            <div className="mt-12">
-              <ButtonLink href="/studio">Explore the Customisation Studio</ButtonLink>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* REAL-WORLD BUSINESS PROOF, spec §7. Naming stays neutral
-          ("Behind the Supply") since ownership of the pictured facility
-          hasn't been confirmed, per the spec's own rule against
-          claiming "Our Factory" without that confirmation. */}
-      <section className="px-6 py-24 lg:px-10">
-        <div className="mx-auto max-w-6xl">
-          <Reveal className="text-center">
-            <p className="font-script text-2xl text-burgundy">Behind the Supply</p>
-            <h2 className="mt-2 font-serif text-3xl text-ink">
-              Built for Ideas That Need to Scale
-            </h2>
-            <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
-              Whether you&rsquo;re developing a signature scent, launching a
-              fragrance collection or sourcing products for an established
-              business, the Atelier connects fragrance, packaging and
-              supply into one process.
-            </p>
-          </Reveal>
-
-          <div className="mt-12 grid gap-4 sm:grid-cols-2">
-            {[
-              { slug: "warehouse", label: "Warehouse", alt: "Warehouse stacked with packaged inventory ready for shipment" },
-              { slug: "production", label: "Production", alt: "Stainless steel production tanks in a clean manufacturing facility" },
-              { slug: "packaging", label: "Packaging", alt: "Automated packaging and filling equipment" },
-              { slug: "finished-product", label: "Finished Product", alt: "Wall display of finished fragrance products on illuminated shelving" },
-            ].map((image, i) => (
-              <Reveal
-                key={image.slug}
-                delayMs={i * 80}
-                className="relative aspect-[16/10] overflow-hidden border border-taupe/30"
-              >
-                <Image
-                  src={`/images/atelier/${image.slug}.jpg`}
-                  alt={image.alt}
-                  fill
-                  sizes="(min-width: 640px) 50vw, 100vw"
-                  className="object-cover"
-                />
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* FROM CONCEPT TO FINISHED PRODUCT, spec §8 */}
-      <section className="bg-beige px-6 py-24 lg:px-10">
-        <div className="mx-auto max-w-6xl">
-          <Reveal className="text-center">
-            <h2 className="font-serif text-3xl text-ink">
-              From Concept to Finished Product
-            </h2>
-            <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
-              Bring your fragrance idea to life through a process designed
-              around your brand, your product and your goals.
-            </p>
-          </Reveal>
-
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {CONCEPT_STEPS.map((step, i) => (
-              <Reveal key={step.number} delayMs={i * 100} className="text-left">
-                <p className="font-script text-xl text-burgundy">{step.number}</p>
-                <h3 className="mt-1 font-serif text-lg text-ink">{step.title}</h3>
-                <p className="mt-2 text-sm text-ink/70">{step.body}</p>
-              </Reveal>
-            ))}
-          </div>
-
-          <div className="mt-12 text-center">
-            <ButtonLink href="/business">Start Your Project</ButtonLink>
-          </div>
-        </div>
-      </section>
-
-      {/* YOUR BRAND, YOUR BOTTLE, spec §9 */}
-      <section className="px-6 py-24 lg:px-10">
-        <div className="mx-auto max-w-6xl">
-          <Reveal className="text-center">
-            <h2 className="font-serif text-3xl text-ink">
-              Your Brand. Your Bottle. Your Identity.
-            </h2>
-            <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
-              From custom labels and metal plates to bottles, caps and
-              packaging, the Atelier helps transform fragrance concepts
-              into products that look and feel like your brand.
-            </p>
-          </Reveal>
-
-          <Reveal
-            delayMs={100}
-            className="relative mt-10 aspect-[21/9] overflow-hidden border border-taupe/30"
-          >
-            <Image
-              src="/images/atelier/custom-label.jpg"
-              alt="Close-up of custom perfume bottles, candles and metal labels bearing different private-label brand names"
-              fill
-              sizes="100vw"
-              className="object-cover"
-            />
-          </Reveal>
-
-          <div className="mt-10 text-center">
-            <ButtonLink href="/business" variant="secondary">
-              Explore Customization
-            </ButtonLink>
-          </div>
-        </div>
-      </section>
-
-      {/* AURIELLE COLLECTION, spec §10 */}
+      {/* AURIELLE COLLECTION, spec §10 -- moved up per v5.1 fix #7/#94:
+          the actual shoppable content was buried ~7 sections down. */}
       <section className="bg-beige px-6 py-24 lg:px-10">
         <div className="mx-auto max-w-6xl">
           <Reveal className="text-center">
@@ -493,6 +333,196 @@ export default async function Home() {
           </ButtonLink>
         </div>
       </Reveal>
+
+      {/* ================= SUPPLY RUN (B2B fragrance) ================= */}
+
+      {/* ATELIER INTRODUCTION, spec §6. "Custom Packaging" reframed to
+          "Packaging Components" per v5.1 boundary fix: Supply sources
+          raw packaging, it doesn't print/brand it -- that's the
+          Studio's job now. */}
+      <section className="bg-beige px-6 py-24 lg:px-10">
+        <div className="mx-auto max-w-6xl text-center">
+          <Reveal>
+            <p className="font-script text-2xl text-burgundy">The Aurielle Atelier</p>
+            <h2 className="mt-2 font-serif text-3xl text-ink">
+              More Than Fragrance. A Supply Partner.
+            </h2>
+            <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
+              From fragrance oils and packaging to product development
+              support, Aurielle Paris Atelier supports creators and
+              businesses throughout the fragrance development process.
+            </p>
+          </Reveal>
+
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {ATELIER_CAPABILITIES.map((item, i) => (
+              <Reveal
+                key={item.title}
+                delayMs={i * 100}
+                className="border border-taupe/30 bg-ivory p-8 text-left"
+              >
+                <h3 className="font-serif text-lg text-ink">{item.title}</h3>
+                <p className="mt-2 text-sm text-ink/70">{item.body}</p>
+              </Reveal>
+            ))}
+          </div>
+
+          <div className="mt-12">
+            <ButtonLink href="/atelier-supply">Explore Atelier Supply</ButtonLink>
+          </div>
+        </div>
+      </section>
+
+      {/* FROM CONCEPT TO FINISHED PRODUCT, spec §8. Stays a Supply-run,
+          fragrance-development journey per v5.1 fix (not the Studio's
+          process) -- step 03 now explicitly hands labeling/branding off
+          to the Studio instead of implying Supply prints it. */}
+      <section className="px-6 py-24 lg:px-10">
+        <div className="mx-auto max-w-6xl">
+          <Reveal className="text-center">
+            <h2 className="font-serif text-3xl text-ink">
+              From Concept to Finished Product
+            </h2>
+            <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
+              Bring your fragrance idea to life through a process designed
+              around your brand, your product and your goals.
+            </p>
+          </Reveal>
+
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {CONCEPT_STEPS.map((step, i) => (
+              <Reveal key={step.number} delayMs={i * 100} className="text-left">
+                <p className="font-script text-xl text-burgundy">{step.number}</p>
+                <h3 className="mt-1 font-serif text-lg text-ink">{step.title}</h3>
+                <p className="mt-2 text-sm text-ink/70">{step.body}</p>
+              </Reveal>
+            ))}
+          </div>
+
+          <div className="mt-12 text-center">
+            <ButtonLink href="/business">Start Your Project</ButtonLink>
+          </div>
+        </div>
+      </section>
+
+      {/* REAL-WORLD BUSINESS PROOF, spec §7. Naming stays neutral
+          ("Behind the Supply") since ownership of the pictured facility
+          hasn't been confirmed, per the spec's own rule against
+          claiming "Our Factory" without that confirmation. */}
+      <section className="bg-beige px-6 py-24 lg:px-10">
+        <div className="mx-auto max-w-6xl">
+          <Reveal className="text-center">
+            <p className="font-script text-2xl text-burgundy">Behind the Supply</p>
+            <h2 className="mt-2 font-serif text-3xl text-ink">
+              Built for Ideas That Need to Scale
+            </h2>
+            <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
+              Whether you&rsquo;re developing a signature scent, launching a
+              fragrance collection or sourcing products for an established
+              business, the Atelier connects fragrance, materials and
+              supply into one process.
+            </p>
+          </Reveal>
+
+          <div className="mt-12 grid gap-4 sm:grid-cols-2">
+            {[
+              { slug: "warehouse", label: "Warehouse", alt: "Warehouse stacked with packaged inventory ready for shipment" },
+              { slug: "production", label: "Production", alt: "Stainless steel production tanks in a clean manufacturing facility" },
+              { slug: "packaging", label: "Packaging", alt: "Automated packaging and filling equipment" },
+              { slug: "finished-product", label: "Finished Product", alt: "Wall display of finished fragrance products on illuminated shelving" },
+            ].map((image, i) => (
+              <Reveal
+                key={image.slug}
+                delayMs={i * 80}
+                className="relative aspect-[16/10] overflow-hidden border border-taupe/30"
+              >
+                <Image
+                  src={`/images/atelier/${image.slug}.jpg`}
+                  alt={image.alt}
+                  fill
+                  sizes="(min-width: 640px) 50vw, 100vw"
+                  className="object-cover"
+                />
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ================= STUDIO RUN (UV printing) ================= */}
+
+      {/* STUDIO SPOTLIGHT, spec v5 addendum: the Customisation Studio's
+          luxury face only (fridge magnets etc. stay inside /studio,
+          never the homepage). Iconography chips, not fabricated
+          sample photos -- no real Studio portfolio exists yet.
+          Repositioned into its own Studio run per v5.1 fix #1. */}
+      {CUSTOMISATION_STUDIO_ENABLED && STUDIO_SPOTLIGHT && (
+        <section className="px-6 py-24 lg:px-10">
+          <div className="mx-auto max-w-6xl text-center">
+            <Reveal>
+              <p className="font-script text-2xl text-burgundy">The Customisation Studio</p>
+              <h2 className="mt-2 font-serif text-3xl text-ink">{STUDIO_SPOTLIGHT.name}</h2>
+              <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">{STUDIO_SPOTLIGHT.intro}</p>
+            </Reveal>
+
+            <Reveal delayMs={120} className="mt-10 flex flex-wrap justify-center gap-3">
+              {STUDIO_SPOTLIGHT.items.map((item) => (
+                <span
+                  key={item}
+                  className="border border-taupe/30 bg-beige/40 px-5 py-2.5 text-xs uppercase tracking-[0.15em] text-ink/70"
+                >
+                  {item}
+                </span>
+              ))}
+            </Reveal>
+
+            <div className="mt-12">
+              <ButtonLink href="/studio">Explore the Customisation Studio</ButtonLink>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* YOUR BRAND, YOUR BOTTLE, spec §9 -- moved into the Studio run
+          and reframed to the Studio's ownership per v5.1 fix (this is
+          printing/branding, not fragrance sourcing): real custom-print
+          photography, the strongest asset for the new printing
+          business. */}
+      <section className="bg-beige px-6 py-24 lg:px-10">
+        <div className="mx-auto max-w-6xl">
+          <Reveal className="text-center">
+            <h2 className="font-serif text-3xl text-ink">
+              Your Brand. Your Bottle. Your Identity.
+            </h2>
+            <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
+              From custom labels and metal plates to bottles, caps and
+              packaging, the Customisation Studio prints and finishes
+              products that look and feel like your brand.
+            </p>
+          </Reveal>
+
+          <Reveal
+            delayMs={100}
+            className="relative mt-10 aspect-[21/9] overflow-hidden border border-taupe/30"
+          >
+            <Image
+              src="/images/atelier/custom-label.jpg"
+              alt="Close-up of custom perfume bottles, candles and metal labels bearing different private-label brand names"
+              fill
+              sizes="100vw"
+              className="object-cover"
+            />
+          </Reveal>
+
+          <div className="mt-10 text-center">
+            <ButtonLink href="/studio#quote" variant="secondary">
+              Request a Quote
+            </ButtonLink>
+          </div>
+        </div>
+      </section>
+
+      {/* ================= BRAND + CLOSE (shared) ================= */}
 
       {/* WHY AURIELLE, spec §13 */}
       <section className="px-6 py-24 lg:px-10">
