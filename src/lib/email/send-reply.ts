@@ -31,9 +31,18 @@ export async function sendReplyEmail({
   const fromName = process.env.SMTP_FROM_NAME ?? "Aurielle Paris Atelier";
 
   if (!host || !port || !username || !password || !fromEmail) {
-    throw new Error(
-      "Email sending is not configured. Set SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD and SMTP_FROM_EMAIL.",
-    );
+    // Names exactly which secrets the running Worker doesn't see,
+    // rather than always listing all five -- this is the only signal
+    // available for diagnosing a GitHub Actions secrets mismatch
+    // without a live wrangler tail session.
+    const missing = [
+      !host && "SMTP_HOST",
+      !port && "SMTP_PORT",
+      !username && "SMTP_USERNAME",
+      !password && "SMTP_PASSWORD",
+      !fromEmail && "SMTP_FROM_EMAIL",
+    ].filter((name): name is string => Boolean(name));
+    throw new Error(`Email sending is not configured. Missing: ${missing.join(", ")}.`);
   }
 
   // Dynamic import, not a top-level one: worker-mailer resolves
