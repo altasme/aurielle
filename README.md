@@ -295,12 +295,36 @@ All three tables share `viewed_at timestamptz`
 orders (`0010`): null until an admin explicitly marks a row read via
 `InquiryRowActions`, badge counts surface on the nav item (per sub-page
 and summed on the parent), the dashboard module card, and the section
-hub page. Each row also shows a disabled "Reply via Aurielle Email"
-button labeled "Under development" -- the plan is a reply composer
-(free text + attachments) that fills a pre-built Aurielle-branded email
-template and sends via the project's z.com email hosting, but that send
-path isn't built yet. For now, admins reply manually using the email
-address captured on each entry.
+hub page.
+
+### Reply via Aurielle Email
+
+Each row has a "Reply via Aurielle Email" button (`InquiryReplyComposer`)
+that opens a subject/message/attachments composer and sends over SMTP
+through the project's z.com mailbox (`hello@auriellefragrancestudio.com`),
+wrapped in a branded HTML template (`src/lib/email/reply-template.ts`).
+Sending also marks the row read.
+
+- **`worker-mailer`** is the SMTP client (`src/lib/email/send-reply.ts`)
+  -- the only one that works here, since Cloudflare Workers can't use
+  Node's `net`/`tls` modules that libraries like `nodemailer` assume;
+  `worker-mailer` speaks SMTP directly over `cloudflare:sockets`. It's
+  imported dynamically inside the send function, not at module top
+  level: a static import resolves `cloudflare:sockets` at Next's build
+  time (plain Node, pre-deploy), which fails outside the real Workers
+  runtime -- this bit `next build` once already (see git history).
+- **Required secrets** (GitHub repo Settings -> Secrets and variables ->
+  Actions), also added to `.github/workflows/deploy.yml`'s env block:
+  `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`,
+  `SMTP_FROM_EMAIL`, `SMTP_FROM_NAME`. Until these are set,
+  `sendReplyEmail()` throws a clear "Email sending is not configured"
+  error instead of failing silently -- the composer surfaces it in the
+  modal.
+- `POST /api/admin/quotes-and-inquiries/reply`: multipart form (source,
+  id, toEmail, toName, subject, body, attachments[]), admin-auth gated,
+  reads each attached file into a base64 buffer and passes it straight
+  through to `worker-mailer` -- no separate Storage bucket, attachments
+  aren't persisted anywhere beyond the outgoing email.
 
 ## Orders (manual / Kolekta pattern)
 

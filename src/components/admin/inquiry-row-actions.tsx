@@ -2,23 +2,30 @@
 
 import { useRouter } from "next/navigation";
 import { useSubmit } from "@/lib/use-submit";
+import { InquiryReplyComposer } from "./inquiry-reply-composer";
 
 // Shared actions column for the three Quotes and Inquiries tables
-// (Contact, Business, Customisation Studio) -- same "mark as read"
-// pattern as the affiliate status actions, plus a disabled "Reply via
-// Aurielle Email" placeholder (spec: real send-from-admin is a later
-// feature, not built yet -- see README for what's still needed there).
+// (Contact, Business, Customisation Studio): a "mark as read" action
+// (same pattern as the affiliate status actions) plus the "Reply via
+// Aurielle Email" composer, which sends over SMTP via
+// src/lib/email/send-reply.ts and marks the row read as a side effect.
 export function InquiryRowActions({
   endpoint,
   id,
   viewed,
+  toEmail,
+  toName,
 }: {
   endpoint: "contact-inquiries" | "wholesale-inquiries" | "customisation-quotes";
   id: string;
   viewed: boolean;
+  toEmail: string;
+  toName: string;
 }) {
   const router = useRouter();
   const { submitting, error, submit } = useSubmit();
+
+  const source = endpoint === "contact-inquiries" ? "contact" : endpoint === "wholesale-inquiries" ? "business" : "studio";
 
   async function markAsRead() {
     const result = await submit(async () => {
@@ -47,15 +54,13 @@ export function InquiryRowActions({
           Mark as Read
         </button>
       )}
-      <button
-        type="button"
-        disabled
-        title="Reply directly from the admin panel is under development. For now, reply using the email address above."
-        className="cursor-not-allowed text-xs uppercase tracking-wide text-taupe underline decoration-dotted"
-      >
-        Reply via Aurielle Email
-      </button>
-      <span className="text-[10px] uppercase tracking-wide text-taupe/70">Under development</span>
+      <InquiryReplyComposer
+        source={source}
+        id={id}
+        toEmail={toEmail}
+        toName={toName}
+        defaultSubject="Re: Your inquiry to Aurielle Paris Atelier"
+      />
       {error && <p className="text-xs text-red-700">{error}</p>}
     </div>
   );

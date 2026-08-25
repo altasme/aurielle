@@ -55,6 +55,8 @@ export default async function AdminCustomisationStudioInquiriesPage() {
                     endpoint="customisation-quotes"
                     id={quote.id}
                     viewed={Boolean(quote.viewedAt)}
+                    toEmail={quote.email}
+                    toName={quote.name}
                   />
                 </td>
               </tr>

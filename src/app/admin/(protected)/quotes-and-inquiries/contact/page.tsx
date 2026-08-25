@@ -34,7 +34,13 @@ export default async function AdminContactInquiriesPage() {
                 <td className="px-4 py-3 max-w-xs text-ink/70">{inquiry.message}</td>
                 <td className="px-4 py-3 text-ink/70">{new Date(inquiry.createdAt).toLocaleDateString()}</td>
                 <td className="px-4 py-3">
-                  <InquiryRowActions endpoint="contact-inquiries" id={inquiry.id} viewed={Boolean(inquiry.viewedAt)} />
+                  <InquiryRowActions
+                    endpoint="contact-inquiries"
+                    id={inquiry.id}
+                    viewed={Boolean(inquiry.viewedAt)}
+                    toEmail={inquiry.email}
+                    toName={inquiry.name}
+                  />
                 </td>
               </tr>
             ))}

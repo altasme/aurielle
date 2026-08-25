@@ -37,6 +37,17 @@ jobs:
           CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
           CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
           CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+          # z.com SMTP mailbox used by the admin's "Reply via Aurielle
+          # Email" composer (src/lib/email/send-reply.ts). Optional at
+          # deploy time -- until these are set, replying just returns a
+          # clear "Email sending is not configured" error instead of a
+          # silent failure.
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          SMTP_FROM_EMAIL: ${{ secrets.SMTP_FROM_EMAIL }}
+          SMTP_FROM_NAME: ${{ secrets.SMTP_FROM_NAME }}
           # Not a secret -- ends up in the compiled client bundle
           # either way (NEXT_PUBLIC_*), so it's a literal here rather
           # than a GitHub secret. Used only for metadataBase (OG image

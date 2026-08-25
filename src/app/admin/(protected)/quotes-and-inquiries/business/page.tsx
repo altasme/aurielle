@@ -42,6 +42,8 @@ export default async function AdminBusinessInquiriesPage() {
                     endpoint="wholesale-inquiries"
                     id={inquiry.id}
                     viewed={Boolean(inquiry.viewedAt)}
+                    toEmail={inquiry.email}
+                    toName={inquiry.name}
                   />
                 </td>
               </tr>
