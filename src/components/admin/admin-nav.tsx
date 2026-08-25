@@ -8,20 +8,53 @@ const NAV_LINKS = [
   { href: "/admin/orders", label: "Order Management" },
   { href: "/admin/products", label: "Product & Pricing" },
   { href: "/admin/affiliates", label: "Affiliate Management" },
-  { href: "/admin/customisation-quotes", label: "Customisation Quotes" },
+  {
+    href: "/admin/quotes-and-inquiries",
+    label: "Quotes and Inquiries",
+    note: "Under development",
+    children: [
+      { href: "/admin/quotes-and-inquiries/contact", label: "Contact Page Inquiries" },
+      { href: "/admin/quotes-and-inquiries/business", label: "Business Inquiries" },
+      { href: "/admin/quotes-and-inquiries/studio", label: "Customisation Studio Inquiries" },
+    ],
+  },
 ];
+
+function Badge({ count }: { count: number }) {
+  if (count <= 0) return null;
+  return (
+    <span className="ml-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-burgundy px-1.5 text-[11px] font-medium text-ivory">
+      {count}
+    </span>
+  );
+}
 
 export function AdminNav({
   username,
   unviewedOrders,
   newAffiliates,
+  unviewedContactInquiries,
+  unviewedBusinessInquiries,
+  unviewedStudioInquiries,
 }: {
   username: string;
   unviewedOrders: number;
   newAffiliates: number;
+  unviewedContactInquiries: number;
+  unviewedBusinessInquiries: number;
+  unviewedStudioInquiries: number;
 }) {
   const pathname = usePathname();
   const router = useRouter();
+
+  const badgeByHref: Record<string, number> = {
+    "/admin/orders": unviewedOrders,
+    "/admin/affiliates": newAffiliates,
+    "/admin/quotes-and-inquiries/contact": unviewedContactInquiries,
+    "/admin/quotes-and-inquiries/business": unviewedBusinessInquiries,
+    "/admin/quotes-and-inquiries/studio": unviewedStudioInquiries,
+    "/admin/quotes-and-inquiries": unviewedContactInquiries + unviewedBusinessInquiries + unviewedStudioInquiries,
+  };
 
   async function handleLogout() {
     await fetch("/api/admin/logout", { method: "POST" });
@@ -38,23 +71,44 @@ export function AdminNav({
       <nav className="flex-1 px-3 py-4">
         {NAV_LINKS.map((link) => {
           const active = link.href === "/admin" ? pathname === "/admin" : pathname.startsWith(link.href);
-          const badgeCount =
-            link.href === "/admin/orders" ? unviewedOrders : link.href === "/admin/affiliates" ? newAffiliates : 0;
           return (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`flex items-center justify-between rounded-sm px-3 py-2 text-sm transition-colors ${
-                active ? "bg-beige text-burgundy" : "text-ink/70 hover:bg-beige/60"
-              }`}
-            >
-              {link.label}
-              {badgeCount > 0 && (
-                <span className="ml-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-burgundy px-1.5 text-[11px] font-medium text-ivory">
-                  {badgeCount}
+            <div key={link.href}>
+              <Link
+                href={link.href}
+                className={`flex items-center justify-between rounded-sm px-3 py-2 text-sm transition-colors ${
+                  active ? "bg-beige text-burgundy" : "text-ink/70 hover:bg-beige/60"
+                }`}
+              >
+                <span>
+                  {link.label}
+                  {link.note && (
+                    <span className="ml-1.5 text-[10px] uppercase tracking-wide text-taupe">
+                      ({link.note})
+                    </span>
+                  )}
                 </span>
+                <Badge count={badgeByHref[link.href] ?? 0} />
+              </Link>
+              {link.children && (
+                <div className="ml-3 mt-0.5 flex flex-col border-l border-taupe/20 pl-3">
+                  {link.children.map((child) => {
+                    const childActive = pathname.startsWith(child.href);
+                    return (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        className={`flex items-center justify-between rounded-sm px-3 py-1.5 text-xs transition-colors ${
+                          childActive ? "text-burgundy" : "text-ink/60 hover:text-ink"
+                        }`}
+                      >
+                        {child.label}
+                        <Badge count={badgeByHref[child.href] ?? 0} />
+                      </Link>
+                    );
+                  })}
+                </div>
               )}
-            </Link>
+            </div>
           );
         })}
       </nav>

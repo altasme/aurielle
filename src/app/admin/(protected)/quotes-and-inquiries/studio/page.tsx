@@ -1,18 +1,19 @@
 import { listCustomisationQuotes } from "@/lib/admin/customisation-quotes";
 import { CustomisationQuoteArtworkViewer } from "@/components/admin/customisation-quote-artwork-viewer";
+import { InquiryRowActions } from "@/components/admin/inquiry-row-actions";
 
-export default async function AdminCustomisationQuotesPage() {
+export default async function AdminCustomisationStudioInquiriesPage() {
   const quotes = await listCustomisationQuotes();
 
   return (
     <div>
-      <h1 className="font-serif text-2xl text-ink">Customisation Quotes</h1>
+      <h1 className="font-serif text-2xl text-ink">Customisation Studio Inquiries</h1>
       <p className="mt-1 text-sm text-ink/60">
         Quote requests submitted through the public Customisation Studio page.
       </p>
 
       <div className="mt-6 overflow-x-auto border border-taupe/20 bg-white">
-        <table className="w-full min-w-[1000px] text-left text-sm">
+        <table className="w-full min-w-[1100px] text-left text-sm">
           <thead className="border-b border-taupe/20 bg-beige/40 text-xs uppercase tracking-wide text-ink/60">
             <tr>
               <th className="px-4 py-3">Name</th>
@@ -23,6 +24,7 @@ export default async function AdminCustomisationQuotesPage() {
               <th className="px-4 py-3">Message</th>
               <th className="px-4 py-3">Artwork</th>
               <th className="px-4 py-3">Date</th>
+              <th className="px-4 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -48,11 +50,18 @@ export default async function AdminCustomisationQuotesPage() {
                   )}
                 </td>
                 <td className="px-4 py-3 text-ink/70">{new Date(quote.createdAt).toLocaleDateString()}</td>
+                <td className="px-4 py-3">
+                  <InquiryRowActions
+                    endpoint="customisation-quotes"
+                    id={quote.id}
+                    viewed={Boolean(quote.viewedAt)}
+                  />
+                </td>
               </tr>
             ))}
             {quotes.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-10 text-center text-sm text-ink/50">
+                <td colSpan={9} className="px-4 py-10 text-center text-sm text-ink/50">
                   No customisation quote requests yet.
                 </td>
               </tr>

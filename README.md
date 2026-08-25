@@ -270,11 +270,37 @@ Real photography is wired in under `public/images/`:
   uploads an optional artwork/logo file to the private
   `customisation-artwork` Storage bucket (mirrors `payment-proofs`),
   everything wrapped in `withErrorHandling`.
-- Admin: `/admin/customisation-quotes`, a plain list view (same table
-  pattern as Affiliate Management) showing contact details, grouping/
-  item of interest, quantity, message, and the artwork file via a
-  300-second signed URL (same on-demand-signing pattern as order
-  proof-of-payment), never a persistent public link.
+- Admin: `/admin/quotes-and-inquiries/studio` (one of three tabs under
+  the "Quotes and Inquiries" nav group, see below), a plain list view
+  (same table pattern as Affiliate Management) showing contact
+  details, grouping/item of interest, quantity, message, and the
+  artwork file via a 300-second signed URL (same on-demand-signing
+  pattern as order proof-of-payment), never a persistent public link.
+
+## Quotes and Inquiries (admin)
+
+Every message/quote submitted from the public site, grouped by source,
+under one nav item (`/admin/quotes-and-inquiries`, three sub-pages):
+
+- **Contact Page Inquiries** (`/contact`): writes to `contact_inquiries`
+  (existed since `0001_init.sql`, had no admin view until now).
+- **Business Inquiries** (`/business`): writes to `wholesale_inquiries`
+  (same table, same gap).
+- **Customisation Studio Inquiries** (`/studio`): the quote requests
+  described above, moved from the old standalone
+  `/admin/customisation-quotes` route into this group.
+
+All three tables share `viewed_at timestamptz`
+(`0013_quotes_and_inquiries.sql`), same unviewed-badge pattern as
+orders (`0010`): null until an admin explicitly marks a row read via
+`InquiryRowActions`, badge counts surface on the nav item (per sub-page
+and summed on the parent), the dashboard module card, and the section
+hub page. Each row also shows a disabled "Reply via Aurielle Email"
+button labeled "Under development" -- the plan is a reply composer
+(free text + attachments) that fills a pre-built Aurielle-branded email
+template and sends via the project's z.com email hosting, but that send
+path isn't built yet. For now, admins reply manually using the email
+address captured on each entry.
 
 ## Orders (manual / Kolekta pattern)
 

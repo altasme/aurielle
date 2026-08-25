@@ -12,11 +12,12 @@ export type CustomisationQuote = {
   quantity: string | null;
   message: string | null;
   artworkPath: string | null;
+  viewedAt: string | null;
   createdAt: string;
 };
 
 const SELECT =
-  "id, name, email, phone, country, grouping, item_interest, quantity, message, artwork_path, created_at";
+  "id, name, email, phone, country, grouping, item_interest, quantity, message, artwork_path, viewed_at, created_at";
 
 export async function listCustomisationQuotes(): Promise<CustomisationQuote[]> {
   const supabase = getSupabaseAdminClient();
@@ -37,8 +38,29 @@ export async function listCustomisationQuotes(): Promise<CustomisationQuote[]> {
     quantity: row.quantity,
     message: row.message,
     artworkPath: row.artwork_path,
+    viewedAt: row.viewed_at,
     createdAt: row.created_at,
   }));
+}
+
+export async function countUnviewedCustomisationQuotes(): Promise<number> {
+  const supabase = getSupabaseAdminClient();
+  const { count, error } = await supabase
+    .from("customisation_quotes")
+    .select("id", { count: "exact", head: true })
+    .is("viewed_at", null);
+
+  if (error) throw new Error(`Failed to count unviewed customisation quotes: ${error.message}`);
+  return count ?? 0;
+}
+
+export async function markCustomisationQuoteViewed(id: string): Promise<void> {
+  const supabase = getSupabaseAdminClient();
+  await supabase
+    .from("customisation_quotes")
+    .update({ viewed_at: new Date().toISOString() })
+    .eq("id", id)
+    .is("viewed_at", null);
 }
 
 export async function getCustomisationQuote(id: string): Promise<CustomisationQuote | null> {
@@ -62,6 +84,7 @@ export async function getCustomisationQuote(id: string): Promise<CustomisationQu
     quantity: data.quantity,
     message: data.message,
     artworkPath: data.artwork_path,
+    viewedAt: data.viewed_at,
     createdAt: data.created_at,
   };
 }
