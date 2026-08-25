@@ -1,33 +1,55 @@
 import type { Metadata } from "next";
 import { Reveal } from "@/components/reveal";
 import { ButtonLink } from "@/components/button-link";
+import { CUSTOMISATION_STUDIO_ENABLED } from "@/config/studio";
 
 export const metadata: Metadata = {
   title: "About | Aurielle Paris Atelier",
 };
 
-const SECTIONS = [
+type Section = {
+  title: string;
+  paragraphs: string[];
+  cta?: { href: string; label: string };
+};
+
+const SECTIONS: Section[] = [
   {
     title: "Our Story",
     paragraphs: [
       "Aurielle Paris Atelier was created from a love of fragrance, elegance and the timeless art of perfumery.",
       "Inspired by the beauty and character of Paris, Aurielle brings together refined perfume oils and fragrance materials for those who appreciate scent as more than an accessory.",
       "Each fragrance is an invitation to discover a different mood, memory and expression of individuality. From delicate florals and luminous compositions to deeper woods, amber and mysterious evening scents, the Aurielle collection is designed to become part of your personal signature.",
-      "Beyond the collection, the Atelier extends this passion into fragrance creation, offering materials for perfumers, creators and businesses seeking to develop something of their own.",
+      "Beyond the collection, Atelier Supply extends this passion into fragrance creation, offering materials for perfumers, creators and businesses seeking to develop something of their own.",
       "A world of fragrance, created to be discovered.",
     ],
   },
   {
-    title: "The Atelier",
+    title: "Atelier Supply",
     paragraphs: [
       "Where fragrance becomes possibility.",
-      "The Aurielle Atelier is the creative side of our world, offering fragrance materials for perfumers, creators, manufacturers and businesses.",
+      "Atelier Supply is the sourcing side of our world, offering fragrance materials for perfumers, creators, manufacturers and businesses.",
       "Whether you are developing your own fragrance, creating a new product line, or sourcing materials for your business, our collection of fragrance materials provides a starting point for your next creation.",
       "Available materials are presented with their corresponding customer-facing pricing and supply information, making it easier to explore options for both smaller creative projects and larger requirements.",
       "Discover the Atelier Supply collection and begin creating your own world of fragrance.",
     ],
     cta: { href: "/atelier-supply", label: "View Atelier Supply" },
   },
+  ...(CUSTOMISATION_STUDIO_ENABLED
+    ? [
+        {
+          title: "The Customisation Studio",
+          paragraphs: [
+            "Where craft becomes yours to keep.",
+            "The Customisation Studio is Aurielle's newest craft: made-to-order UV printing for luxury packaging, personal gifts, business branding and industrial production.",
+            "Whether you're printing a label for your own perfume line, branding a corporate gift, or producing a small batch of custom pieces, the Studio brings your artwork to life on the object itself.",
+            "Every piece is made to order, no fixed catalogue or stock pricing. Share your artwork and request a quote to begin.",
+            "Discover the Customisation Studio and bring your own design to life.",
+          ],
+          cta: { href: "/studio", label: "Explore the Studio" },
+        },
+      ]
+    : []),
   {
     title: "Our Philosophy",
     paragraphs: [
@@ -44,7 +66,7 @@ const SECTIONS = [
       "Inspired by the artistry and elegance of French perfumery.",
       "Aurielle's fragrance collection is centered around refined perfume oils designed to offer a distinctive and lasting fragrance experience.",
       "Each composition is given its own character and atmosphere, creating a collection that moves between floral, woody, warm, sensual and sophisticated expressions.",
-      "From the finished Aurielle collection to the fragrance materials offered through the Atelier, our world is built around one idea:",
+      "From the finished Aurielle collection to the fragrance materials offered through Atelier Supply, our world is built around one idea:",
       "Fragrance is an art of composition, discovery and personal expression.",
     ],
   },

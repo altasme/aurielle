@@ -343,7 +343,7 @@ export default async function Home() {
       <section className="bg-beige px-6 py-24 lg:px-10">
         <div className="mx-auto max-w-6xl text-center">
           <Reveal>
-            <p className="font-script text-2xl text-burgundy">The Aurielle Atelier</p>
+            <p className="font-script text-2xl text-burgundy">Atelier Supply</p>
             <h2 className="mt-2 font-serif text-3xl text-ink">
               More Than Fragrance. A Supply Partner.
             </h2>

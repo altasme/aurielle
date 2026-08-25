@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { CUSTOMISATION_STUDIO_ENABLED } from "@/config/studio";
 
 export function SiteFooter() {
   const pathname = usePathname();
@@ -25,8 +26,9 @@ export function SiteFooter() {
             AURIELLE
           </p>
           <p className="mt-3 max-w-xs text-sm text-ink/70">
-            A fragrance house creating refined perfumes and supplying quality
-            fragrance materials to creators and businesses worldwide.
+            {CUSTOMISATION_STUDIO_ENABLED
+              ? "A house of craft creating refined perfumes, supplying quality fragrance materials, and printing custom branding for creators and businesses worldwide."
+              : "A fragrance house creating refined perfumes and supplying quality fragrance materials to creators and businesses worldwide."}
           </p>
         </div>
 
@@ -41,6 +43,11 @@ export function SiteFooter() {
             <li>
               <Link href="/atelier-supply">Atelier Supply</Link>
             </li>
+            {CUSTOMISATION_STUDIO_ENABLED && (
+              <li>
+                <Link href="/studio">Customisation Studio</Link>
+              </li>
+            )}
             <li>
               <Link href="/business">For Your Business</Link>
             </li>

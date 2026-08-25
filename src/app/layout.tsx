@@ -4,6 +4,7 @@ import { Playfair_Display, Inter, Parisienne } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { CUSTOMISATION_STUDIO_ENABLED } from "@/config/studio";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -21,8 +22,9 @@ const parisienne = Parisienne({
   weight: "400",
 });
 
-const description =
-  "Aurielle Paris Atelier: refined perfumes and a professional fragrance supply catalogue, crafted with French-inspired luxury.";
+const description = CUSTOMISATION_STUDIO_ENABLED
+  ? "Aurielle Paris Atelier: refined perfumes, a professional fragrance supply catalogue, and made-to-order custom UV printing, crafted with French-inspired luxury."
+  : "Aurielle Paris Atelier: refined perfumes and a professional fragrance supply catalogue, crafted with French-inspired luxury.";
 
 export const metadata: Metadata = {
   // Set NEXT_PUBLIC_SITE_URL once the production domain is final so
