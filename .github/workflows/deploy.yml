@@ -54,3 +54,32 @@ jobs:
           # / canonical URL resolution) in src/app/layout.tsx.
           NEXT_PUBLIC_SITE_URL: https://auriellefragrancestudio.com
         run: npm run cf:deploy
+
+      # `env:` above only reaches process.env inside the GitHub Actions
+      # runner's build -- that's what generateStaticParams() needs at
+      # build time, but it does NOT become part of the deployed
+      # Worker's own runtime environment. Cloudflare Workers only see
+      # `process.env` values that come from real Worker bindings (via
+      # `nodejs_compat`): wrangler.jsonc `vars` for plain config, or
+      # `wrangler secret put` for anything sensitive. SUPABASE_*/
+      # CLOUDINARY_* already work at runtime because those were set as
+      # Worker secrets directly (outside of git, at some earlier point
+      # -- they're absent from wrangler.jsonc on purpose). This step
+      # does the same for SMTP_*, idempotently, on every deploy, so a
+      # secret rotated in GitHub actually reaches the live Worker.
+      - name: Sync SMTP secrets to the Cloudflare Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          SMTP_FROM_EMAIL: ${{ secrets.SMTP_FROM_EMAIL }}
+          SMTP_FROM_NAME: ${{ secrets.SMTP_FROM_NAME }}
+        run: |
+          printf '%s' "$SMTP_HOST" | npx wrangler secret put SMTP_HOST
+          printf '%s' "$SMTP_PORT" | npx wrangler secret put SMTP_PORT
+          printf '%s' "$SMTP_USERNAME" | npx wrangler secret put SMTP_USERNAME
+          printf '%s' "$SMTP_PASSWORD" | npx wrangler secret put SMTP_PASSWORD
+          printf '%s' "$SMTP_FROM_EMAIL" | npx wrangler secret put SMTP_FROM_EMAIL
+          printf '%s' "$SMTP_FROM_NAME" | npx wrangler secret put SMTP_FROM_NAME
