@@ -7,7 +7,7 @@ import {
 } from "@/lib/admin/inquiry-messages";
 import { withErrorHandling } from "@/lib/with-error-handling";
 
-const SOURCES = ["contact", "business", "studio"] as const;
+const SOURCES = ["contact", "business", "studio", "mail"] as const;
 
 function isSource(value: string | null): value is InquirySource {
   return typeof value === "string" && (SOURCES as readonly string[]).includes(value);

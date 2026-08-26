@@ -15,6 +15,7 @@ const SOURCE_TABLES: Record<string, string> = {
   contact: "contact_inquiries",
   business: "wholesale_inquiries",
   studio: "customisation_quotes",
+  mail: "general_mail",
 };
 
 // Matches the hello+<source>-<uuid>@domain reply-to address the admin
@@ -110,10 +111,12 @@ export default {
     }
 
     // Doesn't match any known reply address (e.g. someone emailed
-    // hello@ directly instead of replying to an admin message) -- keep
-    // it rather than silently dropping it, now that this address no
-    // longer lands in the z.com webmail inbox at all.
-    await fetch(`${env.SUPABASE_URL}/rest/v1/unmatched_inbound_emails`, {
+    // hello@ directly instead of replying to an admin message) -- goes
+    // into Aurielle Mail (general_mail) rather than being silently
+    // dropped, now that this address no longer lands in the z.com
+    // webmail inbox at all. A reply to *this* later (hello+mail-<id>@)
+    // is what the `match` branch above picks up.
+    await fetch(`${env.SUPABASE_URL}/rest/v1/general_mail`, {
       method: "POST",
       headers: restHeaders(env),
       body: JSON.stringify({

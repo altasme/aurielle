@@ -4,6 +4,7 @@ import { countNewAffiliateApplications } from "@/lib/admin/affiliates";
 import { countUnviewedContactInquiries } from "@/lib/admin/contact-inquiries";
 import { countUnviewedWholesaleInquiries } from "@/lib/admin/wholesale-inquiries";
 import { countUnviewedCustomisationQuotes } from "@/lib/admin/customisation-quotes";
+import { countUnviewedGeneralMail } from "@/lib/admin/general-mail";
 
 const MODULES = [
   {
@@ -28,6 +29,11 @@ const MODULES = [
     href: "/admin/quotes-and-inquiries",
   },
   {
+    title: "Aurielle Mail",
+    description: "Everything else sent to hello@auriellefragrancestudio.com -- read, reply, or delete.",
+    href: "/admin/aurielle-mail",
+  },
+  {
     title: "Promotion",
     description: "Discount codes, promotional pricing, campaigns, product-specific promotions.",
     href: null,
@@ -40,19 +46,27 @@ const MODULES = [
 ];
 
 export default async function AdminDashboardPage() {
-  const [unviewedOrders, newAffiliates, unviewedContactInquiries, unviewedBusinessInquiries, unviewedStudioInquiries] =
-    await Promise.all([
-      countUnviewedOrders(),
-      countNewAffiliateApplications(),
-      countUnviewedContactInquiries(),
-      countUnviewedWholesaleInquiries(),
-      countUnviewedCustomisationQuotes(),
-    ]);
+  const [
+    unviewedOrders,
+    newAffiliates,
+    unviewedContactInquiries,
+    unviewedBusinessInquiries,
+    unviewedStudioInquiries,
+    unviewedGeneralMail,
+  ] = await Promise.all([
+    countUnviewedOrders(),
+    countNewAffiliateApplications(),
+    countUnviewedContactInquiries(),
+    countUnviewedWholesaleInquiries(),
+    countUnviewedCustomisationQuotes(),
+    countUnviewedGeneralMail(),
+  ]);
 
   const badgeByHref: Record<string, number> = {
     "/admin/orders": unviewedOrders,
     "/admin/affiliates": newAffiliates,
     "/admin/quotes-and-inquiries": unviewedContactInquiries + unviewedBusinessInquiries + unviewedStudioInquiries,
+    "/admin/aurielle-mail": unviewedGeneralMail,
   };
 
   return (

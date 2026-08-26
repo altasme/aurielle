@@ -1,7 +1,7 @@
 import "server-only";
 import { getSupabaseAdminClient } from "@/lib/supabase/server";
 
-export type InquirySource = "contact" | "business" | "studio";
+export type InquirySource = "contact" | "business" | "studio" | "mail";
 
 export type MessageAttachment = {
   filename: string;

@@ -5,6 +5,7 @@ import { countNewAffiliateApplications } from "@/lib/admin/affiliates";
 import { countUnviewedContactInquiries } from "@/lib/admin/contact-inquiries";
 import { countUnviewedWholesaleInquiries } from "@/lib/admin/wholesale-inquiries";
 import { countUnviewedCustomisationQuotes } from "@/lib/admin/customisation-quotes";
+import { countUnviewedGeneralMail } from "@/lib/admin/general-mail";
 import { AdminNav } from "@/components/admin/admin-nav";
 
 export const metadata: Metadata = {
@@ -20,14 +21,21 @@ export const metadata: Metadata = {
 // only through frontend route protection").
 export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
   const user = await requireAdmin();
-  const [unviewedOrders, newAffiliates, unviewedContactInquiries, unviewedBusinessInquiries, unviewedStudioInquiries] =
-    await Promise.all([
-      countUnviewedOrders(),
-      countNewAffiliateApplications(),
-      countUnviewedContactInquiries(),
-      countUnviewedWholesaleInquiries(),
-      countUnviewedCustomisationQuotes(),
-    ]);
+  const [
+    unviewedOrders,
+    newAffiliates,
+    unviewedContactInquiries,
+    unviewedBusinessInquiries,
+    unviewedStudioInquiries,
+    unviewedGeneralMail,
+  ] = await Promise.all([
+    countUnviewedOrders(),
+    countNewAffiliateApplications(),
+    countUnviewedContactInquiries(),
+    countUnviewedWholesaleInquiries(),
+    countUnviewedCustomisationQuotes(),
+    countUnviewedGeneralMail(),
+  ]);
 
   return (
     <div className="flex min-h-screen bg-ivory text-ink">
@@ -38,6 +46,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
         unviewedContactInquiries={unviewedContactInquiries}
         unviewedBusinessInquiries={unviewedBusinessInquiries}
         unviewedStudioInquiries={unviewedStudioInquiries}
+        unviewedGeneralMail={unviewedGeneralMail}
       />
       <main className="flex-1 overflow-x-auto px-8 py-8">{children}</main>
     </div>

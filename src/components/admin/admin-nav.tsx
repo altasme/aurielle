@@ -18,6 +18,7 @@ const NAV_LINKS = [
       { href: "/admin/quotes-and-inquiries/studio", label: "Customisation Studio Inquiries" },
     ],
   },
+  { href: "/admin/aurielle-mail", label: "Aurielle Mail" },
 ];
 
 function Badge({ count }: { count: number }) {
@@ -36,6 +37,7 @@ export function AdminNav({
   unviewedContactInquiries,
   unviewedBusinessInquiries,
   unviewedStudioInquiries,
+  unviewedGeneralMail,
 }: {
   username: string;
   unviewedOrders: number;
@@ -43,6 +45,7 @@ export function AdminNav({
   unviewedContactInquiries: number;
   unviewedBusinessInquiries: number;
   unviewedStudioInquiries: number;
+  unviewedGeneralMail: number;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -54,6 +57,7 @@ export function AdminNav({
     "/admin/quotes-and-inquiries/business": unviewedBusinessInquiries,
     "/admin/quotes-and-inquiries/studio": unviewedStudioInquiries,
     "/admin/quotes-and-inquiries": unviewedContactInquiries + unviewedBusinessInquiries + unviewedStudioInquiries,
+    "/admin/aurielle-mail": unviewedGeneralMail,
   };
 
   async function handleLogout() {

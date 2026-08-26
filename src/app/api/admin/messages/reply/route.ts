@@ -4,6 +4,7 @@ import { sendReplyEmail, SendReplyError, type ReplyAttachment } from "@/lib/emai
 import { markContactInquiryViewed } from "@/lib/admin/contact-inquiries";
 import { markWholesaleInquiryViewed } from "@/lib/admin/wholesale-inquiries";
 import { markCustomisationQuoteViewed } from "@/lib/admin/customisation-quotes";
+import { markGeneralMailViewed } from "@/lib/admin/general-mail";
 import {
   buildReplyToAddress,
   recordOutboundMessage,
@@ -13,7 +14,7 @@ import {
 import { getSupabaseAdminClient } from "@/lib/supabase/server";
 import { withErrorHandling } from "@/lib/with-error-handling";
 
-const SOURCES = ["contact", "business", "studio"] as const;
+const SOURCES = ["contact", "business", "studio", "mail"] as const;
 
 function isSource(value: FormDataEntryValue | null): value is InquirySource {
   return typeof value === "string" && (SOURCES as readonly string[]).includes(value);
@@ -22,7 +23,8 @@ function isSource(value: FormDataEntryValue | null): value is InquirySource {
 async function markViewed(source: InquirySource, id: string): Promise<void> {
   if (source === "contact") return markContactInquiryViewed(id);
   if (source === "business") return markWholesaleInquiryViewed(id);
-  return markCustomisationQuoteViewed(id);
+  if (source === "studio") return markCustomisationQuoteViewed(id);
+  return markGeneralMailViewed(id);
 }
 
 export const POST = withErrorHandling(async (request: Request) => {
