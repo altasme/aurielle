@@ -49,7 +49,17 @@ export async function sendReplyEmail({
   // `cloudflare:sockets` at import time, which only exists in the real
   // Workers runtime. A static import makes `next build`'s page-data
   // collection pass (plain Node, pre-deploy) fail trying to resolve it.
-  const { WorkerMailer } = await import("worker-mailer");
+  //
+  // Import the explicit `.mjs` file, not the bare "worker-mailer"
+  // specifier: worker-mailer ships both an ESM build (clean
+  // `import { connect } from "cloudflare:sockets"`) and a CJS build
+  // (`require("cloudflare:sockets")`, which the Workers runtime
+  // rejects with "Dynamic require ... is not supported"). It has no
+  // `exports` map, so OpenNext's esbuild pass resolves the bare
+  // specifier to the CJS `main` entry instead of the ESM `module`
+  // entry. Importing the file directly sidesteps that resolution
+  // entirely.
+  const { WorkerMailer } = await import("worker-mailer/dist/index.mjs");
 
   const mailer = await WorkerMailer.connect({
     host,
