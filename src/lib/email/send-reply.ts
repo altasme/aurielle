@@ -59,7 +59,7 @@ export async function sendReplyEmail({
   // specifier to the CJS `main` entry instead of the ESM `module`
   // entry. Importing the file directly sidesteps that resolution
   // entirely.
-  const { WorkerMailer } = await import("worker-mailer/dist/index.mjs");
+  const { WorkerMailer, LogLevel } = await import("worker-mailer/dist/index.mjs");
 
   const mailer = await WorkerMailer.connect({
     host,
@@ -67,6 +67,15 @@ export async function sendReplyEmail({
     secure: port === 465,
     credentials: { username, password },
     authType: ["plain", "login", "cram-md5"],
+    // DEBUG logs the full raw SMTP transcript (EHLO/AUTH/MAIL FROM/
+    // RCPT TO/DATA and every server response) to the Worker's console
+    // -- viewable in the Cloudflare dashboard under Workers & Pages ->
+    // aurielle -> Logs. A resolved send() only means the server
+    // accepted the message for relay, not that it reached an inbox; if
+    // a "sent" reply never arrives, this transcript is the only way to
+    // tell whether the server actually said 250 OK at each step versus
+    // silently rejecting further into the transaction.
+    logLevel: LogLevel.DEBUG,
   });
 
   try {
