@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSubmit } from "@/lib/use-submit";
 
@@ -175,13 +176,19 @@ export function InquiryThreadModal({
               const isAdmin = message.direction === "outbound";
               return (
                 <div key={message.id} className={`flex gap-3 ${isAdmin ? "flex-row-reverse" : ""}`}>
-                  <div
-                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-medium ${
-                      isAdmin ? "bg-burgundy text-ivory" : "bg-taupe/30 text-ink/70"
-                    }`}
-                  >
-                    {isAdmin ? "AP" : initials(message.fromName || message.fromEmail)}
-                  </div>
+                  {isAdmin ? (
+                    <Image
+                      src="/images/logo.png"
+                      alt="Aurielle Paris Atelier"
+                      width={32}
+                      height={32}
+                      className="h-8 w-8 shrink-0 rounded-full border border-burgundy/20 object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-taupe/30 text-[11px] font-medium text-ink/70">
+                      {initials(message.fromName || message.fromEmail)}
+                    </div>
+                  )}
                   <div className={`flex max-w-[75%] flex-col gap-1 ${isAdmin ? "items-end" : "items-start"}`}>
                     <div className="flex items-baseline gap-2 text-[11px] text-ink/50">
                       <span className="font-medium text-ink/70">
