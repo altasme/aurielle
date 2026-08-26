@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Standalone Cloudflare Worker with its own package.json/tsconfig
+    // (see email-worker/package.json) -- lints/typechecks independently
+    // via its own `npm run typecheck`, not as part of this Next app.
+    "email-worker/**",
   ]),
 ]);
 

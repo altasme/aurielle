@@ -4,16 +4,22 @@ import { sendReplyEmail, SendReplyError, type ReplyAttachment } from "@/lib/emai
 import { markContactInquiryViewed } from "@/lib/admin/contact-inquiries";
 import { markWholesaleInquiryViewed } from "@/lib/admin/wholesale-inquiries";
 import { markCustomisationQuoteViewed } from "@/lib/admin/customisation-quotes";
+import {
+  buildReplyToAddress,
+  recordOutboundMessage,
+  type InquirySource,
+  type MessageAttachment,
+} from "@/lib/admin/inquiry-messages";
+import { getSupabaseAdminClient } from "@/lib/supabase/server";
 import { withErrorHandling } from "@/lib/with-error-handling";
 
 const SOURCES = ["contact", "business", "studio"] as const;
-type Source = (typeof SOURCES)[number];
 
-function isSource(value: FormDataEntryValue | null): value is Source {
+function isSource(value: FormDataEntryValue | null): value is InquirySource {
   return typeof value === "string" && (SOURCES as readonly string[]).includes(value);
 }
 
-async function markViewed(source: Source, id: string): Promise<void> {
+async function markViewed(source: InquirySource, id: string): Promise<void> {
   if (source === "contact") return markContactInquiryViewed(id);
   if (source === "business") return markWholesaleInquiryViewed(id);
   return markCustomisationQuoteViewed(id);
@@ -44,16 +50,37 @@ export const POST = withErrorHandling(async (request: Request) => {
   }
 
   const files = formData.getAll("attachments").filter((entry): entry is File => entry instanceof File);
-  const attachments: ReplyAttachment[] = await Promise.all(
-    files.map(async (file) => {
-      const buffer = Buffer.from(await file.arrayBuffer());
-      return {
-        filename: file.name,
-        content: buffer.toString("base64"),
-        mimeType: file.type || undefined,
-      };
-    }),
-  );
+
+  // Each file is read once and used two ways: base64 for the outgoing
+  // SMTP attachment, and a copy in the "inquiry-attachments" bucket so
+  // it still shows up in the thread history after the email is sent.
+  const supabase = getSupabaseAdminClient();
+  const attachments: ReplyAttachment[] = [];
+  const storedAttachments: MessageAttachment[] = [];
+  for (const file of files) {
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    attachments.push({
+      filename: file.name,
+      content: Buffer.from(bytes).toString("base64"),
+      mimeType: file.type || undefined,
+    });
+
+    const path = `${source}/${id}/${crypto.randomUUID()}-${file.name}`;
+    const { error: uploadError } = await supabase.storage
+      .from("inquiry-attachments")
+      .upload(path, bytes, { contentType: file.type || undefined });
+    if (uploadError) {
+      console.error("Attachment upload failed", uploadError);
+      // Don't fail the whole reply over a failed thread-history copy --
+      // the email itself (with its own attachment) still goes out.
+      continue;
+    }
+    storedAttachments.push({ filename: file.name, mimeType: file.type || null, path });
+  }
+
+  const fromEmail = process.env.SMTP_FROM_EMAIL;
+  const fromName = process.env.SMTP_FROM_NAME ?? "Aurielle Paris Atelier";
+  const replyToEmail = fromEmail ? buildReplyToAddress(fromEmail, source, id) : "";
 
   // TEMPORARY: surfaces the captured SMTP transcript directly in the
   // response either way, so the admin can see it without a separately
@@ -68,6 +95,7 @@ export const POST = withErrorHandling(async (request: Request) => {
       subject: subject.trim(),
       bodyText: body.trim(),
       attachments,
+      replyToEmail,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Failed to send email";
@@ -76,6 +104,18 @@ export const POST = withErrorHandling(async (request: Request) => {
   }
 
   await markViewed(source, id);
+  if (fromEmail) {
+    await recordOutboundMessage({
+      source,
+      inquiryId: id,
+      fromEmail,
+      fromName,
+      toEmail: toEmail.trim(),
+      subject: subject.trim(),
+      bodyText: body.trim(),
+      attachments: storedAttachments,
+    });
+  }
 
   return NextResponse.json({ ok: true, smtpLog });
 });

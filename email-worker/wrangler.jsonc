@@ -1,0 +1,18 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "aurielle-email-worker",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-08-10"
+	// SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set as real Worker
+	// secrets by the "Deploy email-worker" job in
+	// .github/workflows/deploy.yml (wrangler secret put), the same
+	// pattern used for the main site's SMTP_* secrets -- see that
+	// workflow file's comments for why GitHub Actions env vars alone
+	// don't reach a deployed Worker's runtime.
+	//
+	// The Cloudflare-side wiring (enabling Email Routing for the zone,
+	// and adding a routing rule that sends hello@auriellefragrancestudio.com
+	// to this Worker) is a dashboard step, not something wrangler.jsonc
+	// or this repo can express -- see README "Reply via Aurielle Email"
+	// for the exact steps.
+}

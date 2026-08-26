@@ -83,3 +83,42 @@ jobs:
           printf '%s' "$SMTP_PASSWORD" | npx wrangler secret put SMTP_PASSWORD
           printf '%s' "$SMTP_FROM_EMAIL" | npx wrangler secret put SMTP_FROM_EMAIL
           printf '%s' "$SMTP_FROM_NAME" | npx wrangler secret put SMTP_FROM_NAME
+
+  # Separate Worker (email-worker/) that receives inbound mail via
+  # Cloudflare Email Routing -- see README "Reply via Aurielle Email:
+  # receiving customer replies" for the one-time dashboard setup this
+  # depends on (enabling Email Routing for the zone, and pointing a
+  # routing rule at this Worker by name). Deployed independently of the
+  # main site Worker above since it has its own package.json/
+  # node_modules and doesn't go through the OpenNext/Turbopack build.
+  deploy-email-worker:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: email-worker
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: npm ci
+
+      - name: Deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: npx wrangler deploy
+
+      # Same reasoning as the main Worker's SMTP secret sync above:
+      # these need to be real Worker secrets, not just GitHub Actions
+      # build-time env vars, for the deployed email() handler to read
+      # them from process.env-equivalent bindings at runtime.
+      - name: Sync Supabase secrets to the Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          printf '%s' "$SUPABASE_URL" | npx wrangler secret put SUPABASE_URL
+          printf '%s' "$SUPABASE_SERVICE_ROLE_KEY" | npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY

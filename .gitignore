@@ -43,6 +43,10 @@ yarn-error.log*
 .dev.vars
 !.dev.vars.example
 
+# email-worker (standalone Cloudflare Worker, own npm install)
+/email-worker/node_modules
+/email-worker/.wrangler/
+
 # generated catalogue (built from data/*.csv, see scripts/generate-catalogue.mjs)
 /src/data/*.generated.ts
 

@@ -1,0 +1,18 @@
+{
+  "name": "aurielle-email-worker",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Cloudflare Email Routing worker: receives inbound mail to hello@auriellefragrancestudio.com and writes it into Supabase as an inquiry_messages row, so it shows up in the admin panel's reply thread.",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "postal-mime": "^3.0.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260825.1",
+    "typescript": "^5.7.0",
+    "wrangler": "^4.120.0"
+  }
+}

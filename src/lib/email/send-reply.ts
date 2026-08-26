@@ -33,12 +33,18 @@ export async function sendReplyEmail({
   subject,
   bodyText,
   attachments,
+  replyToEmail,
 }: {
   toEmail: string;
   toName: string;
   subject: string;
   bodyText: string;
   attachments: ReplyAttachment[];
+  // The per-inquiry hello+<source>-<id>@... address (see
+  // buildReplyToAddress in src/lib/admin/inquiry-messages.ts) so a
+  // customer's reply arrives self-identifying instead of needing
+  // subject-line or sender-address matching.
+  replyToEmail: string;
 }): Promise<string[]> {
   const host = process.env.SMTP_HOST;
   const port = process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : undefined;
@@ -112,6 +118,7 @@ export async function sendReplyEmail({
       await mailer.send({
         from: { name: fromName, email: fromEmail },
         to: { name: toName, email: toEmail },
+        reply: replyToEmail,
         subject,
         text: bodyText,
         html: renderReplyEmailHtml({ recipientName: toName, bodyText }),
