@@ -58,26 +58,18 @@ export default async function Home() {
             Aurielle Paris Atelier
           </p>
           <h1 className="hero-in hero-in-delay-1 max-w-3xl font-serif text-4xl leading-tight text-ink sm:text-6xl">
-            {CUSTOMISATION_STUDIO_ENABLED
-              ? "FRAGRANCE · CRAFT · CUSTOMISATION"
-              : "THE ART OF FRAGRANCE"}
+            THE ART OF FRAGRANCE
           </h1>
-          <p className="hero-in hero-in-delay-2 max-w-md text-base text-ink sm:text-lg">
-            {CUSTOMISATION_STUDIO_ENABLED
-              ? "From signature scents to fragrance supply and made-to-order UV printing, Aurielle Paris brings together refined fragrances, quality materials and custom craftsmanship for individuals, creators and businesses."
-              : "From signature scents to fragrance supply and private-label creation, Aurielle Paris brings together refined fragrances, quality fragrance materials, custom packaging and product development support for individuals, creators and businesses."}
+          <p className="hero-in hero-in-delay-2 max-w-md text-base font-normal text-ink/70 sm:text-lg">
+            From signature scents to fragrance supply and private-label creation, Aurielle Paris brings together
+            refined fragrances, quality fragrance materials, custom packaging and product development support for
+            individuals, creators and businesses.
           </p>
           <div className="hero-in hero-in-delay-3 mt-4 flex flex-col gap-4 sm:flex-row">
             <ButtonLink href="/collection">Discover Aurielle</ButtonLink>
-            {CUSTOMISATION_STUDIO_ENABLED ? (
-              <ButtonLink href="#pillars" variant="secondary">
-                Explore Our Crafts
-              </ButtonLink>
-            ) : (
-              <ButtonLink href="/atelier-supply" variant="secondary">
-                Explore the Atelier
-              </ButtonLink>
-            )}
+            <ButtonLink href="/atelier-supply" variant="secondary">
+              Explore the Atelier
+            </ButtonLink>
           </div>
         </div>
       </section>
