@@ -41,28 +41,39 @@ function replySubject(subject: string | null): string {
 
 const LIST_WIDTH_MIN = 220;
 const LIST_WIDTH_MAX = 560;
+const REPLY_HEIGHT_MIN = 140;
+const REPLY_HEIGHT_MAX = 520;
+
+type ResizeMode = "list" | "reply" | null;
 
 // The Aurielle Mail inbox: everything sent to hello@ that isn't a
 // Quotes and Inquiries reply (email-worker/src/index.ts's "unmatched"
 // fallback -> general_mail). A classic list + reading-pane mail
 // client, sharing the same thread renderer and reply form as the
-// Quotes and Inquiries thread modal so both read as one system. The
-// list pane's width is user-draggable (see the resize handle below)
-// since a fixed split reads cramped at some window sizes.
+// Quotes and Inquiries thread modal so both read as one system. Both
+// the list pane's width and the reply box's height are user-draggable
+// (see the two resize handles below) since a fixed split reads cramped
+// at some window sizes.
 export function AurielleMailClient({ initialMessages }: { initialMessages: MailMessage[] }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [thread, setThread] = useState<ThreadMessage[] | null>(null);
   const [listWidth, setListWidth] = useState(320);
-  const [resizing, setResizing] = useState(false);
+  const [replyHeight, setReplyHeight] = useState(240);
+  const [resizing, setResizing] = useState<ResizeMode>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const readingPaneRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  function handleResizeMove(e: ReactPointerEvent<HTMLDivElement>) {
-    if (!resizing) return;
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const next = Math.min(LIST_WIDTH_MAX, Math.max(LIST_WIDTH_MIN, e.clientX - rect.left));
-    setListWidth(next);
+  function handlePointerMove(e: ReactPointerEvent<HTMLDivElement>) {
+    if (resizing === "list") {
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      setListWidth(Math.min(LIST_WIDTH_MAX, Math.max(LIST_WIDTH_MIN, e.clientX - rect.left)));
+    } else if (resizing === "reply") {
+      const rect = readingPaneRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      setReplyHeight(Math.min(REPLY_HEIGHT_MAX, Math.max(REPLY_HEIGHT_MIN, rect.bottom - e.clientY)));
+    }
   }
 
   const selected = useMemo(
@@ -118,7 +129,7 @@ export function AurielleMailClient({ initialMessages }: { initialMessages: MailM
   return (
     <div
       ref={containerRef}
-      onPointerMove={handleResizeMove}
+      onPointerMove={handlePointerMove}
       className={`flex min-h-0 flex-1 overflow-hidden border border-taupe/20 bg-white ${resizing ? "select-none" : ""}`}
     >
       <div
@@ -176,16 +187,16 @@ export function AurielleMailClient({ initialMessages }: { initialMessages: MailM
         aria-label="Resize message list"
         onPointerDown={(e) => {
           e.currentTarget.setPointerCapture(e.pointerId);
-          setResizing(true);
+          setResizing("list");
         }}
         onPointerUp={(e) => {
           e.currentTarget.releasePointerCapture(e.pointerId);
-          setResizing(false);
+          setResizing(null);
         }}
         className="hidden w-1.5 shrink-0 cursor-col-resize border-x border-taupe/10 bg-beige/40 transition-colors hover:bg-burgundy/30 active:bg-burgundy/40 md:block"
       />
 
-      <div className={`min-w-0 flex-1 flex-col md:flex ${selected ? "flex" : "hidden"}`}>
+      <div ref={readingPaneRef} className={`min-w-0 flex-1 flex-col md:flex ${selected ? "flex" : "hidden"}`}>
         {!selected && (
           <div className="flex flex-1 items-center justify-center text-sm text-ink/40">Select a message to read it.</div>
         )}
@@ -211,11 +222,31 @@ export function AurielleMailClient({ initialMessages }: { initialMessages: MailM
               </button>
             </div>
 
-            <div className="flex-1 space-y-4 overflow-y-auto bg-beige/10 px-6 py-5">
+            <div className="min-h-0 flex-1 space-y-4 overflow-y-auto bg-beige/10 px-6 py-5">
               <ThreadMessages messages={messages} />
             </div>
 
-            <div className="border-t border-taupe/20 bg-white px-6 py-4">
+            {/* Drag to resize the reply box -- same pointer-capture
+                approach as the list-pane handle, just vertical. */}
+            <div
+              role="separator"
+              aria-orientation="horizontal"
+              aria-label="Resize reply box"
+              onPointerDown={(e) => {
+                e.currentTarget.setPointerCapture(e.pointerId);
+                setResizing("reply");
+              }}
+              onPointerUp={(e) => {
+                e.currentTarget.releasePointerCapture(e.pointerId);
+                setResizing(null);
+              }}
+              className="h-1.5 shrink-0 cursor-row-resize border-y border-taupe/10 bg-beige/40 transition-colors hover:bg-burgundy/30 active:bg-burgundy/40"
+            />
+
+            <div
+              style={{ height: replyHeight }}
+              className="shrink-0 overflow-y-auto border-t border-taupe/20 bg-white px-6 py-4"
+            >
               <ThreadReplyForm
                 source="mail"
                 id={selected.id}
