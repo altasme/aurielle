@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { useRouter } from "next/navigation";
 import { ThreadMessages, type ThreadMessage, type ThreadAttachment } from "./thread-messages";
 import { ThreadReplyForm } from "./thread-reply-form";
@@ -39,15 +39,31 @@ function replySubject(subject: string | null): string {
   return subject.toLowerCase().startsWith("re:") ? subject : `Re: ${subject}`;
 }
 
+const LIST_WIDTH_MIN = 220;
+const LIST_WIDTH_MAX = 560;
+
 // The Aurielle Mail inbox: everything sent to hello@ that isn't a
 // Quotes and Inquiries reply (email-worker/src/index.ts's "unmatched"
 // fallback -> general_mail). A classic list + reading-pane mail
 // client, sharing the same thread renderer and reply form as the
-// Quotes and Inquiries thread modal so both read as one system.
+// Quotes and Inquiries thread modal so both read as one system. The
+// list pane's width is user-draggable (see the resize handle below)
+// since a fixed split reads cramped at some window sizes.
 export function AurielleMailClient({ initialMessages }: { initialMessages: MailMessage[] }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [thread, setThread] = useState<ThreadMessage[] | null>(null);
+  const [listWidth, setListWidth] = useState(320);
+  const [resizing, setResizing] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  function handleResizeMove(e: ReactPointerEvent<HTMLDivElement>) {
+    if (!resizing) return;
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const next = Math.min(LIST_WIDTH_MAX, Math.max(LIST_WIDTH_MIN, e.clientX - rect.left));
+    setListWidth(next);
+  }
 
   const selected = useMemo(
     () => initialMessages.find((message) => message.id === selectedId) ?? null,
@@ -100,9 +116,14 @@ export function AurielleMailClient({ initialMessages }: { initialMessages: MailM
         ];
 
   return (
-    <div className="flex min-h-0 flex-1 overflow-hidden border border-taupe/20 bg-white">
+    <div
+      ref={containerRef}
+      onPointerMove={handleResizeMove}
+      className={`flex min-h-0 flex-1 overflow-hidden border border-taupe/20 bg-white ${resizing ? "select-none" : ""}`}
+    >
       <div
-        className={`w-full shrink-0 flex-col border-r border-taupe/20 md:flex md:w-80 ${selected ? "hidden" : "flex"}`}
+        style={{ "--mail-list-w": `${listWidth}px` } as React.CSSProperties}
+        className={`w-full shrink-0 flex-col md:flex md:w-[var(--mail-list-w)] ${selected ? "hidden" : "flex"}`}
       >
         <div className="flex items-center justify-between border-b border-taupe/20 px-4 py-3">
           <span className="text-xs uppercase tracking-wide text-ink/50">
@@ -145,6 +166,24 @@ export function AurielleMailClient({ initialMessages }: { initialMessages: MailM
           {initialMessages.length === 0 && <p className="px-4 py-10 text-center text-sm text-ink/50">No mail yet.</p>}
         </div>
       </div>
+
+      {/* Drag to resize the list pane -- pointer capture keeps move/up
+          events routed here even if the cursor drifts off the thin
+          handle mid-drag, so no window-level listeners are needed. */}
+      <div
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Resize message list"
+        onPointerDown={(e) => {
+          e.currentTarget.setPointerCapture(e.pointerId);
+          setResizing(true);
+        }}
+        onPointerUp={(e) => {
+          e.currentTarget.releasePointerCapture(e.pointerId);
+          setResizing(false);
+        }}
+        className="hidden w-1.5 shrink-0 cursor-col-resize border-x border-taupe/10 bg-beige/40 transition-colors hover:bg-burgundy/30 active:bg-burgundy/40 md:block"
+      />
 
       <div className={`min-w-0 flex-1 flex-col md:flex ${selected ? "flex" : "hidden"}`}>
         {!selected && (
