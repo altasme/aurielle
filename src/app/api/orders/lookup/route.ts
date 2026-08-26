@@ -19,7 +19,7 @@ export const GET = withErrorHandling(async (request: Request) => {
   const { data: order, error } = await supabase
     .from("orders")
     .select(
-      "id, order_number, business_line, customer_name, customer_email, currency, subtotal, shipping_cost, total, payment_method, payment_status, order_status, courier_name, tracking_number, created_at",
+      "id, order_number, business_line, customer_name, customer_email, currency, subtotal, shipping_cost, promotion_discount_total, discount_code_amount, discount_codes(code, name), total, payment_method, payment_status, order_status, courier_name, tracking_number, created_at",
     )
     .eq("order_number", orderNumber)
     .eq("customer_email", email)
@@ -35,15 +35,25 @@ export const GET = withErrorHandling(async (request: Request) => {
 
   const { data: items, error: itemsError } = await supabase
     .from("order_items")
-    .select("name_snapshot, quantity, unit_price, currency, pricing_unit, line_subtotal")
+    .select("name_snapshot, quantity, unit_price, currency, pricing_unit, line_subtotal, promotion_discount_amount, promotions(name)")
     .eq("order_id", order.id);
 
   if (itemsError) {
     console.error("Order items lookup failed", itemsError);
   }
 
-  const { id: _id, ...orderWithoutId } = order;
+  const { id: _id, discount_codes: discountCodeRow, ...orderWithoutId } = order;
   void _id;
+  const discountCode = discountCodeRow as unknown as { code: string; name: string } | null;
 
-  return NextResponse.json({ order: orderWithoutId, items: items ?? [] });
+  return NextResponse.json({
+    order: {
+      ...orderWithoutId,
+      discount_code: discountCode ? { code: discountCode.code, name: discountCode.name } : null,
+    },
+    items: (items ?? []).map((item) => ({
+      ...item,
+      promotion_name: (item.promotions as unknown as { name: string } | null)?.name ?? null,
+    })),
+  });
 });

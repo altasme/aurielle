@@ -3,6 +3,7 @@
 import { useRef, useState, type ReactNode } from "react";
 import { useSubmit } from "@/lib/use-submit";
 import type { InquirySource } from "@/lib/admin/inquiry-messages";
+import { BetaBadge } from "./beta-badge";
 
 const FIELD_CLASSES =
   "w-full rounded-sm border border-taupe/40 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-burgundy focus:ring-1 focus:ring-burgundy/20";
@@ -64,6 +65,10 @@ export function ThreadReplyForm({
 
   return (
     <div>
+      <div className="mb-3 flex items-center gap-1.5">
+        <BetaBadge />
+        <p className="text-xs text-ink/50">Under continuous development -- safe to use live in production.</p>
+      </div>
       <div className="space-y-3">
         <input
           type="text"

@@ -12,6 +12,7 @@ import type { Mood } from "@/lib/data/moods";
 // on demand via revalidatePath() whenever the admin saves a change.
 
 export type Perfume = {
+  id: string;
   slug: string;
   name: string;
   description: string | null;
@@ -26,6 +27,7 @@ export type Perfume = {
 };
 
 type ProductRow = {
+  id: string;
   slug: string;
   name: string;
   description: string | null;
@@ -42,6 +44,7 @@ function mapRow(row: ProductRow): Perfume {
   const images = row.product_images ?? [];
   const primary = images.find((img) => img.is_primary) ?? images[0];
   return {
+    id: row.id,
     slug: row.slug,
     name: row.name,
     description: row.description,
@@ -57,7 +60,7 @@ function mapRow(row: ProductRow): Perfume {
 }
 
 const SELECT =
-  "slug, name, description, size, price, currency, mood, perfume_type, product_tags(tag), product_images(cloudinary_url, is_primary)";
+  "id, slug, name, description, size, price, currency, mood, perfume_type, product_tags(tag), product_images(cloudinary_url, is_primary)";
 
 export async function getPerfumes(): Promise<Perfume[]> {
   const supabase = getSupabaseAdminClient();

@@ -12,6 +12,8 @@ export type OrderLineItem = {
   pricingUnit: string | null;
   quantity: number;
   lineSubtotal: number;
+  promotionName: string | null;
+  promotionDiscountAmount: number;
 };
 
 export type Address = {
@@ -37,4 +39,5 @@ export type OrderPayload = {
   subtotal: number;
   shippingCost: number;
   total: number;
+  discountCode?: string;
 };

@@ -9,6 +9,7 @@ import { getSupabaseAdminClient } from "@/lib/supabase/server";
 // units" -- e.g. "KG", "500ml" -- there is no separate unit column).
 
 export type SupplyMaterial = {
+  id: string;
   serialNumber: number;
   slug: string;
   displayName: string;
@@ -16,6 +17,7 @@ export type SupplyMaterial = {
   price: number;
   currency: string;
   pricingUnit: string;
+  productTypeId: string | null;
   productTypeName: string | null;
   // Alias-only rule (spec §13a): present here only so client-side search
   // (spec §9/§10) can match against it. No component may render this
@@ -27,6 +29,7 @@ export type SupplyMaterial = {
 };
 
 type ProductRow = {
+  id: string;
   serial_number: number | null;
   slug: string;
   name: string;
@@ -34,6 +37,7 @@ type ProductRow = {
   price: number;
   currency: string;
   size: string | null;
+  product_type_id: string | null;
   product_types: { name: string } | { name: string }[] | null;
   product_tags: { tag: string }[] | null;
   product_images: { cloudinary_url: string; is_primary: boolean }[] | null;
@@ -44,6 +48,7 @@ function mapRow(row: ProductRow): SupplyMaterial {
   const primary = images.find((img) => img.is_primary) ?? images[0];
   const productType = Array.isArray(row.product_types) ? row.product_types[0] : row.product_types;
   return {
+    id: row.id,
     serialNumber: row.serial_number ?? 0,
     slug: row.slug,
     displayName: row.name,
@@ -51,6 +56,7 @@ function mapRow(row: ProductRow): SupplyMaterial {
     price: Number(row.price),
     currency: row.currency,
     pricingUnit: row.size ?? "",
+    productTypeId: row.product_type_id,
     productTypeName: productType?.name ?? null,
     searchAliases: (row.product_tags ?? []).map((t) => t.tag).join(" "),
     available: true,
@@ -59,7 +65,7 @@ function mapRow(row: ProductRow): SupplyMaterial {
 }
 
 const SELECT =
-  "serial_number, slug, name, description, price, currency, size, product_types(name), product_tags(tag), product_images(cloudinary_url, is_primary)";
+  "id, serial_number, slug, name, description, price, currency, size, product_type_id, product_types(name), product_tags(tag), product_images(cloudinary_url, is_primary)";
 
 export async function getSupplyMaterials(): Promise<SupplyMaterial[]> {
   const supabase = getSupabaseAdminClient();

@@ -440,6 +440,8 @@ untouched.
   from the email-worker into an open browser tab, so new inbound mail
   only appears after a refresh).
 
+## Orders (manual / Kolekta pattern)
+
 - `src/lib/cart/cart-context.tsx`: two independent carts (`collection`,
   `supply`), backed by a module-level store synced to `localStorage` via
   `useSyncExternalStore` (no cart Provider needed; it's already a
@@ -463,6 +465,45 @@ untouched.
   customer accounts.
 - Not yet built: confirmation email (spec suggests Resend for
   testing; needs an API key from you), analytics/consent banner.
+
+## Promotions (admin)
+
+Two independent mechanisms per business line (`/admin/promotions`),
+never both applied to the same order:
+
+- **Product Promotions** (`promotions` + `promotion_products` +
+  `promotion_product_types`, `0016_promotions.sql`): admin picks fixed
+  or percent off, specific products, and (Atelier Supply only) whole
+  item groups (`product_types`) too. Applies automatically at
+  checkout, no code needed. A product matching more than one active
+  promotion (direct match and/or via its group) gets whichever gives
+  the larger discount -- never both at once.
+- **Discount codes** (`discount_codes`): a short (<=6 character) code
+  the customer types in at checkout, fixed or percent off the whole
+  order. Scoped per category (`unique (category, code)`) so the same
+  code text can exist independently for Collection and Atelier Supply.
+  A valid code always overrides any auto-applied Product Promotions
+  for that order -- the two never stack.
+- Both share the same "is this currently usable" shape: an `enabled`
+  toggle on top of a `starts_at`/`ends_at` range and an optional
+  `max_uses` cap (checked against `used_count`, incremented atomically
+  via the `increment_promotion_usage`/`increment_discount_code_usage`
+  Postgres functions once per order -- reserved at order creation, not
+  released if the order is later cancelled), plus an optional
+  `min_spend` and admin-only `internal_notes`.
+- `src/lib/promotions/apply.ts` (server-only) is the single source of
+  truth for pricing a cart: `applyProductPromotions()` picks the
+  best-matching promotion per line, `validateDiscountCode()` checks a
+  code against a subtotal. Used by both `POST /api/checkout/quote`
+  (public, live pricing preview as the checkout page renders) and
+  `POST /api/orders` (re-validates and applies for real -- never
+  trusts a client-submitted discount amount, same principle as
+  re-deriving price/name from the catalogue by slug).
+- `orders.promotion_discount_total`/`discount_code_id`/
+  `discount_code_amount` and `order_items.promotion_id`/
+  `promotion_discount_amount` record what actually applied, surfaced
+  on the admin order detail page, the customer's order-lookup, and the
+  checkout confirmation screen.
 
 ## Phase 2 seam
 

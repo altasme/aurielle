@@ -55,19 +55,42 @@ export default async function AdminOrderDetailPage({ params }: PageProps<"/admin
               <tbody>
                 {order.items.map((item) => (
                   <tr key={item.id} className="border-b border-taupe/10 last:border-0">
-                    <td className="py-2 text-ink">{item.nameSnapshot}</td>
+                    <td className="py-2 text-ink">
+                      {item.nameSnapshot}
+                      {item.promotionName && (
+                        <span className="ml-1.5 text-xs text-burgundy">({item.promotionName})</span>
+                      )}
+                    </td>
                     <td className="py-2 text-ink/70">
                       {item.quantity}
                       {item.pricingUnit ? ` ${item.pricingUnit}` : ""}
                     </td>
                     <td className="py-2 text-ink/70">{formatMoney(item.currency, item.unitPrice)}</td>
-                    <td className="py-2 text-right text-ink/70">{formatMoney(item.currency, item.lineSubtotal)}</td>
+                    <td className="py-2 text-right text-ink/70">
+                      {item.promotionDiscountAmount > 0 && (
+                        <div className="text-xs text-burgundy">
+                          &minus;{formatMoney(item.currency, item.promotionDiscountAmount)}
+                        </div>
+                      )}
+                      {formatMoney(item.currency, item.lineSubtotal - item.promotionDiscountAmount)}
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
             <div className="mt-4 space-y-1 border-t border-taupe/20 pt-4 text-right text-sm">
               <p className="text-ink/60">Subtotal: {formatMoney(order.currency, order.subtotal)}</p>
+              {order.promotionDiscountTotal > 0 && (
+                <p className="text-burgundy">
+                  Promotion discount: &minus;{formatMoney(order.currency, order.promotionDiscountTotal)}
+                </p>
+              )}
+              {order.discountCode && (
+                <p className="text-burgundy">
+                  Code {order.discountCode.code} ({order.discountCode.name}): &minus;
+                  {formatMoney(order.currency, order.discountCode.amount)}
+                </p>
+              )}
               <p className="text-ink/60">Shipping: {formatMoney(order.currency, order.shippingCost)}</p>
               <p className="font-medium text-ink">Total: {formatMoney(order.currency, order.total)}</p>
             </div>

@@ -7,7 +7,9 @@ import { countUnviewedCustomisationQuotes } from "@/lib/admin/customisation-quot
 import { countUnviewedGeneralMail } from "@/lib/admin/general-mail";
 import { BetaBadge } from "@/components/admin/beta-badge";
 
-const MODULES = [
+type Module = { title: string; description: string; href: string | null; note?: string; beta?: boolean };
+
+const MODULES: Module[] = [
   {
     title: "Order Management",
     description: "Orders, order status, customer information, payment status, fulfillment, shipping.",
@@ -25,7 +27,6 @@ const MODULES = [
   },
   {
     title: "Quotes and Inquiries",
-    note: "Under development",
     description: "Contact, business and Customisation Studio inquiries submitted from the public site.",
     href: "/admin/quotes-and-inquiries",
   },
@@ -38,8 +39,9 @@ const MODULES = [
   },
   {
     title: "Promotion",
-    description: "Discount codes, promotional pricing, campaigns, product-specific promotions.",
-    href: null,
+    description:
+      "Product promotions and discount codes for Aurielle Collection and Atelier Supply. Applies automatically at checkout.",
+    href: "/admin/promotions",
   },
   {
     title: "Reports & Analytics",

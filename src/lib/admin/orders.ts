@@ -38,6 +38,8 @@ export type OrderItem = {
   pricingUnit: string | null;
   lineSubtotal: number;
   serialNumber: number | null;
+  promotionName: string | null;
+  promotionDiscountAmount: number;
 };
 
 export type OrderDetail = OrderListItem & {
@@ -48,6 +50,8 @@ export type OrderDetail = OrderListItem & {
   shippingSameAsBilling: boolean;
   subtotal: number;
   shippingCost: number;
+  promotionDiscountTotal: number;
+  discountCode: { code: string; name: string; amount: number } | null;
   proofPath: string | null;
   courierName: string | null;
   trackingNumber: string | null;
@@ -144,7 +148,7 @@ export async function getOrder(id: string): Promise<OrderDetail | null> {
   const { data, error } = await supabase
     .from("orders")
     .select(
-      `${LIST_SELECT}, customer_phone, customer_country, billing_address, shipping_address, shipping_same_as_billing, subtotal, shipping_cost, proof_url, courier_name, tracking_number`,
+      `${LIST_SELECT}, customer_phone, customer_country, billing_address, shipping_address, shipping_same_as_billing, subtotal, shipping_cost, promotion_discount_total, discount_code_amount, discount_codes(code, name), proof_url, courier_name, tracking_number`,
     )
     .eq("id", id)
     .maybeSingle();
@@ -154,9 +158,13 @@ export async function getOrder(id: string): Promise<OrderDetail | null> {
 
   const { data: itemRows, error: itemsError } = await supabase
     .from("order_items")
-    .select("id, name_snapshot, quantity, unit_price, currency, pricing_unit, line_subtotal, serial_number")
+    .select(
+      "id, name_snapshot, quantity, unit_price, currency, pricing_unit, line_subtotal, serial_number, promotion_discount_amount, promotions(name)",
+    )
     .eq("order_id", id);
   if (itemsError) throw new Error(`Failed to load order items: ${itemsError.message}`);
+
+  const discountCodeRow = data.discount_codes as unknown as { code: string; name: string } | null;
 
   return {
     ...mapListRow(data),
@@ -167,6 +175,10 @@ export async function getOrder(id: string): Promise<OrderDetail | null> {
     shippingSameAsBilling: data.shipping_same_as_billing,
     subtotal: Number(data.subtotal),
     shippingCost: Number(data.shipping_cost),
+    promotionDiscountTotal: Number(data.promotion_discount_total),
+    discountCode: discountCodeRow
+      ? { code: discountCodeRow.code, name: discountCodeRow.name, amount: Number(data.discount_code_amount) }
+      : null,
     proofPath: data.proof_url,
     courierName: data.courier_name,
     trackingNumber: data.tracking_number,
@@ -179,6 +191,8 @@ export async function getOrder(id: string): Promise<OrderDetail | null> {
       pricingUnit: row.pricing_unit,
       lineSubtotal: Number(row.line_subtotal),
       serialNumber: row.serial_number,
+      promotionName: (row.promotions as unknown as { name: string } | null)?.name ?? null,
+      promotionDiscountAmount: Number(row.promotion_discount_amount),
     })),
   };
 }

@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/server";
 import { generateOrderNumber } from "@/lib/orders/order-number";
-import { getPerfumeBySlug } from "@/lib/data/perfumes";
-import { getSupplyMaterialBySlug } from "@/lib/data/supply-materials";
+import { resolveCartLines } from "@/lib/orders/resolve-lines";
+import { applyProductPromotions, validateDiscountCode, incrementPromotionUsage, incrementDiscountCodeUsage } from "@/lib/promotions/apply";
 import type { Address, OrderLineItem, OrderPayload } from "@/lib/orders/types";
 import { withErrorHandling } from "@/lib/with-error-handling";
 
@@ -89,71 +89,49 @@ export const POST = withErrorHandling(async (request: Request) => {
     return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
   }
 
-  // Re-derive every line from the authoritative static catalogue by slug.
-  // Never trust client-submitted price/name, which could be tampered
-  // with before the request is sent. Only quantity comes from the client
-  // (clamped to a sane range).
-  const resolvedItems: OrderLineItem[] = [];
-  let currency: string | null = null;
+  // Re-derive every line from the authoritative catalogue by slug, then
+  // price it (auto-applied Product Promotions and, if present, a
+  // discount code) server-side. Never trust client-submitted price,
+  // name, or discount amounts -- only slug/quantity/discountCode come
+  // from the client.
+  const resolved = await resolveCartLines(payload.businessLine, payload.items);
+  if (!resolved.ok) return NextResponse.json({ error: resolved.error }, { status: 400 });
+  if (!resolved.currency) return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
 
-  for (const rawItem of payload.items as Array<Record<string, unknown>>) {
-    const quantity = Math.min(Math.max(Math.floor(Number(rawItem?.quantity)), 1), 10000);
-    if (!Number.isFinite(quantity)) {
-      return NextResponse.json({ error: "Invalid item quantity" }, { status: 400 });
-    }
-    const slug = String(rawItem?.slug ?? "");
+  const promo = await applyProductPromotions(resolved.category, resolved.lines);
 
-    if (payload.businessLine === "collection") {
-      const perfume = await getPerfumeBySlug(slug);
-      if (!perfume || perfume.price == null || !perfume.currency) {
-        return NextResponse.json(
-          { error: `Unknown or unpriced perfume: ${slug}` },
-          { status: 400 },
-        );
-      }
-      currency ??= perfume.currency;
-      if (perfume.currency !== currency) {
-        return NextResponse.json({ error: "Mixed currencies in one order" }, { status: 400 });
-      }
-      resolvedItems.push({
-        productType: "perfume",
-        slug: perfume.slug,
-        serialNumber: null,
-        name: perfume.name,
-        price: perfume.price,
-        currency: perfume.currency,
-        pricingUnit: null,
-        quantity,
-        lineSubtotal: Number((perfume.price * quantity).toFixed(2)),
-      });
-    } else {
-      const material = await getSupplyMaterialBySlug(slug);
-      if (!material) {
-        return NextResponse.json({ error: `Unknown material: ${slug}` }, { status: 400 });
-      }
-      currency ??= material.currency;
-      if (material.currency !== currency) {
-        return NextResponse.json({ error: "Mixed currencies in one order" }, { status: 400 });
-      }
-      resolvedItems.push({
-        productType: "supply_material",
-        slug: material.slug,
-        serialNumber: material.serialNumber,
-        name: material.displayName,
-        price: material.price,
-        currency: material.currency,
-        pricingUnit: material.pricingUnit,
-        quantity,
-        lineSubtotal: Number((material.price * quantity).toFixed(2)),
-      });
-    }
+  let discountCodeMatch: { id: string; code: string; name: string; discountAmount: number } | null = null;
+  if (payload.discountCode?.trim()) {
+    const result = await validateDiscountCode(resolved.category, payload.discountCode, promo.subtotal);
+    if (!result.ok) return NextResponse.json({ error: result.error }, { status: 400 });
+    discountCodeMatch = result;
   }
 
-  const subtotal = Number(
-    resolvedItems.reduce((sum, item) => sum + item.lineSubtotal, 0).toFixed(2),
-  );
+  // A valid code overrides any auto-applied Product Promotions for the
+  // whole order -- the two never stack (spec).
+  const promotionDiscountTotal = discountCodeMatch ? 0 : promo.promotionDiscountTotal;
+  const discountCodeAmount = discountCodeMatch?.discountAmount ?? 0;
+  const subtotal = promo.subtotal;
   const shippingCost = 0; // Phase 2, spec §18
-  const total = Number((subtotal + shippingCost).toFixed(2));
+  const total = Math.max(0, Number((subtotal - promotionDiscountTotal - discountCodeAmount + shippingCost).toFixed(2)));
+
+  const pricedLines = discountCodeMatch
+    ? promo.lines.map((line) => ({ ...line, promotionId: null, promotionName: null, promotionDiscountAmount: 0 }))
+    : promo.lines;
+
+  const resolvedItems: OrderLineItem[] = pricedLines.map((line, i) => ({
+    productType: payload.businessLine === "collection" ? "perfume" : "supply_material",
+    slug: line.slug,
+    serialNumber: resolved.lines[i].serialNumber,
+    name: line.name,
+    price: line.price,
+    currency: resolved.currency,
+    pricingUnit: resolved.lines[i].pricingUnit,
+    quantity: line.quantity,
+    lineSubtotal: line.lineSubtotal,
+    promotionName: line.promotionName,
+    promotionDiscountAmount: line.promotionDiscountAmount,
+  }));
 
   const supabase = getSupabaseAdminClient();
   const proofBytes = new Uint8Array(await proof.arrayBuffer());
@@ -177,10 +155,13 @@ export const POST = withErrorHandling(async (request: Request) => {
         billing_address: payload.billing,
         shipping_address: shipping,
         shipping_same_as_billing: payload.shippingSameAsBilling,
-        currency,
+        currency: resolved.currency,
         subtotal,
         shipping_cost: shippingCost,
         total,
+        promotion_discount_total: promotionDiscountTotal,
+        discount_code_id: discountCodeMatch?.id ?? null,
+        discount_code_amount: discountCodeAmount,
         payment_method: payload.paymentMethod,
         payment_status: "pending",
         order_status: "pending_verification",
@@ -217,17 +198,19 @@ export const POST = withErrorHandling(async (request: Request) => {
   }
 
   const { error: itemsError } = await supabase.from("order_items").insert(
-    resolvedItems.map((item) => ({
+    pricedLines.map((line) => ({
       order_id: orderId,
-      product_type: item.productType,
-      catalogue_slug: item.slug,
-      serial_number: item.serialNumber,
-      name_snapshot: item.name,
-      quantity: item.quantity,
-      unit_price: item.price,
-      currency: item.currency,
-      pricing_unit: item.pricingUnit,
-      line_subtotal: item.lineSubtotal,
+      product_type: payload.businessLine === "collection" ? "perfume" : "supply_material",
+      catalogue_slug: line.slug,
+      serial_number: resolved.lines.find((r) => r.slug === line.slug)?.serialNumber ?? null,
+      name_snapshot: line.name,
+      quantity: line.quantity,
+      unit_price: line.price,
+      currency: resolved.currency,
+      pricing_unit: resolved.lines.find((r) => r.slug === line.slug)?.pricingUnit ?? null,
+      line_subtotal: line.lineSubtotal,
+      promotion_id: line.promotionId,
+      promotion_discount_amount: line.promotionDiscountAmount,
     })),
   );
 
@@ -236,12 +219,25 @@ export const POST = withErrorHandling(async (request: Request) => {
     return NextResponse.json({ error: "Could not save order items" }, { status: 500 });
   }
 
+  // Reserved at submission, same as the rest of this order flow (which
+  // treats order creation, not later payment verification, as the
+  // authoritative moment) -- not released if the order is later
+  // cancelled.
+  if (discountCodeMatch) {
+    await incrementDiscountCodeUsage(discountCodeMatch.id);
+  } else {
+    const usedPromotionIds = new Set(pricedLines.map((l) => l.promotionId).filter((id): id is string => id !== null));
+    await Promise.all([...usedPromotionIds].map((id) => incrementPromotionUsage(id)));
+  }
+
   return NextResponse.json({
     orderNumber,
     items: resolvedItems,
-    currency,
+    currency: resolved.currency,
     subtotal,
     shippingCost,
+    promotionDiscountTotal,
+    discountCode: discountCodeMatch ? { code: discountCodeMatch.code, name: discountCodeMatch.name, amount: discountCodeMatch.discountAmount } : null,
     total,
     paymentMethod: payload.paymentMethod,
     customerEmail: payload.customerEmail.trim().toLowerCase(),

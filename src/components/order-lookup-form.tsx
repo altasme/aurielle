@@ -11,6 +11,10 @@ type LookupResult = {
     order_number: string;
     business_line: string;
     currency: string;
+    subtotal: number;
+    promotion_discount_total: number;
+    discount_code_amount: number;
+    discount_code: { code: string; name: string } | null;
     total: number;
     payment_method: string;
     payment_status: string;
@@ -25,6 +29,8 @@ type LookupResult = {
     line_subtotal: number;
     currency: string;
     pricing_unit: string | null;
+    promotion_discount_amount: number;
+    promotion_name: string | null;
   }[];
 };
 
@@ -101,14 +107,35 @@ export function OrderLookupForm() {
                 <span>
                   {item.name_snapshot} × {item.quantity}
                   {item.pricing_unit ? ` ${item.pricing_unit}` : ""}
+                  {item.promotion_name && (
+                    <span className="ml-1.5 text-xs text-burgundy">({item.promotion_name})</span>
+                  )}
                 </span>
-                <span>{formatMoney(item.currency, item.line_subtotal)}</span>
+                <span>{formatMoney(item.currency, item.line_subtotal - item.promotion_discount_amount)}</span>
               </div>
             ))}
           </div>
-          <div className="mt-4 flex justify-between border-t border-taupe/20 pt-4 font-medium text-ink">
-            <span>Total</span>
-            <span>{formatMoney(result.order.currency, result.order.total)}</span>
+          <div className="mt-4 space-y-1.5 border-t border-taupe/20 pt-4">
+            <div className="flex justify-between text-ink/70">
+              <span>Subtotal</span>
+              <span>{formatMoney(result.order.currency, result.order.subtotal)}</span>
+            </div>
+            {result.order.promotion_discount_total > 0 && (
+              <div className="flex justify-between text-burgundy">
+                <span>Promotion discount</span>
+                <span>&minus;{formatMoney(result.order.currency, result.order.promotion_discount_total)}</span>
+              </div>
+            )}
+            {result.order.discount_code && (
+              <div className="flex justify-between text-burgundy">
+                <span>Code {result.order.discount_code.code}</span>
+                <span>&minus;{formatMoney(result.order.currency, result.order.discount_code_amount)}</span>
+              </div>
+            )}
+            <div className="flex justify-between pt-1.5 font-medium text-ink">
+              <span>Total</span>
+              <span>{formatMoney(result.order.currency, result.order.total)}</span>
+            </div>
           </div>
         </div>
       )}

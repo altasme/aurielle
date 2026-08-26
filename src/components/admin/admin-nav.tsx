@@ -4,7 +4,15 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { BetaBadge } from "./beta-badge";
 
-const NAV_LINKS = [
+type NavLink = {
+  href: string;
+  label: string;
+  note?: string;
+  beta?: boolean;
+  children?: { href: string; label: string }[];
+};
+
+const NAV_LINKS: NavLink[] = [
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/orders", label: "Order Management" },
   { href: "/admin/products", label: "Product & Pricing" },
@@ -12,7 +20,6 @@ const NAV_LINKS = [
   {
     href: "/admin/quotes-and-inquiries",
     label: "Quotes and Inquiries",
-    note: "Under development",
     children: [
       { href: "/admin/quotes-and-inquiries/contact", label: "Contact Page Inquiries" },
       { href: "/admin/quotes-and-inquiries/business", label: "Business Inquiries" },
@@ -20,6 +27,7 @@ const NAV_LINKS = [
     ],
   },
   { href: "/admin/aurielle-mail", label: "Aurielle Mail", beta: true },
+  { href: "/admin/promotions", label: "Promotion" },
 ];
 
 function Badge({ count }: { count: number }) {
@@ -86,8 +94,8 @@ export function AdminNav({
               >
                 <span className="flex items-center gap-1.5">
                   {link.label}
-                  {"beta" in link && link.beta && <BetaBadge />}
-                  {"note" in link && link.note && (
+                  {link.beta && <BetaBadge />}
+                  {link.note && (
                     <span className="text-[10px] uppercase tracking-wide text-taupe">({link.note})</span>
                   )}
                 </span>

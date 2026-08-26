@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useCart } from "@/lib/cart/cart-context";
 import { PAYMENT_METHODS, GCASH_INSTRUCTIONS, BANK_TRANSFER_INSTRUCTIONS } from "@/config/payment";
@@ -15,11 +15,33 @@ type BusinessLine = "collection" | "atelier_supply";
 
 type ConfirmedOrder = {
   orderNumber: string;
-  items: { name: string; quantity: number; lineSubtotal: number; currency: string; pricingUnit: string | null }[];
+  items: {
+    name: string;
+    quantity: number;
+    lineSubtotal: number;
+    currency: string;
+    pricingUnit: string | null;
+    promotionName: string | null;
+    promotionDiscountAmount: number;
+  }[];
   currency: string;
+  subtotal: number;
+  promotionDiscountTotal: number;
+  discountCode: { code: string; name: string; amount: number } | null;
   total: number;
   paymentMethod: string;
   customerEmail: string;
+};
+
+type QuoteLine = { slug: string; promotionName: string | null; promotionDiscountAmount: number; lineTotal: number };
+type Quote = {
+  lines: QuoteLine[];
+  currency: string;
+  subtotal: number;
+  promotionDiscountTotal: number;
+  discountCode: { id: string; code: string; name: string; discountAmount: number } | null;
+  codeError: string | null;
+  total: number;
 };
 
 export function CheckoutForm({ businessLine }: { businessLine: BusinessLine }) {
@@ -43,11 +65,47 @@ export function CheckoutForm({ businessLine }: { businessLine: BusinessLine }) {
   const [confirmed, setConfirmed] = useState<ConfirmedOrder | null>(null);
   const { submitting, error, setError, submit } = useSubmit();
 
+  const [discountCodeInput, setDiscountCodeInput] = useState("");
+  const [appliedCode, setAppliedCode] = useState<string | null>(null);
+  const [quote, setQuote] = useState<Quote | null>(null);
+
   const subtotal = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
   const currency = items[0]?.currency ?? "";
+  const itemsSignature = items.map((item) => `${item.slug}:${item.quantity}`).join(",");
+
+  useEffect(() => {
+    // Nothing to price for an empty cart -- and once it's empty, the
+    // component renders its own "cart is empty" early return below
+    // instead of this summary, so there's no stale `quote` to clear.
+    if (items.length === 0) return;
+    let cancelled = false;
+    fetch("/api/checkout/quote", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        businessLine,
+        items: items.map((item) => ({ slug: item.slug, quantity: item.quantity })),
+        discountCode: appliedCode || undefined,
+      }),
+    })
+      .then(async (res) => {
+        const data = await res.json();
+        if (cancelled) return;
+        if (res.ok) setQuote(data);
+      })
+      .catch(() => {
+        // Live pricing preview only -- if it fails, the plain
+        // pre-discount subtotal below still renders, and the real
+        // price is re-derived server-side on submit regardless.
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemsSignature, appliedCode, businessLine]);
 
   const browseHref = businessLine === "collection" ? "/collection" : "/atelier-supply";
 
@@ -69,14 +127,35 @@ export function CheckoutForm({ businessLine }: { businessLine: BusinessLine }) {
                 <span>
                   {item.name} × {item.quantity}
                   {item.pricingUnit ? ` ${item.pricingUnit}` : ""}
+                  {item.promotionName && (
+                    <span className="ml-1.5 text-xs text-burgundy">({item.promotionName})</span>
+                  )}
                 </span>
-                <span>{formatMoney(item.currency, item.lineSubtotal)}</span>
+                <span>{formatMoney(item.currency, item.lineSubtotal - item.promotionDiscountAmount)}</span>
               </div>
             ))}
           </div>
-          <div className="mt-4 flex justify-between border-t border-taupe/20 pt-4 font-medium text-ink">
-            <span>Total</span>
-            <span>{formatMoney(confirmed.currency, confirmed.total)}</span>
+          <div className="mt-4 space-y-1.5 border-t border-taupe/20 pt-4">
+            <div className="flex justify-between text-ink/70">
+              <span>Subtotal</span>
+              <span>{formatMoney(confirmed.currency, confirmed.subtotal)}</span>
+            </div>
+            {confirmed.promotionDiscountTotal > 0 && (
+              <div className="flex justify-between text-burgundy">
+                <span>Promotion discount</span>
+                <span>&minus;{formatMoney(confirmed.currency, confirmed.promotionDiscountTotal)}</span>
+              </div>
+            )}
+            {confirmed.discountCode && (
+              <div className="flex justify-between text-burgundy">
+                <span>Code {confirmed.discountCode.code}</span>
+                <span>&minus;{formatMoney(confirmed.currency, confirmed.discountCode.amount)}</span>
+              </div>
+            )}
+            <div className="flex justify-between pt-1.5 font-medium text-ink">
+              <span>Total</span>
+              <span>{formatMoney(confirmed.currency, confirmed.total)}</span>
+            </div>
           </div>
           <p className="mt-4 text-xs text-ink/50">
             Payment method: {PAYMENT_METHODS.find((m) => m.id === confirmed.paymentMethod)?.label}
@@ -138,6 +217,7 @@ export function CheckoutForm({ businessLine }: { businessLine: BusinessLine }) {
         subtotal,
         shippingCost: 0,
         total: subtotal,
+        discountCode: quote?.discountCode ? quote.discountCode.code : undefined,
       };
 
       const formData = new FormData();
@@ -164,21 +244,83 @@ export function CheckoutForm({ businessLine }: { businessLine: BusinessLine }) {
       <h1 className="text-center font-serif text-4xl text-ink">Checkout</h1>
 
       <div className="mt-8 border border-taupe/30 p-6 text-sm">
-        {items.map((item) => (
-          <div
-            key={item.slug}
-            className="flex justify-between border-b border-taupe/15 py-2 last:border-0"
-          >
-            <span>
-              {"name" in item ? item.name : item.displayName} × {item.quantity}
-              {"pricingUnit" in item ? ` ${item.pricingUnit}` : ""}
-            </span>
-            <span>{formatMoney(item.currency, item.price * item.quantity)}</span>
+        {items.map((item) => {
+          const line = quote?.lines.find((l) => l.slug === item.slug);
+          return (
+            <div key={item.slug} className="flex justify-between border-b border-taupe/15 py-2 last:border-0">
+              <span>
+                {"name" in item ? item.name : item.displayName} × {item.quantity}
+                {"pricingUnit" in item ? ` ${item.pricingUnit}` : ""}
+                {line?.promotionName && <span className="ml-1.5 text-xs text-burgundy">({line.promotionName})</span>}
+              </span>
+              <span>{formatMoney(item.currency, line?.lineTotal ?? item.price * item.quantity)}</span>
+            </div>
+          );
+        })}
+
+        <div className="mt-3 space-y-1.5">
+          <div className="flex justify-between text-ink/70">
+            <span>Subtotal</span>
+            <span>{formatMoney(currency, quote?.subtotal ?? subtotal)}</span>
           </div>
-        ))}
-        <div className="mt-2 flex justify-between font-medium text-ink">
-          <span>Subtotal</span>
-          <span>{formatMoney(currency, subtotal)}</span>
+          {quote && quote.promotionDiscountTotal > 0 && (
+            <div className="flex justify-between text-burgundy">
+              <span>Promotion discount</span>
+              <span>&minus;{formatMoney(currency, quote.promotionDiscountTotal)}</span>
+            </div>
+          )}
+          {quote?.discountCode && (
+            <div className="flex justify-between text-burgundy">
+              <span>Code {quote.discountCode.code}</span>
+              <span>&minus;{formatMoney(currency, quote.discountCode.discountAmount)}</span>
+            </div>
+          )}
+          <div className="flex justify-between pt-1.5 font-medium text-ink">
+            <span>Total</span>
+            <span>{formatMoney(currency, quote?.total ?? subtotal)}</span>
+          </div>
+        </div>
+
+        <div className="mt-4 border-t border-taupe/15 pt-4">
+          {quote?.discountCode ? (
+            <div className="flex items-center justify-between text-xs text-ink/60">
+              <span>
+                Discount code <span className="font-medium text-ink">{quote.discountCode.code}</span> applied.
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setAppliedCode(null);
+                  setDiscountCodeInput("");
+                }}
+                className="text-burgundy underline"
+              >
+                Remove
+              </button>
+            </div>
+          ) : (
+            <div>
+              <label className="text-xs uppercase tracking-wide text-ink/60">Discount Code</label>
+              <div className="mt-1.5 flex gap-2">
+                <input
+                  type="text"
+                  value={discountCodeInput}
+                  onChange={(e) => setDiscountCodeInput(e.target.value.toUpperCase())}
+                  placeholder="Enter code"
+                  className={`max-w-[160px] ${FIELD_CLASSES}`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setAppliedCode(discountCodeInput.trim() || null)}
+                  disabled={!discountCodeInput.trim()}
+                  className="border border-burgundy px-4 py-2 text-xs uppercase tracking-wide text-burgundy transition-colors hover:bg-burgundy hover:text-ivory disabled:opacity-40"
+                >
+                  Apply
+                </button>
+              </div>
+              {quote?.codeError && <p className="mt-1.5 text-xs text-red-700">{quote.codeError}</p>}
+            </div>
+          )}
         </div>
       </div>
 
