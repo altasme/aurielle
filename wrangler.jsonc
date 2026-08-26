@@ -4,6 +4,20 @@
 	"name": "aurielle",
 	"compatibility_date": "2026-08-10",
 	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	// NEXT_PUBLIC_SITE_URL is set as a GitHub Actions build-time env var
+	// (.github/workflows/deploy.yml) for generateStaticParams()/
+	// metadataBase, but that alone never reaches the deployed Worker's
+	// own runtime -- same root cause as the SMTP_* secrets needing a
+	// `wrangler secret put` sync step. This one isn't sensitive (it's a
+	// public URL, hence the NEXT_PUBLIC_ prefix), so a plain `vars`
+	// entry here is the right place rather than a secret: it's real
+	// config, committed to the repo, available the moment this file
+	// deploys, no CI sync step needed. Used at request time by
+	// src/lib/email/reply-template.ts to build the logo's absolute URL
+	// and the footer's website link.
+	"vars": {
+		"NEXT_PUBLIC_SITE_URL": "https://auriellefragrancestudio.com"
+	},
 	"assets": {
 		"directory": ".open-next/assets",
 		"binding": "ASSETS",
