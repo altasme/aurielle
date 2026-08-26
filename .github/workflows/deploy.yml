@@ -55,22 +55,6 @@ jobs:
           NEXT_PUBLIC_SITE_URL: https://auriellefragrancestudio.com
         run: npm run cf:deploy
 
-      # TEMPORARY: the runtime still throws "Dynamic require of
-      # cloudflare:sockets is not supported" despite importing
-      # worker-mailer's .mjs file directly and verifying in an isolated
-      # esbuild repro that this produces a clean `import` statement --
-      # meaning something upstream of OpenNext's own esbuild pass (most
-      # likely Next/Turbopack's own compilation of the route module)
-      # is re-wrapping it. Grep the actual deployed bundle to see the
-      # real compiled code around this string instead of guessing
-      # further from a local simulation. Remove once this is resolved.
-      - name: Debug -- inspect cloudflare:sockets in compiled worker
-        run: |
-          echo "--- searching .open-next/worker.js ---"
-          grep -n "cloudflare:sockets" .open-next/worker.js | head -20 || echo "not found in worker.js"
-          echo "--- searching all of .open-next for the string ---"
-          grep -rn "cloudflare:sockets" .open-next/ --include="*.js" --include="*.mjs" -l || echo "not found anywhere in .open-next"
-
       # `env:` above only reaches process.env inside the GitHub Actions
       # runner's build -- that's what generateStaticParams() needs at
       # build time, but it does NOT become part of the deployed
