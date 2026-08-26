@@ -5,6 +5,7 @@ import { countUnviewedContactInquiries } from "@/lib/admin/contact-inquiries";
 import { countUnviewedWholesaleInquiries } from "@/lib/admin/wholesale-inquiries";
 import { countUnviewedCustomisationQuotes } from "@/lib/admin/customisation-quotes";
 import { countUnviewedGeneralMail } from "@/lib/admin/general-mail";
+import { BetaBadge } from "@/components/admin/beta-badge";
 
 const MODULES = [
   {
@@ -30,7 +31,9 @@ const MODULES = [
   },
   {
     title: "Aurielle Mail",
-    description: "Everything else sent to hello@auriellefragrancestudio.com -- read, reply, or delete.",
+    beta: true,
+    description:
+      "Everything else sent to hello@auriellefragrancestudio.com -- read, reply, or delete. Under continuous development, but safe to use live in production.",
     href: "/admin/aurielle-mail",
   },
   {
@@ -84,10 +87,11 @@ export default async function AdminDashboardPage() {
               className="border border-taupe/20 bg-white p-6 transition-colors hover:border-burgundy"
             >
               <div className="flex items-center justify-between">
-                <h2 className="font-serif text-lg text-ink">
+                <h2 className="flex items-center gap-1.5 font-serif text-lg text-ink">
                   {mod.title}
-                  {mod.note && (
-                    <span className="ml-1.5 text-[10px] uppercase tracking-wide text-taupe">({mod.note})</span>
+                  {"beta" in mod && mod.beta && <BetaBadge />}
+                  {"note" in mod && mod.note && (
+                    <span className="text-[10px] uppercase tracking-wide text-taupe">({mod.note})</span>
                   )}
                 </h2>
                 {count > 0 && (

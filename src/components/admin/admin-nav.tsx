@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { BetaBadge } from "./beta-badge";
 
 const NAV_LINKS = [
   { href: "/admin", label: "Dashboard" },
@@ -18,7 +19,7 @@ const NAV_LINKS = [
       { href: "/admin/quotes-and-inquiries/studio", label: "Customisation Studio Inquiries" },
     ],
   },
-  { href: "/admin/aurielle-mail", label: "Aurielle Mail" },
+  { href: "/admin/aurielle-mail", label: "Aurielle Mail", beta: true },
 ];
 
 function Badge({ count }: { count: number }) {
@@ -83,12 +84,11 @@ export function AdminNav({
                   active ? "bg-beige text-burgundy" : "text-ink/70 hover:bg-beige/60"
                 }`}
               >
-                <span>
+                <span className="flex items-center gap-1.5">
                   {link.label}
-                  {link.note && (
-                    <span className="ml-1.5 text-[10px] uppercase tracking-wide text-taupe">
-                      ({link.note})
-                    </span>
+                  {"beta" in link && link.beta && <BetaBadge />}
+                  {"note" in link && link.note && (
+                    <span className="text-[10px] uppercase tracking-wide text-taupe">({link.note})</span>
                   )}
                 </span>
                 <Badge count={badgeByHref[link.href] ?? 0} />
