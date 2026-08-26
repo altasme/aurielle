@@ -376,24 +376,29 @@ runs on **Cloudflare Email Routing**, not on the main Next.js Worker:
   1. Deploy `email-worker` at least once (the CI job above does this
      automatically) so it exists as a Worker to route to.
   2. Cloudflare dashboard -> the zone (`auriellefragrancestudio.com`)
-     -> **Email** -> **Email Routing** -> enable it. Cloudflare will
-     offer to add its own MX + SPF-related DNS records for the zone.
+     -> **Compute** -> **Email Service** -> **Email Routing** -> enable
+     it. Cloudflare will offer to add its own MX + related DNS records
+     for the zone.
   3. **This replaces the MX record previously set up for the z.com
      webmail** -- once Email Routing owns the zone's MX, inbound mail
      to `hello@auriellefragrancestudio.com` stops reaching the z.com
      webmail inbox and is only visible in the admin panel's inquiry
      threads from then on. (Outbound sending is unaffected -- that
      still goes out through z.com via `worker-mailer`/SMTP.)
-  4. Under **Routing rules**, set the **Catch-all address** action to
-     **Send to a Worker** -> `aurielle-email-worker`, rather than adding
-     a specific rule for `hello@...` alone. Cloudflare's custom address
-     rules match the literal address only -- they will not also catch
-     `hello+contact-<uuid>@...`, `hello+business-<uuid>@...`, etc., and
-     every reply address is a distinct one of those. The catch-all rule
-     is what actually routes all of them (and anything else sent to the
-     domain) to the Worker, which is also why the Worker itself sorts
-     matched-vs-unmatched addresses rather than relying on Cloudflare to
-     pre-filter.
+  4. Still under Email Routing -> **Settings**, turn on
+     **Subaddressing** (RFC 5233 plus-addressing, opt-in, off by
+     default -- see [Cloudflare's changelog](https://developers.cloudflare.com/changelog/post/2025-07-21-subaddressing/)).
+     With it on, a routing rule for `hello@...` also matches
+     `hello+contact-<uuid>@...`, `hello+business-<uuid>@...`, etc. --
+     the full address (including the `+...` part) is preserved in
+     `message.to`, which is exactly what the Worker reads to know which
+     inquiry a reply belongs to. Without this setting, per-inquiry
+     reply addresses wouldn't route anywhere at all.
+  5. Under **Routing rules** -> **Create routing rule**: local part
+     `hello`, this domain, Action **Send to a Worker** ->
+     `aurielle-email-worker` -> Save. (No destination-address
+     verification step needed -- that's only required for the "Send to
+     an email" forwarding action, which isn't used here.)
 
 ## Orders (manual / Kolekta pattern)
 
