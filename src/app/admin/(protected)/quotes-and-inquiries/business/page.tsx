@@ -1,5 +1,6 @@
 import { listWholesaleInquiries } from "@/lib/admin/wholesale-inquiries";
 import { InquiryRowActions } from "@/components/admin/inquiry-row-actions";
+import { InquiryThreadRow } from "@/components/admin/inquiry-thread-row";
 
 export default async function AdminBusinessInquiriesPage() {
   const inquiries = await listWholesaleInquiries();
@@ -28,7 +29,22 @@ export default async function AdminBusinessInquiriesPage() {
           </thead>
           <tbody>
             {inquiries.map((inquiry) => (
-              <tr key={inquiry.id} className="border-b border-taupe/10 last:border-0 align-top">
+              <InquiryThreadRow
+                key={inquiry.id}
+                source="business"
+                id={inquiry.id}
+                toEmail={inquiry.email}
+                toName={inquiry.name}
+                defaultSubject="Re: Your inquiry to Aurielle Paris Atelier"
+                originalMessage={inquiry.message ?? ""}
+                originalCreatedAt={inquiry.createdAt}
+                meta={[
+                  { label: "Business", value: inquiry.businessName ?? "—" },
+                  { label: "Country", value: inquiry.country },
+                  { label: "Product Interest", value: inquiry.productInterest ?? "—" },
+                  { label: "Est. Quantity", value: inquiry.estimatedQuantity ?? "—" },
+                ]}
+              >
                 <td className="px-4 py-3 text-ink">{inquiry.name}</td>
                 <td className="px-4 py-3 text-ink/70">{inquiry.businessName ?? "—"}</td>
                 <td className="px-4 py-3 text-ink/70">{inquiry.email}</td>
@@ -42,11 +58,9 @@ export default async function AdminBusinessInquiriesPage() {
                     endpoint="wholesale-inquiries"
                     id={inquiry.id}
                     viewed={Boolean(inquiry.viewedAt)}
-                    toEmail={inquiry.email}
-                    toName={inquiry.name}
                   />
                 </td>
-              </tr>
+              </InquiryThreadRow>
             ))}
             {inquiries.length === 0 && (
               <tr>

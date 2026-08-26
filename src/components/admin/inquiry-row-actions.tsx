@@ -2,30 +2,24 @@
 
 import { useRouter } from "next/navigation";
 import { useSubmit } from "@/lib/use-submit";
-import { InquiryReplyComposer } from "./inquiry-reply-composer";
 
-// Shared actions column for the three Quotes and Inquiries tables
-// (Contact, Business, Customisation Studio): a "mark as read" action
-// (same pattern as the affiliate status actions) plus the "Reply via
-// Aurielle Email" composer, which sends over SMTP via
-// src/lib/email/send-reply.ts and marks the row read as a side effect.
+// Actions column for the three Quotes and Inquiries tables (Contact,
+// Business, Customisation Studio): an unread badge and a "mark as
+// read" action. The row itself opens the full conversation
+// (InquiryThreadRow/InquiryThreadModal) on click, so this whole cell
+// stops propagation -- otherwise clicking "Mark as Read" would also
+// pop the thread modal open.
 export function InquiryRowActions({
   endpoint,
   id,
   viewed,
-  toEmail,
-  toName,
 }: {
   endpoint: "contact-inquiries" | "wholesale-inquiries" | "customisation-quotes";
   id: string;
   viewed: boolean;
-  toEmail: string;
-  toName: string;
 }) {
   const router = useRouter();
   const { submitting, error, submit } = useSubmit();
-
-  const source = endpoint === "contact-inquiries" ? "contact" : endpoint === "wholesale-inquiries" ? "business" : "studio";
 
   async function markAsRead() {
     const result = await submit(async () => {
@@ -38,7 +32,7 @@ export function InquiryRowActions({
   }
 
   return (
-    <div className="flex flex-col items-start gap-1.5">
+    <div className="flex flex-col items-start gap-1.5" onClick={(e) => e.stopPropagation()}>
       {!viewed && (
         <span className="rounded-sm bg-burgundy px-2 py-0.5 text-[10px] uppercase tracking-wide text-ivory">
           New
@@ -54,13 +48,7 @@ export function InquiryRowActions({
           Mark as Read
         </button>
       )}
-      <InquiryReplyComposer
-        source={source}
-        id={id}
-        toEmail={toEmail}
-        toName={toName}
-        defaultSubject="Re: Your inquiry to Aurielle Paris Atelier"
-      />
+      <span className="text-xs text-ink/40">View conversation &rarr;</span>
       {error && <p className="text-xs text-red-700">{error}</p>}
     </div>
   );

@@ -1,5 +1,6 @@
 import { listContactInquiries } from "@/lib/admin/contact-inquiries";
 import { InquiryRowActions } from "@/components/admin/inquiry-row-actions";
+import { InquiryThreadRow } from "@/components/admin/inquiry-thread-row";
 
 export default async function AdminContactInquiriesPage() {
   const inquiries = await listContactInquiries();
@@ -26,7 +27,20 @@ export default async function AdminContactInquiriesPage() {
           </thead>
           <tbody>
             {inquiries.map((inquiry) => (
-              <tr key={inquiry.id} className="border-b border-taupe/10 last:border-0 align-top">
+              <InquiryThreadRow
+                key={inquiry.id}
+                source="contact"
+                id={inquiry.id}
+                toEmail={inquiry.email}
+                toName={inquiry.name}
+                defaultSubject="Re: Your inquiry to Aurielle Paris Atelier"
+                originalMessage={inquiry.message}
+                originalCreatedAt={inquiry.createdAt}
+                meta={[
+                  { label: "Country", value: inquiry.country ?? "—" },
+                  { label: "Inquiry Type", value: inquiry.inquiryType ?? "—" },
+                ]}
+              >
                 <td className="px-4 py-3 text-ink">{inquiry.name}</td>
                 <td className="px-4 py-3 text-ink/70">{inquiry.email}</td>
                 <td className="px-4 py-3 text-ink/70">{inquiry.country ?? "—"}</td>
@@ -38,11 +52,9 @@ export default async function AdminContactInquiriesPage() {
                     endpoint="contact-inquiries"
                     id={inquiry.id}
                     viewed={Boolean(inquiry.viewedAt)}
-                    toEmail={inquiry.email}
-                    toName={inquiry.name}
                   />
                 </td>
-              </tr>
+              </InquiryThreadRow>
             ))}
             {inquiries.length === 0 && (
               <tr>

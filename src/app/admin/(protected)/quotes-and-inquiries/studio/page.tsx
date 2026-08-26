@@ -1,6 +1,7 @@
 import { listCustomisationQuotes } from "@/lib/admin/customisation-quotes";
 import { CustomisationQuoteArtworkViewer } from "@/components/admin/customisation-quote-artwork-viewer";
 import { InquiryRowActions } from "@/components/admin/inquiry-row-actions";
+import { InquiryThreadRow } from "@/components/admin/inquiry-thread-row";
 
 export default async function AdminCustomisationStudioInquiriesPage() {
   const quotes = await listCustomisationQuotes();
@@ -29,7 +30,24 @@ export default async function AdminCustomisationStudioInquiriesPage() {
           </thead>
           <tbody>
             {quotes.map((quote) => (
-              <tr key={quote.id} className="border-b border-taupe/10 last:border-0 align-top">
+              <InquiryThreadRow
+                key={quote.id}
+                source="studio"
+                id={quote.id}
+                toEmail={quote.email}
+                toName={quote.name}
+                defaultSubject="Re: Your Customisation Studio quote"
+                originalMessage={quote.message ?? ""}
+                originalCreatedAt={quote.createdAt}
+                meta={[
+                  { label: "Country", value: quote.country ?? "—" },
+                  { label: "Phone", value: quote.phone ?? "—" },
+                  { label: "Grouping", value: quote.grouping ?? "—" },
+                  { label: "Item", value: quote.itemInterest ?? "—" },
+                  { label: "Quantity", value: quote.quantity ?? "—" },
+                ]}
+                extra={quote.artworkPath ? <CustomisationQuoteArtworkViewer quoteId={quote.id} /> : undefined}
+              >
                 <td className="px-4 py-3 text-ink">
                   {quote.name}
                   {quote.country && <div className="text-xs text-ink/50">{quote.country}</div>}
@@ -55,11 +73,9 @@ export default async function AdminCustomisationStudioInquiriesPage() {
                     endpoint="customisation-quotes"
                     id={quote.id}
                     viewed={Boolean(quote.viewedAt)}
-                    toEmail={quote.email}
-                    toName={quote.name}
                   />
                 </td>
-              </tr>
+              </InquiryThreadRow>
             ))}
             {quotes.length === 0 && (
               <tr>
