@@ -23,11 +23,13 @@ export function InquiryReplyComposer({
   const [open, setOpen] = useState(false);
   const [subject, setSubject] = useState(defaultSubject);
   const [body, setBody] = useState("");
+  const [smtpLog, setSmtpLog] = useState<string[] | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const { submitting, error, setError, submit } = useSubmit();
 
   async function handleSend() {
+    setSmtpLog(null);
     const result = await submit(async () => {
       const formData = new FormData();
       formData.set("source", source);
@@ -42,12 +44,14 @@ export function InquiryReplyComposer({
 
       const res = await fetch("/api/admin/quotes-and-inquiries/reply", { method: "POST", body: formData });
       const data = await res.json();
+      // TEMPORARY: always keep the SMTP transcript, success or failure,
+      // while diagnosing why a "sent" reply never reaches the
+      // recipient, spam, or the z.com Sent folder.
+      setSmtpLog(Array.isArray(data.smtpLog) ? data.smtpLog : []);
       if (!res.ok) throw new Error(data.error ?? "Failed to send reply");
       return data;
     });
     if (result) {
-      setOpen(false);
-      setBody("");
       router.refresh();
     }
   }
@@ -66,7 +70,7 @@ export function InquiryReplyComposer({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 px-6">
-      <div className="w-full max-w-lg border border-taupe/20 bg-white p-6">
+      <div className="max-h-[85vh] w-full max-w-lg overflow-y-auto border border-taupe/20 bg-white p-6">
         <h2 className="font-serif text-lg text-ink">Reply to {toName || toEmail}</h2>
         <p className="mt-1 text-xs text-ink/50">
           Sends as the Aurielle Paris Atelier mailbox, to {toEmail}.
@@ -101,6 +105,16 @@ export function InquiryReplyComposer({
         </div>
 
         {error && <p className="mt-3 text-sm text-red-700">{error}</p>}
+        {!error && smtpLog && <p className="mt-3 text-sm text-green-700">Server reported success. SMTP transcript below.</p>}
+
+        {smtpLog && smtpLog.length > 0 && (
+          <div className="mt-3">
+            <p className="text-xs uppercase tracking-wide text-ink/60">SMTP Transcript</p>
+            <pre className="mt-1.5 max-h-64 overflow-y-auto whitespace-pre-wrap break-all border border-taupe/30 bg-beige/40 p-3 text-[11px] text-ink/80">
+              {smtpLog.join("\n")}
+            </pre>
+          </div>
+        )}
 
         <div className="mt-5 flex justify-end gap-3">
           <button
@@ -108,11 +122,12 @@ export function InquiryReplyComposer({
             onClick={() => {
               setOpen(false);
               setError(null);
+              setSmtpLog(null);
             }}
             disabled={submitting}
             className="px-4 py-2 text-sm text-ink/70"
           >
-            Cancel
+            Close
           </button>
           <button
             type="button"

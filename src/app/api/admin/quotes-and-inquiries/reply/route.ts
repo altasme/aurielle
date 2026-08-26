@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionAdminUser } from "@/lib/admin/auth";
-import { sendReplyEmail, type ReplyAttachment } from "@/lib/email/send-reply";
+import { sendReplyEmail, SendReplyError, type ReplyAttachment } from "@/lib/email/send-reply";
 import { markContactInquiryViewed } from "@/lib/admin/contact-inquiries";
 import { markWholesaleInquiryViewed } from "@/lib/admin/wholesale-inquiries";
 import { markCustomisationQuoteViewed } from "@/lib/admin/customisation-quotes";
@@ -55,15 +55,27 @@ export const POST = withErrorHandling(async (request: Request) => {
     }),
   );
 
-  await sendReplyEmail({
-    toEmail: toEmail.trim(),
-    toName: typeof toName === "string" ? toName.trim() : "",
-    subject: subject.trim(),
-    bodyText: body.trim(),
-    attachments,
-  });
+  // TEMPORARY: surfaces the captured SMTP transcript directly in the
+  // response either way, so the admin can see it without a separately
+  // timed Cloudflare dashboard log-tail session -- remove once the
+  // silent non-delivery issue (send() resolves, but nothing reaches
+  // the recipient, spam, or the z.com Sent folder) is found.
+  let smtpLog: string[];
+  try {
+    smtpLog = await sendReplyEmail({
+      toEmail: toEmail.trim(),
+      toName: typeof toName === "string" ? toName.trim() : "",
+      subject: subject.trim(),
+      bodyText: body.trim(),
+      attachments,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to send email";
+    const log = err instanceof SendReplyError ? err.smtpLog : [];
+    return NextResponse.json({ error: message, smtpLog: log }, { status: 500 });
+  }
 
   await markViewed(source, id);
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, smtpLog });
 });
