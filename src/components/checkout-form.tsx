@@ -6,10 +6,10 @@ import { useCart } from "@/lib/cart/cart-context";
 import { PAYMENT_METHODS, GCASH_INSTRUCTIONS, BANK_TRANSFER_INSTRUCTIONS } from "@/config/payment";
 import type { PaymentMethod } from "@/config/payment";
 import { FormField, FIELD_CLASSES } from "./form-field";
+import { CountrySelect } from "./country-select";
 import { SubmitButton } from "./submit-button";
 import { useSubmit } from "@/lib/use-submit";
 import { formatMoney } from "@/lib/format-money";
-import { COUNTRIES } from "@/lib/countries";
 
 type BusinessLine = "collection" | "atelier_supply";
 
@@ -352,24 +352,7 @@ export function CheckoutForm({ businessLine }: { businessLine: BusinessLine }) {
               onChange={setPostalCode}
               required
             />
-            <div>
-              <label className="text-xs uppercase tracking-wide text-ink/60">Country *</label>
-              <select
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
-                required
-                className={`mt-2 ${FIELD_CLASSES}`}
-              >
-                <option value="" disabled>
-                  Select a country
-                </option>
-                {COUNTRIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <CountrySelect value={country} onChange={setCountry} required />
           </div>
         </fieldset>
 

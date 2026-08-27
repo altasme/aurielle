@@ -463,8 +463,36 @@ untouched.
 - `GET /api/orders/lookup?orderNumber=&email=`: guest order-lookup
   (`/order-lookup`), matches on order number + email since there are no
   customer accounts.
-- Not yet built: confirmation email (spec suggests Resend for
-  testing; needs an API key from you), analytics/consent banner.
+- Not yet built: analytics/consent banner.
+
+### Order confirmation email
+
+On a successful `POST /api/orders`, the customer gets a branded order
+confirmation (order number, line items, discounts, total, shipping
+address, payment method) sent via
+[Resend](https://resend.com)'s HTTP API
+(`src/lib/email/send-order-confirmation.ts`,
+`src/lib/email/order-confirmation-template.ts`).
+
+- Plain `fetch` to `https://api.resend.com/emails`, no SDK -- it's a
+  single JSON POST, and this avoids adding a dependency plus the
+  `worker-mailer`-style Workers-runtime import headaches SMTP needed
+  (see "Reply via Aurielle Email" above).
+- Sender: `order@auriellefragrancestudio.com` / "Aurielle Order
+  Confirmation" by default, overridable via `RESEND_FROM_EMAIL`/
+  `RESEND_FROM_NAME`.
+- **Required secret** (GitHub repo Settings -> Secrets and variables ->
+  Actions), also added to `.github/workflows/deploy.yml`'s env block
+  and synced to the Worker via `wrangler secret put`: `RESEND_API_KEY`
+  (get one from the Resend dashboard). `RESEND_FROM_EMAIL`/
+  `RESEND_FROM_NAME` are optional overrides. Until `RESEND_API_KEY` is
+  set, order creation still succeeds -- the email send just fails
+  silently from the customer's perspective and logs a "not configured"
+  error server-side, same fail-open behavior as the rest of this
+  project's non-critical email sends.
+- Sending never blocks or fails order creation: the order is already
+  committed to the database by the time the email is attempted, so a
+  Resend error is only logged, not surfaced to the customer.
 
 ## Promotions (admin)
 

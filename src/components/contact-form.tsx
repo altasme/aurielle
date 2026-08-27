@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { FormField, FIELD_CLASSES } from "./form-field";
+import { CountrySelect } from "./country-select";
 import { SubmitButton } from "./submit-button";
 import { useSubmit } from "@/lib/use-submit";
 
@@ -48,7 +49,7 @@ export function ContactForm() {
         <FormField label="Email" type="email" value={email} onChange={setEmail} required />
       </div>
       <div className="grid gap-5 sm:grid-cols-2">
-        <FormField label="Country" value={country} onChange={setCountry} />
+        <CountrySelect value={country} onChange={setCountry} />
         <FormField label="Inquiry Type" value={inquiryType} onChange={setInquiryType} />
       </div>
       <div>

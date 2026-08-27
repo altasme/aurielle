@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
 import { FormField, FIELD_CLASSES } from "./form-field";
+import { CountrySelect } from "./country-select";
 import { SubmitButton } from "./submit-button";
 import { useSubmit } from "@/lib/use-submit";
 import { STUDIO_GROUPINGS } from "@/lib/data/studio-groupings";
@@ -73,7 +74,7 @@ export function StudioQuoteForm() {
       </div>
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField label="Phone" value={phone} onChange={setPhone} />
-        <FormField label="Country" value={country} onChange={setCountry} />
+        <CountrySelect value={country} onChange={setCountry} />
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">

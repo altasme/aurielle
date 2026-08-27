@@ -48,6 +48,15 @@ jobs:
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           SMTP_FROM_EMAIL: ${{ secrets.SMTP_FROM_EMAIL }}
           SMTP_FROM_NAME: ${{ secrets.SMTP_FROM_NAME }}
+          # Resend transactional API, used only for the order
+          # confirmation email (src/lib/email/send-order-confirmation.ts)
+          # -- separate from the SMTP mailbox above, which is only used
+          # for admin replies. Optional at deploy time -- until
+          # RESEND_API_KEY is set, order creation still succeeds and
+          # just logs a "not configured" error instead of sending.
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
+          RESEND_FROM_NAME: ${{ secrets.RESEND_FROM_NAME }}
           # Not a secret -- ends up in the compiled client bundle
           # either way (NEXT_PUBLIC_*), so it's a literal here rather
           # than a GitHub secret. Used only for metadataBase (OG image
@@ -83,6 +92,19 @@ jobs:
           printf '%s' "$SMTP_PASSWORD" | npx wrangler secret put SMTP_PASSWORD
           printf '%s' "$SMTP_FROM_EMAIL" | npx wrangler secret put SMTP_FROM_EMAIL
           printf '%s' "$SMTP_FROM_NAME" | npx wrangler secret put SMTP_FROM_NAME
+
+      # Same reasoning, for the Resend API key used by the order
+      # confirmation email (src/lib/email/send-order-confirmation.ts).
+      - name: Sync Resend secrets to the Cloudflare Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
+          RESEND_FROM_NAME: ${{ secrets.RESEND_FROM_NAME }}
+        run: |
+          printf '%s' "$RESEND_API_KEY" | npx wrangler secret put RESEND_API_KEY
+          printf '%s' "$RESEND_FROM_EMAIL" | npx wrangler secret put RESEND_FROM_EMAIL
+          printf '%s' "$RESEND_FROM_NAME" | npx wrangler secret put RESEND_FROM_NAME
 
   # Separate Worker (email-worker/) that receives inbound mail via
   # Cloudflare Email Routing -- see README "Reply via Aurielle Email:

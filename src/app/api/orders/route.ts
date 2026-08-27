@@ -3,6 +3,7 @@ import { getSupabaseAdminClient } from "@/lib/supabase/server";
 import { generateOrderNumber } from "@/lib/orders/order-number";
 import { resolveCartLines } from "@/lib/orders/resolve-lines";
 import { applyProductPromotions, validateDiscountCode, incrementPromotionUsage, incrementDiscountCodeUsage } from "@/lib/promotions/apply";
+import { sendOrderConfirmationEmail } from "@/lib/email/send-order-confirmation";
 import type { Address, OrderLineItem, OrderPayload } from "@/lib/orders/types";
 import { withErrorHandling } from "@/lib/with-error-handling";
 
@@ -228,6 +229,27 @@ export const POST = withErrorHandling(async (request: Request) => {
   } else {
     const usedPromotionIds = new Set(pricedLines.map((l) => l.promotionId).filter((id): id is string => id !== null));
     await Promise.all([...usedPromotionIds].map((id) => incrementPromotionUsage(id)));
+  }
+
+  // Best-effort -- the order is already committed, so a failed
+  // confirmation email must not fail the request or roll anything
+  // back; just log it for follow-up.
+  const emailResult = await sendOrderConfirmationEmail({
+    toEmail: payload.customerEmail.trim().toLowerCase(),
+    toName: payload.customerName.trim(),
+    orderNumber,
+    items: resolvedItems,
+    currency: resolved.currency,
+    subtotal,
+    promotionDiscountTotal,
+    discountCode: discountCodeMatch ? { code: discountCodeMatch.code, amount: discountCodeMatch.discountAmount } : null,
+    shippingCost,
+    total,
+    paymentMethod: payload.paymentMethod,
+    shippingAddress: shipping,
+  });
+  if (!emailResult.ok) {
+    console.error("Order confirmation email failed", emailResult.error);
   }
 
   return NextResponse.json({

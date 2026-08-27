@@ -4,6 +4,7 @@ import { useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } fro
 import { useRouter } from "next/navigation";
 import { ThreadMessages, type ThreadMessage, type ThreadAttachment } from "./thread-messages";
 import { ThreadReplyForm } from "./thread-reply-form";
+import { DeleteConfirmButton } from "./delete-confirm-button";
 
 type MailMessage = {
   id: string;
@@ -15,6 +16,7 @@ type MailMessage = {
   bodyHtml: string | null;
   attachments: ThreadAttachment[];
   viewedAt: string | null;
+  junkedAt: string | null;
   createdAt: string;
 };
 
@@ -54,12 +56,19 @@ type ResizeMode = "list" | "reply" | null;
 // the list pane's width and the reply box's height are user-draggable
 // (see the two resize handles below) since a fixed split reads cramped
 // at some window sizes.
-export function AurielleMailClient({ initialMessages }: { initialMessages: MailMessage[] }) {
+export function AurielleMailClient({
+  initialMessages,
+  view = "inbox",
+}: {
+  initialMessages: MailMessage[];
+  view?: "inbox" | "junk";
+}) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [thread, setThread] = useState<ThreadMessage[] | null>(null);
   const [listWidth, setListWidth] = useState(320);
   const [replyHeight, setReplyHeight] = useState(240);
   const [resizing, setResizing] = useState<ResizeMode>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const readingPaneRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -100,13 +109,34 @@ export function AurielleMailClient({ initialMessages }: { initialMessages: MailM
     }
   }
 
-  async function handleDelete() {
+  async function moveToJunk() {
     if (!selected) return;
-    if (!window.confirm("Permanently delete this email? This cannot be undone.")) return;
-    await fetch(`/api/admin/general-mail/${selected.id}`, { method: "DELETE" });
-    setSelectedId(null);
-    setThread(null);
-    router.refresh();
+    setActionError(null);
+    try {
+      const res = await fetch(`/api/admin/general-mail/${selected.id}/junk`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Failed to move to junk");
+      setSelectedId(null);
+      setThread(null);
+      router.refresh();
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Failed to move to junk");
+    }
+  }
+
+  async function restoreFromJunk() {
+    if (!selected) return;
+    setActionError(null);
+    try {
+      const res = await fetch(`/api/admin/general-mail/${selected.id}/restore`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Failed to restore");
+      setSelectedId(null);
+      setThread(null);
+      router.refresh();
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Failed to restore");
+    }
   }
 
   const messages: ThreadMessage[] | null =
@@ -174,7 +204,11 @@ export function AurielleMailClient({ initialMessages }: { initialMessages: MailM
               </button>
             );
           })}
-          {initialMessages.length === 0 && <p className="px-4 py-10 text-center text-sm text-ink/50">No mail yet.</p>}
+          {initialMessages.length === 0 && (
+            <p className="px-4 py-10 text-center text-sm text-ink/50">
+              {view === "junk" ? "No junked mail." : "No mail yet."}
+            </p>
+          )}
         </div>
       </div>
 
@@ -217,9 +251,33 @@ export function AurielleMailClient({ initialMessages }: { initialMessages: MailM
                   {selected.fromEmail}
                 </p>
               </div>
-              <button type="button" onClick={handleDelete} className="text-xs uppercase tracking-wide text-red-700 underline">
-                Delete
-              </button>
+              <div className="flex items-center gap-4">
+                {actionError && <p className="text-xs text-red-700">{actionError}</p>}
+                {view === "inbox" ? (
+                  <button
+                    type="button"
+                    onClick={moveToJunk}
+                    className="text-xs uppercase tracking-wide text-red-700 underline"
+                  >
+                    Move to Junk
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={restoreFromJunk}
+                      className="text-xs uppercase tracking-wide text-burgundy underline"
+                    >
+                      Restore
+                    </button>
+                    <DeleteConfirmButton
+                      endpoint={`/api/admin/general-mail/${selected.id}`}
+                      title="Delete Permanently?"
+                      description="This cannot be undone."
+                    />
+                  </>
+                )}
+              </div>
             </div>
 
             <div className="min-h-0 flex-1 space-y-4 overflow-y-auto bg-beige/10 px-6 py-5">
