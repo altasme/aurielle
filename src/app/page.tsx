@@ -74,6 +74,53 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* PILLAR BLOCK: CUSTOMISATION STUDIO -- a taste: luxury chips +
+          the real print photo, one CTA. Fridge magnets etc. stay
+          inside /studio, never the homepage (luxury face only). Placed
+          right after the hero per client direction -- Studio services
+          get top billing, not buried after Collection/Atelier Supply. */}
+      {CUSTOMISATION_STUDIO_ENABLED && STUDIO_SPOTLIGHT && (
+        <section className="bg-beige px-6 py-24 lg:px-10">
+          <div className="mx-auto max-w-6xl text-center">
+            <Reveal>
+              <h2 className="font-serif text-3xl text-ink">Customisation Studio</h2>
+              <p className="mx-auto mt-2 max-w-md text-sm text-ink/60">
+                Made-to-order UV printing -- packaging, labels and branding
+                finished to a luxury standard.
+              </p>
+            </Reveal>
+
+            <Reveal delayMs={80} className="mt-8 flex flex-wrap justify-center gap-3">
+              {STUDIO_SPOTLIGHT.items.map((item) => (
+                <span
+                  key={item}
+                  className="border border-taupe/30 bg-ivory px-5 py-2.5 text-xs uppercase tracking-[0.15em] text-ink/70"
+                >
+                  {item}
+                </span>
+              ))}
+            </Reveal>
+
+            <Reveal
+              delayMs={160}
+              className="relative mx-auto mt-10 aspect-[21/9] max-w-4xl overflow-hidden border border-taupe/30"
+            >
+              <Image
+                src="/images/atelier/custom-label.jpg"
+                alt="Close-up of custom perfume bottles, candles and metal labels bearing different private-label brand names"
+                fill
+                sizes="(min-width: 1024px) 896px, 100vw"
+                className="object-cover"
+              />
+            </Reveal>
+
+            <div className="mt-10">
+              <ButtonLink href="/studio">Explore the Studio</ButtonLink>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* THREE-PILLAR CHOOSER -- equal cards, same copy length, same
           button treatment on all three so the Studio card isn't the
           weak one. */}
@@ -198,51 +245,6 @@ export default async function Home() {
           </div>
         </div>
       </section>
-
-      {/* PILLAR BLOCK: CUSTOMISATION STUDIO -- a taste: luxury chips +
-          the real print photo, one CTA. Fridge magnets etc. stay
-          inside /studio, never the homepage (luxury face only). */}
-      {CUSTOMISATION_STUDIO_ENABLED && STUDIO_SPOTLIGHT && (
-        <section className="bg-beige px-6 py-24 lg:px-10">
-          <div className="mx-auto max-w-6xl text-center">
-            <Reveal>
-              <h2 className="font-serif text-3xl text-ink">Customisation Studio</h2>
-              <p className="mx-auto mt-2 max-w-md text-sm text-ink/60">
-                Made-to-order UV printing -- packaging, labels and branding
-                finished to a luxury standard.
-              </p>
-            </Reveal>
-
-            <Reveal delayMs={80} className="mt-8 flex flex-wrap justify-center gap-3">
-              {STUDIO_SPOTLIGHT.items.map((item) => (
-                <span
-                  key={item}
-                  className="border border-taupe/30 bg-ivory px-5 py-2.5 text-xs uppercase tracking-[0.15em] text-ink/70"
-                >
-                  {item}
-                </span>
-              ))}
-            </Reveal>
-
-            <Reveal
-              delayMs={160}
-              className="relative mx-auto mt-10 aspect-[21/9] max-w-4xl overflow-hidden border border-taupe/30"
-            >
-              <Image
-                src="/images/atelier/custom-label.jpg"
-                alt="Close-up of custom perfume bottles, candles and metal labels bearing different private-label brand names"
-                fill
-                sizes="(min-width: 1024px) 896px, 100vw"
-                className="object-cover"
-              />
-            </Reveal>
-
-            <div className="mt-10">
-              <ButtonLink href="/studio">Explore the Studio</ButtonLink>
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* WHY AURIELLE -- one standard, three crafts (not a perfume
           pitch dressed up as four generic columns). */}
