@@ -533,6 +533,44 @@ never both applied to the same order:
   on the admin order detail page, the customer's order-lookup, and the
   checkout confirmation screen.
 
+## Reports & Analytics (admin)
+
+`/admin/reports` -- one dashboard per business line (Aurielle Collection /
+Atelier Supply, since they trade in different currencies and should
+never be summed together), filterable by a date-range preset (Last 7/30/90
+Days, Month to Date, Year to Date, All Time). Built entirely from the
+existing `orders`/`order_items`/`promotions`/`discount_codes` tables --
+no new schema.
+
+- `src/lib/admin/report-ranges.ts`: resolves a preset into a
+  `{from, to}` window plus an equal-length `{previousFrom, previousTo}`
+  window immediately before it, so KPI tiles can show a vs-last-period
+  delta rather than just a snapshot number.
+- `src/lib/admin/reports.ts`: `getBusinessLineReport()` fetches one
+  business line's orders (current + previous period, one query) and
+  aggregates in application code -- **Confirmed Revenue** (paid,
+  non-cancelled orders only, not just placed -- this is the number that
+  reflects money actually collected), Orders Placed, Average Order
+  Value, Pending Verification value (cash awaiting proof-of-payment
+  confirmation), Discounts Given (as a % of gross sales -- the real
+  cost of running promotions), Cancelled orders, a revenue trend chart,
+  order/payment status breakdown, Top Products by net revenue,
+  **Product Promotions and Discount Codes performance** (usage count +
+  discount given per promotion/code within the selected range --
+  whether a campaign is actually worth running), and orders by country.
+  `getCustomerInsights()` is deliberately all-time, not range-scoped --
+  repeat-purchase rate needs the full order history to mean anything
+  for a boutique's order volume. `getLeadsSnapshot()` counts Contact/
+  Business/Studio inquiries and affiliate applications in range as a
+  top-of-funnel demand signal alongside the sales numbers.
+- Every order set is scoped to its **dominant currency** (the currency
+  most of that range's orders were placed in); anything in a different
+  currency is called out separately rather than silently summed in.
+- `src/components/admin/revenue-trend-chart.tsx`: a dependency-free
+  inline-SVG column chart (no charting library -- consistent with this
+  project's minimal-dependency, Workers-compatible approach elsewhere)
+  with a hover/focus tooltip.
+
 ## Phase 2 seam
 
 `src/config/commerce.ts` holds the two constants that gate Phase 2:

@@ -28,6 +28,7 @@ const NAV_LINKS: NavLink[] = [
   },
   { href: "/admin/aurielle-mail", label: "Aurielle Mail", beta: true },
   { href: "/admin/promotions", label: "Promotion" },
+  { href: "/admin/reports", label: "Reports & Analytics" },
 ];
 
 function Badge({ count }: { count: number }) {

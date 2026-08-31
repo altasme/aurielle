@@ -45,8 +45,8 @@ const MODULES: Module[] = [
   },
   {
     title: "Reports & Analytics",
-    description: "Sales, orders, product performance, revenue, customer activity.",
-    href: null,
+    description: "Confirmed revenue, order and payment status, top products, promotion performance, geography, customer insights.",
+    href: "/admin/reports",
   },
 ];
 
