@@ -11,6 +11,11 @@ type Module = { title: string; description: string; href: string | null; note?: 
 
 const MODULES: Module[] = [
   {
+    title: "Website Management",
+    description: "Edit the photos and wording shown on every public page yourself -- no code changes needed.",
+    href: "/admin/website",
+  },
+  {
     title: "Order Management",
     description: "Orders, order status, customer information, payment status, fulfillment, shipping.",
     href: "/admin/orders",

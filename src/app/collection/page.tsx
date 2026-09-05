@@ -7,6 +7,7 @@ import { CollectionBrowser } from "@/components/collection-browser";
 import { ButtonLink } from "@/components/button-link";
 import { Reveal } from "@/components/reveal";
 import { MOODS } from "@/lib/data/moods";
+import { getSiteContent } from "@/lib/site-content";
 
 export const metadata: Metadata = {
   title: "The Aurielle Collection | Aurielle Paris Atelier",
@@ -18,33 +19,21 @@ export const metadata: Metadata = {
 // photography as atmosphere, not fabricated reviews (no verified
 // customer testimonials exist yet). Relocated here from the homepage
 // per the v5.2 rebalance; page structure completed per spec v5.4.
-const EXPERIENCE_IMAGES = [
-  {
-    slug: "paris-nocturne",
-    name: "Paris Nocturne",
-    descriptor: "Midnight Paris, candlelight and quiet sophistication.",
-    alt: "Aurielle perfume oil on a marble table at night, with the Eiffel Tower lit in the distance",
-  },
-  {
-    slug: "donna-velours",
-    name: "Donna Velours",
-    descriptor: "Deep plum, velvet and dark florals.",
-    alt: "Aurielle perfume oil among deep plum roses and velvet drapery",
-  },
-  {
-    slug: "rouge-royale",
-    name: "Rouge Royale",
-    descriptor: "Crimson, burgundy, roses and polished gold.",
-    alt: "Aurielle perfume oil among red roses, a candle and gold jewelry",
-  },
+// Name/descriptor/photo are editable via Website Management -- alt
+// text stays fixed, describing whatever photo is actually in place.
+const EXPERIENCE_ALTS = [
+  "Aurielle perfume oil on a marble table at night, with the Eiffel Tower lit in the distance",
+  "Aurielle perfume oil among deep plum roses and velvet drapery",
+  "Aurielle perfume oil among red roses, a candle and gold jewelry",
 ];
 
 // Falls back to a periodic refresh; admin saves also push an immediate
-// update via revalidatePath() (see src/app/api/admin/products routes).
+// update via revalidatePath() (see src/app/api/admin/products routes
+// and src/lib/admin/site-content.ts).
 export const revalidate = 3600;
 
 export default async function CollectionPage() {
-  const perfumes = await getPerfumes();
+  const [perfumes, { text, images }] = await Promise.all([getPerfumes(), getSiteContent("collection")]);
 
   return (
     <div>
@@ -53,23 +42,12 @@ export default async function CollectionPage() {
           stronger scrim than a typical hero photo to keep white text
           legible -- measured, not guessed, at bg-ink/75. */}
       <section className="relative flex min-h-[45vh] flex-col items-center justify-center gap-3 overflow-hidden px-6 py-20 text-center">
-        <Image
-          src="/images/headers/collection-hero.jpg"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-        />
+        <Image src={images.hero_image} alt="" fill priority sizes="100vw" className="object-cover" />
         <div className="absolute inset-0 bg-ink/75" />
         <Reveal className="relative z-10 [text-shadow:0_2px_16px_rgba(0,0,0,0.55)]">
-          <p className="font-script text-2xl text-ivory">Fragrance, in full</p>
-          <h1 className="mt-2 font-serif text-4xl text-ivory sm:text-5xl">
-            The Aurielle Collection
-          </h1>
-          <p className="mx-auto mt-3 max-w-md text-sm text-ivory/90">
-            Refined perfume oils crafted to become part of your signature.
-          </p>
+          <p className="font-script text-2xl text-ivory">{text.hero_eyebrow}</p>
+          <h1 className="mt-2 font-serif text-4xl text-ivory sm:text-5xl">{text.hero_headline}</h1>
+          <p className="mx-auto mt-3 max-w-md text-sm text-ivory/90">{text.hero_body}</p>
         </Reveal>
       </section>
 
@@ -86,14 +64,9 @@ export default async function CollectionPage() {
       <section className="bg-beige px-6 py-24 lg:px-10">
         <div className="mx-auto max-w-4xl text-center">
           <Reveal>
-            <p className="font-script text-2xl text-burgundy">Find Your Scent</p>
-            <h2 className="mt-2 font-serif text-3xl text-ink">
-              A Fragrance for Every Mood
-            </h2>
-            <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
-              Discover scents inspired by femininity, mystery, elegance,
-              warmth and allure.
-            </p>
+            <p className="font-script text-2xl text-burgundy">{text.moods_eyebrow}</p>
+            <h2 className="mt-2 font-serif text-3xl text-ink">{text.moods_heading}</h2>
+            <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">{text.moods_body}</p>
           </Reveal>
 
           <Reveal delayMs={120} className="mt-10 flex flex-wrap justify-center gap-3">
@@ -114,29 +87,25 @@ export default async function CollectionPage() {
       <section className="px-6 py-24 lg:px-10">
         <div className="mx-auto max-w-6xl">
           <Reveal className="text-center">
-            <p className="font-script text-2xl text-burgundy">Every Bottle, a Story</p>
-            <h2 className="mt-2 font-serif text-3xl text-ink">
-              The Aurielle Experience
-            </h2>
+            <p className="font-script text-2xl text-burgundy">{text.experience_eyebrow}</p>
+            <h2 className="mt-2 font-serif text-3xl text-ink">{text.experience_heading}</h2>
           </Reveal>
 
           <div className="mt-12 grid gap-6 sm:grid-cols-3">
-            {EXPERIENCE_IMAGES.map((image, i) => (
-              <Reveal key={image.slug} delayMs={i * 100}>
+            {[1, 2, 3].map((i, index) => (
+              <Reveal key={i} delayMs={index * 100}>
                 <div className="relative aspect-[3/4] overflow-hidden border border-taupe/30">
                   <Image
-                    src={`/images/perfumes/main/${image.slug}.jpg`}
-                    alt={image.alt}
+                    src={images[`experience_image_${i}`]}
+                    alt={EXPERIENCE_ALTS[index]}
                     fill
                     sizes="(min-width: 1024px) 33vw, 100vw"
                     className="object-cover"
                   />
                 </div>
-                <p className="mt-3 text-center font-serif text-sm text-ink">
-                  {image.name}
-                </p>
+                <p className="mt-3 text-center font-serif text-sm text-ink">{text[`experience_${i}_name`]}</p>
                 <p className="mx-auto mt-1 max-w-[24ch] text-center text-xs text-ink/50">
-                  {image.descriptor}
+                  {text[`experience_${i}_descriptor`]}
                 </p>
               </Reveal>
             ))}
@@ -146,19 +115,10 @@ export default async function CollectionPage() {
 
       {/* THE AURIELLE PHILOSOPHY -- relocated from the homepage (v5.2). */}
       <Reveal className="mx-auto max-w-2xl px-6 py-24 text-center lg:px-10">
-        <p className="font-script text-2xl text-burgundy">The Aurielle Philosophy</p>
-        <h2 className="mt-2 font-serif text-3xl text-ink">
-          A Scent Becomes Part of You
-        </h2>
-        <p className="mx-auto mt-4 max-w-md text-sm text-ink/70">
-          Fragrance is more than something you wear. It becomes a memory, a
-          mood, a presence.
-        </p>
-        <p className="mx-auto mt-3 max-w-md text-sm text-ink/70">
-          Aurielle was created around the belief that the right scent should
-          feel personal, something that accompanies you, reflects you and
-          eventually becomes part of how you are remembered.
-        </p>
+        <p className="font-script text-2xl text-burgundy">{text.philosophy_eyebrow}</p>
+        <h2 className="mt-2 font-serif text-3xl text-ink">{text.philosophy_heading}</h2>
+        <p className="mx-auto mt-4 max-w-md text-sm text-ink/70">{text.philosophy_body_1}</p>
+        <p className="mx-auto mt-3 max-w-md text-sm text-ink/70">{text.philosophy_body_2}</p>
       </Reveal>
 
       {/* CLOSE CTA */}

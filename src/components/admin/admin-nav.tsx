@@ -14,6 +14,7 @@ type NavLink = {
 
 const NAV_LINKS: NavLink[] = [
   { href: "/admin", label: "Dashboard" },
+  { href: "/admin/website", label: "Website Management" },
   { href: "/admin/orders", label: "Order Management" },
   { href: "/admin/products", label: "Product & Pricing" },
   { href: "/admin/affiliates", label: "Affiliate Management" },

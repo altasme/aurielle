@@ -10,6 +10,7 @@ import { FinishTile } from "@/components/finish-tile";
 import { StickyQuoteButton } from "@/components/sticky-quote-button";
 import { STUDIO_GROUPINGS } from "@/lib/data/studio-groupings";
 import { STUDIO_FINISHES } from "@/lib/data/studio-finishes";
+import { getSiteContent } from "@/lib/site-content";
 
 export const metadata: Metadata = {
   title: "Customisation Studio | Aurielle Paris Atelier",
@@ -17,20 +18,18 @@ export const metadata: Metadata = {
     "UV DTF printing and custom branding for luxury packaging, personal gifts, business solutions and industrial production. Request a quote from the Aurielle atelier.",
 };
 
-const HOW_IT_WORKS: { icon: StudioStepIconName; title: string; body: string }[] = [
-  { icon: "upload", title: "Upload Your Artwork", body: "Send your design, logo or reference file with your quote request." },
-  { icon: "proof", title: "We Proof It", body: "The atelier reviews your file and confirms sizing, placement and finish." },
-  { icon: "print", title: "We Print", body: "Your piece is printed to order on our UV DTF printer." },
-  { icon: "delivered", title: "Delivered", body: "Your finished piece is packed and sent to you." },
-];
+// Icons stay fixed; title/body are editable via Website Management.
+const HOW_IT_WORKS_ICONS: StudioStepIconName[] = ["upload", "proof", "print", "delivered"];
 
-export default function CustomisationStudioPage() {
+export default async function CustomisationStudioPage() {
+  const { text, images } = await getSiteContent("studio");
+
   return (
     <div>
       {/* 1. VISUAL HERO */}
       <section className="relative flex min-h-[45vh] flex-col items-center justify-center gap-3 overflow-hidden px-6 py-20 text-center">
         <StudioImageSlot
-          src="/images/headers/studio-hero.jpg"
+          src={images.hero_image}
           alt="The Aurielle Studio's A3 UV DTF printer mid-print on a floral design"
           slotName="studio-hero"
           canvas="1920x640"
@@ -41,17 +40,11 @@ export default function CustomisationStudioPage() {
         />
         <div className="absolute inset-0 bg-ink/50" />
         <Reveal className="relative z-10 [text-shadow:0_2px_16px_rgba(0,0,0,0.55)]">
-          <p className="font-script text-2xl text-ivory">The Customisation Studio</p>
-          <h1 className="mt-2 font-serif text-4xl text-ivory sm:text-5xl">
-            Made-to-Order UV Printing
-          </h1>
-          <p className="mx-auto mt-4 max-w-xl text-sm text-ivory/90">
-            Every piece the Studio produces is made to order, no fixed catalogue, no stock
-            pricing. Browse what we print by category below, then request a quote for your own
-            project.
-          </p>
+          <p className="font-script text-2xl text-ivory">{text.hero_eyebrow}</p>
+          <h1 className="mt-2 font-serif text-4xl text-ivory sm:text-5xl">{text.hero_headline}</h1>
+          <p className="mx-auto mt-4 max-w-xl text-sm text-ivory/90">{text.hero_body}</p>
           <div className="mt-6">
-            <ButtonLink href="#quote">Request a Quote</ButtonLink>
+            <ButtonLink href="#quote">{text.hero_cta}</ButtonLink>
           </div>
         </Reveal>
       </section>
@@ -60,10 +53,8 @@ export default function CustomisationStudioPage() {
       <section className="px-6 py-16 lg:px-10">
         <div className="mx-auto max-w-6xl">
           <Reveal className="text-center">
-            <h2 className="font-serif text-2xl text-ink">What the Studio Can Do</h2>
-            <p className="mx-auto mt-2 max-w-md text-sm text-ink/60">
-              Hover or tap a finish to learn more.
-            </p>
+            <h2 className="font-serif text-2xl text-ink">{text.finishes_heading}</h2>
+            <p className="mx-auto mt-2 max-w-md text-sm text-ink/60">{text.finishes_body}</p>
           </Reveal>
           <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-5">
             {STUDIO_FINISHES.map((finish, i) => (
@@ -91,16 +82,19 @@ export default function CustomisationStudioPage() {
       <section className="bg-beige px-6 py-24 lg:px-10">
         <div className="mx-auto max-w-6xl">
           <Reveal className="text-center">
-            <h2 className="font-serif text-3xl text-ink">How It Works</h2>
+            <h2 className="font-serif text-3xl text-ink">{text.howitworks_heading}</h2>
           </Reveal>
           <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {HOW_IT_WORKS.map((step, i) => (
-              <Reveal key={step.title} delayMs={i * 100} className="text-center">
-                <StudioStepIcon name={step.icon} className="mx-auto h-10 w-10 text-burgundy" />
-                <h3 className="mt-4 font-serif text-lg text-ink">{step.title}</h3>
-                <p className="mt-2 text-sm text-ink/70">{step.body}</p>
-              </Reveal>
-            ))}
+            {HOW_IT_WORKS_ICONS.map((icon, index) => {
+              const i = index + 1;
+              return (
+                <Reveal key={icon} delayMs={index * 100} className="text-center">
+                  <StudioStepIcon name={icon} className="mx-auto h-10 w-10 text-burgundy" />
+                  <h3 className="mt-4 font-serif text-lg text-ink">{text[`howitworks_${i}_title`]}</h3>
+                  <p className="mt-2 text-sm text-ink/70">{text[`howitworks_${i}_body`]}</p>
+                </Reveal>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -118,11 +112,8 @@ export default function CustomisationStudioPage() {
       {/* 9. REQUEST A QUOTE */}
       <section id="quote" className="scroll-mt-20 px-6 py-24 lg:px-10">
         <div className="text-center">
-          <h2 className="font-serif text-3xl text-ink">Request a Quote</h2>
-          <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">
-            Tell us what you have in mind and, if you have one, attach your artwork or logo. The
-            atelier will follow up with pricing and turnaround.
-          </p>
+          <h2 className="font-serif text-3xl text-ink">{text.quote_heading}</h2>
+          <p className="mx-auto mt-3 max-w-md text-sm text-ink/60">{text.quote_body}</p>
         </div>
         <div className="mx-auto mt-10 max-w-2xl">
           <Suspense>

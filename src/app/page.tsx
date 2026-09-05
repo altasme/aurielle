@@ -5,7 +5,7 @@ import { Reveal } from "@/components/reveal";
 import { getFeaturedPerfumes } from "@/lib/data/perfumes";
 import { CUSTOMISATION_STUDIO_ENABLED } from "@/config/studio";
 import { STUDIO_GROUPINGS } from "@/lib/data/studio-groupings";
-import { ATELIER_CAPABILITIES } from "@/lib/data/atelier-capabilities";
+import { getSiteContent } from "@/lib/site-content";
 
 const STUDIO_SPOTLIGHT = STUDIO_GROUPINGS.find((g) => g.spotlight);
 
@@ -19,34 +19,29 @@ const STUDIO_SPOTLIGHT = STUDIO_GROUPINGS.find((g) => g.spotlight);
 // /about, where it's still fully present, just not on the front door
 // (spec v5.4 completes those three receiving pages).
 
-const WHY_AURIELLE = [
-  {
-    title: "Refined Fragrance",
-    body: "Signature perfume oils, crafted to become part of your signature.",
-  },
-  {
-    title: "Materials & Supply",
-    body: "Fragrance oils and sourcing for creators and businesses building their own line.",
-  },
-  {
-    title: "Custom Craftsmanship",
-    body: "Made-to-order UV printing -- packaging, labels and branding finished to a luxury standard.",
-  },
-];
-
 // Falls back to a periodic refresh; admin saves also push an immediate
-// update via revalidatePath("/") (see src/app/api/admin/products routes).
+// update via revalidatePath("/") (see src/app/api/admin/products routes
+// and src/lib/admin/site-content.ts).
 export const revalidate = 3600;
 
 export default async function Home() {
-  const featured = await getFeaturedPerfumes(4);
+  // The Atelier Supply capability cards below are edited from the
+  // Atelier Supply page in Website Management (they're shared with
+  // that page, so there's one place to keep them in sync rather than
+  // two copies drifting apart) -- see EXTRA_REVALIDATE_PATHS in
+  // src/lib/admin/site-content.ts.
+  const [featured, { text, images }, atelier] = await Promise.all([
+    getFeaturedPerfumes(4),
+    getSiteContent("home"),
+    getSiteContent("atelier-supply"),
+  ]);
 
   return (
     <div className="flex flex-col">
       {/* HERO */}
       <section className="relative flex min-h-[85vh] flex-col items-center justify-center gap-6 overflow-hidden px-6 py-24 text-center">
         <Image
-          src="/images/hero.jpg"
+          src={images.hero_image}
           alt=""
           fill
           priority
@@ -54,21 +49,17 @@ export default async function Home() {
           className="hero-image object-cover"
         />
         <div className="relative z-10 flex flex-col items-center gap-6 border border-taupe/20 bg-ivory px-8 py-10 sm:px-14 sm:py-14">
-          <p className="hero-in font-script text-3xl text-burgundy">
-            Aurielle Paris Atelier
-          </p>
+          <p className="hero-in font-script text-3xl text-burgundy">{text.hero_eyebrow}</p>
           <h1 className="hero-in hero-in-delay-1 max-w-3xl font-serif text-4xl leading-tight text-ink sm:text-6xl">
-            THE ART OF FRAGRANCE
+            {text.hero_headline}
           </h1>
           <p className="hero-in hero-in-delay-2 max-w-md text-base font-normal text-ink/70 sm:text-lg">
-            From signature scents to fragrance supply and private-label creation, Aurielle Paris brings together
-            refined fragrances, quality fragrance materials, custom packaging and product development support for
-            individuals, creators and businesses.
+            {text.hero_body}
           </p>
           <div className="hero-in hero-in-delay-3 mt-4 flex flex-col gap-4 sm:flex-row">
-            <ButtonLink href="/collection">Discover Aurielle</ButtonLink>
+            <ButtonLink href="/collection">{text.hero_cta_primary}</ButtonLink>
             <ButtonLink href="/atelier-supply" variant="secondary">
-              Explore the Atelier
+              {text.hero_cta_secondary}
             </ButtonLink>
           </div>
         </div>
@@ -83,11 +74,8 @@ export default async function Home() {
         <section className="bg-beige px-6 py-24 lg:px-10">
           <div className="mx-auto max-w-6xl text-center">
             <Reveal>
-              <h2 className="font-serif text-3xl text-ink">Customisation Studio</h2>
-              <p className="mx-auto mt-2 max-w-md text-sm text-ink/60">
-                Made-to-order UV printing -- packaging, labels and branding
-                finished to a luxury standard.
-              </p>
+              <h2 className="font-serif text-3xl text-ink">{text.studio_teaser_heading}</h2>
+              <p className="mx-auto mt-2 max-w-md text-sm text-ink/60">{text.studio_teaser_body}</p>
             </Reveal>
 
             <Reveal delayMs={80} className="mt-8 flex flex-wrap justify-center gap-3">
@@ -106,7 +94,7 @@ export default async function Home() {
               className="relative mx-auto mt-10 aspect-[21/9] max-w-4xl overflow-hidden border border-taupe/30"
             >
               <Image
-                src="/images/atelier/custom-label.jpg"
+                src={images.studio_teaser_image}
                 alt="Close-up of custom perfume bottles, candles and metal labels bearing different private-label brand names"
                 fill
                 sizes="(min-width: 1024px) 896px, 100vw"
@@ -115,7 +103,7 @@ export default async function Home() {
             </Reveal>
 
             <div className="mt-10">
-              <ButtonLink href="/studio">Explore the Studio</ButtonLink>
+              <ButtonLink href="/studio">{text.studio_teaser_cta}</ButtonLink>
             </div>
           </div>
         </section>
@@ -140,47 +128,33 @@ export default async function Home() {
           </p>
         </Reveal>
         <Reveal className="border border-taupe/30 p-10 text-center">
-          <h2 className="font-serif text-2xl text-ink">Collection</h2>
-          <p className="mt-1 text-xs uppercase tracking-wide text-burgundy">
-            The Fragrance Collection
-          </p>
-          <p className="mx-auto mt-4 max-w-xs text-sm text-ink/70">
-            Refined perfume oils crafted to become part of your signature.
-          </p>
+          <h2 className="font-serif text-2xl text-ink">{text.pillar_collection_heading}</h2>
+          <p className="mt-1 text-xs uppercase tracking-wide text-burgundy">{text.pillar_collection_eyebrow}</p>
+          <p className="mx-auto mt-4 max-w-xs text-sm text-ink/70">{text.pillar_collection_body}</p>
           <div className="mt-6">
             <ButtonLink href="/collection" variant="secondary">
-              Shop the Collection
+              {text.pillar_collection_cta}
             </ButtonLink>
           </div>
         </Reveal>
         <Reveal className="border border-taupe/30 p-10 text-center" delayMs={120}>
-          <h2 className="font-serif text-2xl text-ink">Atelier Supply</h2>
-          <p className="mt-1 text-xs uppercase tracking-wide text-burgundy">
-            Fragrance Supply &amp; Creation
-          </p>
-          <p className="mx-auto mt-4 max-w-xs text-sm text-ink/70">
-            Fragrance oils and sourcing for creators and businesses
-            building their own line.
-          </p>
+          <h2 className="font-serif text-2xl text-ink">{text.pillar_atelier_heading}</h2>
+          <p className="mt-1 text-xs uppercase tracking-wide text-burgundy">{text.pillar_atelier_eyebrow}</p>
+          <p className="mx-auto mt-4 max-w-xs text-sm text-ink/70">{text.pillar_atelier_body}</p>
           <div className="mt-6">
             <ButtonLink href="/atelier-supply" variant="secondary">
-              Explore Supply
+              {text.pillar_atelier_cta}
             </ButtonLink>
           </div>
         </Reveal>
         {CUSTOMISATION_STUDIO_ENABLED && (
           <Reveal className="border border-taupe/30 p-10 text-center" delayMs={240}>
-            <h2 className="font-serif text-2xl text-ink">Studio</h2>
-            <p className="mt-1 text-xs uppercase tracking-wide text-burgundy">
-              Customisation Studio
-            </p>
-            <p className="mx-auto mt-4 max-w-xs text-sm text-ink/70">
-              Made-to-order UV printing -- packaging, labels and branding
-              finished to a luxury standard.
-            </p>
+            <h2 className="font-serif text-2xl text-ink">{text.pillar_studio_heading}</h2>
+            <p className="mt-1 text-xs uppercase tracking-wide text-burgundy">{text.pillar_studio_eyebrow}</p>
+            <p className="mx-auto mt-4 max-w-xs text-sm text-ink/70">{text.pillar_studio_body}</p>
             <div className="mt-6">
               <ButtonLink href="/studio" variant="secondary">
-                Explore the Studio
+                {text.pillar_studio_cta}
               </ButtonLink>
             </div>
           </Reveal>
@@ -192,10 +166,8 @@ export default async function Home() {
       <section className="bg-beige px-6 py-24 lg:px-10">
         <div className="mx-auto max-w-6xl">
           <Reveal className="text-center">
-            <h2 className="font-serif text-3xl text-ink">The Collection</h2>
-            <p className="mx-auto mt-2 max-w-md text-sm text-ink/60">
-              Refined perfume oils crafted to become part of your signature.
-            </p>
+            <h2 className="font-serif text-3xl text-ink">{text.collection_heading}</h2>
+            <p className="mx-auto mt-2 max-w-md text-sm text-ink/60">{text.collection_body}</p>
           </Reveal>
 
           <div className="mt-10 grid grid-cols-2 gap-6 lg:grid-cols-4">
@@ -220,22 +192,19 @@ export default async function Home() {
       <section className="px-6 py-24 lg:px-10">
         <div className="mx-auto max-w-6xl text-center">
           <Reveal>
-            <h2 className="font-serif text-3xl text-ink">Atelier Supply</h2>
-            <p className="mx-auto mt-2 max-w-md text-sm text-ink/60">
-              Fragrance oils and sourcing for creators and businesses
-              building their own line.
-            </p>
+            <h2 className="font-serif text-3xl text-ink">{text.atelier_heading}</h2>
+            <p className="mx-auto mt-2 max-w-md text-sm text-ink/60">{text.atelier_body}</p>
           </Reveal>
 
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {ATELIER_CAPABILITIES.map((item, i) => (
+            {[1, 2, 3, 4].map((i) => (
               <Reveal
-                key={item.title}
-                delayMs={i * 100}
+                key={i}
+                delayMs={(i - 1) * 100}
                 className="border border-taupe/30 bg-ivory p-8 text-left"
               >
-                <h3 className="font-serif text-lg text-ink">{item.title}</h3>
-                <p className="mt-2 text-sm text-ink/70">{item.body}</p>
+                <h3 className="font-serif text-lg text-ink">{atelier.text[`capability_${i}_title`]}</h3>
+                <p className="mt-2 text-sm text-ink/70">{atelier.text[`capability_${i}_body`]}</p>
               </Reveal>
             ))}
           </div>
@@ -251,50 +220,33 @@ export default async function Home() {
       <section className="px-6 py-24 lg:px-10">
         <div className="mx-auto max-w-6xl">
           <Reveal className="text-center">
-            <h2 className="font-serif text-3xl text-ink">Why Aurielle</h2>
+            <h2 className="font-serif text-3xl text-ink">{text.why_heading}</h2>
           </Reveal>
           <div className="mt-12 grid gap-10 sm:grid-cols-3">
-            {WHY_AURIELLE.map((item, i) => (
-              <Reveal key={item.title} delayMs={i * 100} className="text-center">
-                <h3 className="font-serif text-lg text-ink">{item.title}</h3>
-                <p className="mt-2 text-sm text-ink/60">{item.body}</p>
+            {[1, 2, 3].map((i) => (
+              <Reveal key={i} delayMs={(i - 1) * 100} className="text-center">
+                <h3 className="font-serif text-lg text-ink">{text[`why_${i}_title`]}</h3>
+                <p className="mt-2 text-sm text-ink/60">{text[`why_${i}_body`]}</p>
               </Reveal>
             ))}
           </div>
           <Reveal delayMs={300} className="mt-10 text-center">
-            <p className="font-script text-xl text-burgundy">
-              One atelier standard across everything we make.
-            </p>
+            <p className="font-script text-xl text-burgundy">{text.why_closing_line}</p>
           </Reveal>
         </div>
       </section>
 
       {/* FINAL CTA */}
       <section className="relative flex min-h-[70vh] flex-col items-center justify-center gap-6 overflow-hidden px-6 py-24 text-center">
-        <Image
-          src="/images/perfumes/main/satin-mystique.jpg"
-          alt=""
-          fill
-          sizes="100vw"
-          className="object-cover"
-        />
+        <Image src={images.final_cta_image} alt="" fill sizes="100vw" className="object-cover" />
         <Reveal className="relative z-10 mx-auto max-w-2xl border border-taupe/20 bg-ivory px-8 py-10 sm:px-14 sm:py-14">
-          <p className="font-script text-2xl text-burgundy">
-            From the scent you wear to the brand you build.
-          </p>
-          <h2 className="mt-2 font-serif text-3xl text-ink">
-            Create Something of Your Own
-          </h2>
-          <p className="mx-auto mt-4 max-w-md text-sm text-ink/70">
-            Whether you&rsquo;re looking for your next personal fragrance or
-            developing something for your own brand, Aurielle Paris Atelier
-            brings together refined fragrance, quality materials, and the
-            freedom to create something uniquely yours.
-          </p>
+          <p className="font-script text-2xl text-burgundy">{text.final_cta_eyebrow}</p>
+          <h2 className="mt-2 font-serif text-3xl text-ink">{text.final_cta_heading}</h2>
+          <p className="mx-auto mt-4 max-w-md text-sm text-ink/70">{text.final_cta_body}</p>
           <div className="mt-6 flex flex-col justify-center gap-4 sm:flex-row">
-            <ButtonLink href="/collection">Explore the Collection</ButtonLink>
+            <ButtonLink href="/collection">{text.final_cta_primary}</ButtonLink>
             <ButtonLink href="/business" variant="secondary">
-              Talk to the Atelier
+              {text.final_cta_secondary}
             </ButtonLink>
           </div>
         </Reveal>

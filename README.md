@@ -192,10 +192,10 @@ Real photography is wired in under `public/images/`:
   public homepage -- `middleware.ts` rewrites only that one specific
   hostname's "/"; `/admin/login` works on every domain regardless.
   Same code, same database everywhere.
-- `/admin/login` → `/admin` (dashboard: Product & Pricing, Order
-  Management, Affiliate Management, and Customisation Quotes are active
-  modules; Promotion and Reports & Analytics remain disabled "Coming
-  Soon" placeholders).
+- `/admin/login` → `/admin` (dashboard: Website Management, Product &
+  Pricing, Order Management, Affiliate Management, Quotes and
+  Inquiries, Aurielle Mail, Promotion and Reports & Analytics are all
+  active modules).
 - Auth: a dedicated `admin_users` table (not Supabase Auth), scrypt
   password hashing (`node:crypto`, Workers-compatible), session cookies
   (httpOnly/secure/sameSite=lax, 7-day expiry, only the session token's
@@ -219,6 +219,43 @@ Real photography is wired in under `public/images/`:
   page, the product's detail page, and the homepage (which features
   Aurielle Collection products) so changes go live immediately, without
   waiting for the `revalidate = 3600` fallback on those pages.
+
+## Website Management (admin)
+
+`/admin/website` lets the client edit the wording and photos on every
+marketing page herself, organized one page at a time (Homepage, About,
+Aurielle Collection, Atelier Supply, Customisation Studio, For Your
+Business, Be an Affiliate, Contact) -- no code change, no developer,
+per edit.
+
+- `src/lib/site-content.ts` is the single source of truth for what's
+  editable: one schema entry per page, each text field or photo slot
+  carrying the site's current hardcoded copy as its default. Only
+  **overrides** are ever written to the database
+  (`site_text_fields`/`site_image_slots`, `0018_site_content.sql`) --
+  a page is rendered as `override ?? default`
+  (`resolvePageContent()`), so there's no migration seeded with
+  hand-escaped SQL string literals for every headline on the site, and
+  a field that's never been touched still renders correctly.
+- The admin editor (`src/lib/admin/site-content.ts` +
+  `/admin/website/[page]`) shows the exact same resolved value,
+  pre-filled, whether or not it's ever been edited -- text fields as
+  labeled inputs/textareas with a per-field Save and a "Reset to
+  original" link, photo slots as a thumbnail plus an explicit guide
+  (recommended pixel size, aspect ratio, file type, max size) so a
+  non-technical client knows what to upload *before* she picks a file,
+  with the same Cloudinary upload flow as Product & Pricing
+  (`src/lib/admin/cloudinary.ts`).
+- Every save calls `revalidatePath()` on the affected public page(s)
+  immediately (the Atelier Supply capability cards are also shown on
+  the Homepage, so editing them from the Atelier Supply page
+  revalidates both -- see `EXTRA_REVALIDATE_PATHS`).
+- Deliberately **not** covered here (kept as plain code, unchanged):
+  the product catalogue itself (already its own Product & Pricing
+  module), the Customisation Studio's four print-category galleries
+  and finish tiles (each item there carries its own photos and is
+  closer to a second catalogue than a page of copy), and a couple of
+  short feature-flag-conditional sentences that embed an inline link.
 
 ## Customisation Studio (spec v5 addendum)
 
