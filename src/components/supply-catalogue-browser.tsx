@@ -2,12 +2,22 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { SupplyMaterialCard } from "@/lib/data/supply-materials";
 import { matchesSupplyQuery } from "@/lib/data/supply-search";
 import { FIELD_CLASSES } from "./form-field";
 
 type SortOption = "serial" | "name" | "price-asc" | "price-desc";
+
+// Search/sort/filter still run instantly across the whole catalogue
+// (matching everything, not just the current page) -- only the
+// *rendered* grid is paginated, so a match on "page 4" is never
+// invisible to someone who hasn't clicked there yet. With up to a few
+// hundred materials, capping the grid at 50 rendered cards at a time
+// (instead of all of them) is what actually cuts render/layout cost;
+// the data itself was already trimmed to a lean per-card shape
+// (src/lib/data/supply-materials.ts).
+const PAGE_SIZE = 50;
 
 function chipClassName(active: boolean): string {
   const base = "border px-4 py-1.5 text-xs uppercase tracking-wide transition-colors";
@@ -24,6 +34,8 @@ export function SupplyCatalogueBrowser({
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortOption>("serial");
   const [type, setType] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const gridRef = useRef<HTMLDivElement>(null);
 
   const types = useMemo(() => {
     const names = new Set(materials.map((m) => m.productTypeName ?? "Other"));
@@ -50,6 +62,26 @@ export function SupplyCatalogueBrowser({
     }
     return sorted;
   }, [materials, query, sort, type]);
+
+  // A changed search/sort/filter can easily leave `page` pointing past
+  // the end of the new result set -- reset to page 1 whenever any of
+  // them change, rather than showing an empty grid. Adjusted during
+  // render (React's recommended pattern for this), not in a useEffect:
+  // an effect here would setState synchronously on every filter change,
+  // triggering an extra, unnecessary render pass.
+  const [prevFilters, setPrevFilters] = useState({ query, sort, type });
+  if (prevFilters.query !== query || prevFilters.sort !== sort || prevFilters.type !== type) {
+    setPrevFilters({ query, sort, type });
+    setPage(1);
+  }
+
+  const totalPages = Math.max(1, Math.ceil(results.length / PAGE_SIZE));
+  const pageItems = results.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  function goToPage(next: number) {
+    setPage(next);
+    gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   return (
     <div>
@@ -86,11 +118,12 @@ export function SupplyCatalogueBrowser({
 
       <p className="mt-8 text-center text-xs text-ink/40">
         {results.length} material{results.length === 1 ? "" : "s"}
+        {totalPages > 1 && ` · Page ${page} of ${totalPages}`}
       </p>
 
       {results.length > 0 ? (
-        <div className="mt-6 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
-          {results.map((material) => (
+        <div ref={gridRef} className="mt-6 grid grid-cols-2 gap-6 scroll-mt-24 sm:grid-cols-3 lg:grid-cols-4">
+          {pageItems.map((material) => (
             <Link key={material.slug} href={`/atelier-supply/${material.slug}`} className="group flex flex-col">
               <div className="relative aspect-square w-full overflow-hidden border border-taupe/30 bg-beige/40 transition-colors group-hover:border-burgundy">
                 {material.primaryImageUrl ? (
@@ -121,6 +154,28 @@ export function SupplyCatalogueBrowser({
         </div>
       ) : (
         <p className="mt-10 text-center text-sm text-ink/50">No materials match your search.</p>
+      )}
+
+      {totalPages > 1 && (
+        <div className="mt-10 flex items-center justify-center gap-6 text-xs uppercase tracking-wide">
+          {page > 1 ? (
+            <button type="button" onClick={() => goToPage(page - 1)} className="text-burgundy underline">
+              &larr; Previous
+            </button>
+          ) : (
+            <span className="text-ink/30">&larr; Previous</span>
+          )}
+          <span className="text-ink/50">
+            Page {page} of {totalPages}
+          </span>
+          {page < totalPages ? (
+            <button type="button" onClick={() => goToPage(page + 1)} className="text-burgundy underline">
+              Next &rarr;
+            </button>
+          ) : (
+            <span className="text-ink/30">Next &rarr;</span>
+          )}
+        </div>
       )}
     </div>
   );
