@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useMemo, useState } from "react";
-import type { SupplyMaterial } from "@/lib/data/supply-materials";
+import type { SupplyMaterialCard } from "@/lib/data/supply-materials";
 import { matchesSupplyQuery } from "@/lib/data/supply-search";
 import { FIELD_CLASSES } from "./form-field";
 
@@ -19,7 +19,7 @@ function chipClassName(active: boolean): string {
 export function SupplyCatalogueBrowser({
   materials,
 }: {
-  materials: SupplyMaterial[];
+  materials: SupplyMaterialCard[];
 }) {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortOption>("serial");

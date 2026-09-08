@@ -18,6 +18,13 @@ export const metadata: Metadata = {
     "UV DTF printing and custom branding for luxury packaging, personal gifts, business solutions and industrial production. Request a quote from the Aurielle atelier.",
 };
 
+// Falls back to a periodic refresh; Website Management saves also push
+// an immediate update via revalidatePath() (see
+// src/lib/admin/site-content.ts). Without this export the page has no
+// caching directive at all and would render fully dynamic on every
+// single request.
+export const revalidate = 3600;
+
 // Icons stay fixed; title/body are editable via Website Management.
 const HOW_IT_WORKS_ICONS: StudioStepIconName[] = ["upload", "proof", "print", "delivered"];
 

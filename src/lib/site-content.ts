@@ -1,5 +1,6 @@
 import "server-only";
 import { getSupabaseAdminClient } from "@/lib/supabase/server";
+import { cloudinaryHeroUrl } from "@/lib/cloudinary-url";
 
 // "Website Management": lets the client edit the copy and photos of
 // every marketing page herself from the admin panel, without a code
@@ -694,7 +695,10 @@ export async function resolvePageContent(page: string): Promise<ResolvedPageCont
 
   const images: Record<string, string> = {};
   for (const slot of schema?.imageSlots ?? []) images[slot.key] = slot.default;
-  for (const row of imageRows ?? []) images[row.slot_key as string] = row.image_url as string;
+  // Only ever a Cloudinary URL once an admin has actually replaced the
+  // default -- cloudinaryHeroUrl() passes the built-in /images/... paths
+  // through unchanged, so this only optimizes real uploads.
+  for (const row of imageRows ?? []) images[row.slot_key as string] = cloudinaryHeroUrl(row.image_url as string);
 
   return { schema, text, images };
 }

@@ -3,11 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import type { Perfume } from "@/lib/data/perfumes";
+import type { PerfumeCard as PerfumeCardData } from "@/lib/data/perfumes";
 import { formatMoney } from "@/lib/format-money";
 import { useCart } from "@/lib/cart/cart-context";
 
-export function PerfumeCard({ perfume }: { perfume: Perfume }) {
+export function PerfumeCard({ perfume }: { perfume: PerfumeCardData }) {
   const { addCollectionItem } = useCart();
   const [added, setAdded] = useState(false);
   const canAddToCart = perfume.price != null && !!perfume.currency;

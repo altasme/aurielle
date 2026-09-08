@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { MOODS } from "@/lib/data/moods";
-import type { Perfume } from "@/lib/data/perfumes";
+import type { PerfumeCard as PerfumeCardData } from "@/lib/data/perfumes";
 import { PerfumeCard } from "./perfume-card";
 import { Reveal } from "./reveal";
 
@@ -14,7 +14,7 @@ function chipClassName(active: boolean): string {
     : `${base} border-taupe/30 text-ink/60 hover:border-burgundy hover:text-burgundy`;
 }
 
-export function CollectionBrowser({ perfumes }: { perfumes: Perfume[] }) {
+export function CollectionBrowser({ perfumes }: { perfumes: PerfumeCardData[] }) {
   const searchParams = useSearchParams();
   const initialMood = searchParams.get("mood");
   const [mood, setMood] = useState<string | null>(

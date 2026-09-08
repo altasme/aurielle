@@ -9,6 +9,13 @@ export const metadata: Metadata = {
   title: "About | Aurielle Paris Atelier",
 };
 
+// Falls back to a periodic refresh; Website Management saves also push
+// an immediate update via revalidatePath() (see
+// src/lib/admin/site-content.ts). Without this export the page has no
+// caching directive at all and would render fully dynamic on every
+// single request.
+export const revalidate = 3600;
+
 // About carries the brand narrative for all three pillars, not just
 // fragrance (spec v5.4). "What We Do" replaces the previous separate
 // long-form Atelier Supply / Customisation Studio essays with a

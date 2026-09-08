@@ -9,6 +9,13 @@ export const metadata: Metadata = {
   title: "Business & Wholesale | Aurielle Paris Atelier",
 };
 
+// Falls back to a periodic refresh; Website Management saves also push
+// an immediate update via revalidatePath() (see
+// src/lib/admin/site-content.ts). Without this export the page has no
+// caching directive at all and would render fully dynamic on every
+// single request.
+export const revalidate = 3600;
+
 export default async function BusinessPage() {
   const { text } = await getSiteContent("business");
 

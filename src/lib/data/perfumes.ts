@@ -1,6 +1,7 @@
 import "server-only";
 import { getSupabaseAdminClient } from "@/lib/supabase/server";
 import type { Mood } from "@/lib/data/moods";
+import { cloudinaryCardUrl } from "@/lib/cloudinary-url";
 
 // Admin-panel pivot: the Aurielle Collection catalogue now reads live
 // from the `products` table (written by the admin panel, src/lib/admin/
@@ -32,6 +33,22 @@ export type Perfume = {
   images: ProductImage[];
 };
 
+// The Collection browse page and the homepage's featured grid only
+// ever render a card (slug/name/scent tags/price/photo) and filter by
+// mood -- fetching and shipping every perfume's description and full
+// photo gallery to the client for that would be pure waste. Only the
+// single-perfume detail page (getPerfumeBySlug) needs the full Perfume
+// shape.
+export type PerfumeCard = {
+  slug: string;
+  name: string;
+  scentProfile: string[];
+  price: number | null;
+  currency: string | null;
+  mood: Mood | null;
+  primaryImageUrl: string | null;
+};
+
 type ProductRow = {
   id: string;
   slug: string;
@@ -45,6 +62,22 @@ type ProductRow = {
   product_tags: { tag: string }[] | null;
   product_images: { cloudinary_url: string; is_primary: boolean; sort_order: number }[] | null;
 };
+
+type CardRow = {
+  slug: string;
+  name: string;
+  price: number;
+  currency: string;
+  mood: string | null;
+  product_tags: { tag: string }[] | null;
+  product_images: { cloudinary_url: string; is_primary: boolean; sort_order: number }[] | null;
+};
+
+function primaryImageOf(images: { cloudinary_url: string; is_primary: boolean; sort_order: number }[]): string | null {
+  const sorted = [...images].sort((a, b) => a.sort_order - b.sort_order);
+  const primary = sorted.find((img) => img.is_primary) ?? sorted[0];
+  return primary ? cloudinaryCardUrl(primary.cloudinary_url) : null;
+}
 
 function mapRow(row: ProductRow): Perfume {
   const images = [...(row.product_images ?? [])].sort((a, b) => a.sort_order - b.sort_order);
@@ -66,25 +99,49 @@ function mapRow(row: ProductRow): Perfume {
   };
 }
 
+function mapCardRow(row: CardRow): PerfumeCard {
+  return {
+    slug: row.slug,
+    name: row.name,
+    scentProfile: (row.product_tags ?? []).map((t) => t.tag),
+    price: Number(row.price),
+    currency: row.currency,
+    mood: (row.mood as Mood | null) ?? null,
+    primaryImageUrl: primaryImageOf(row.product_images ?? []),
+  };
+}
+
 const SELECT =
   "id, slug, name, description, size, price, currency, mood, perfume_type, product_tags(tag), product_images(cloudinary_url, is_primary, sort_order)";
 
-export async function getPerfumes(): Promise<Perfume[]> {
+const CARD_SELECT =
+  "slug, name, price, currency, mood, product_tags(tag), product_images(cloudinary_url, is_primary, sort_order)";
+
+export async function getPerfumes(): Promise<PerfumeCard[]> {
   const supabase = getSupabaseAdminClient();
   const { data, error } = await supabase
     .from("products")
-    .select(SELECT)
+    .select(CARD_SELECT)
     .eq("category", "aurielle_collection")
     .eq("status", "active")
     .order("created_at", { ascending: false });
 
   if (error) throw new Error(`Failed to load perfumes: ${error.message}`);
-  return (data ?? []).map((row) => mapRow(row as unknown as ProductRow));
+  return (data ?? []).map((row) => mapCardRow(row as unknown as CardRow));
 }
 
-export async function getFeaturedPerfumes(limit = 4): Promise<Perfume[]> {
-  const perfumes = await getPerfumes();
-  return perfumes.slice(0, limit);
+export async function getFeaturedPerfumes(limit = 4): Promise<PerfumeCard[]> {
+  const supabase = getSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select(CARD_SELECT)
+    .eq("category", "aurielle_collection")
+    .eq("status", "active")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) throw new Error(`Failed to load featured perfumes: ${error.message}`);
+  return (data ?? []).map((row) => mapCardRow(row as unknown as CardRow));
 }
 
 export async function getPerfumeBySlug(slug: string): Promise<Perfume | undefined> {

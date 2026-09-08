@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { cloudinaryDetailUrl, cloudinaryThumbUrl } from "@/lib/cloudinary-url";
 
 export type GalleryImage = { url: string; isPrimary: boolean };
 
@@ -18,7 +19,7 @@ export function ProductImageGallery({ images, alt }: { images: GalleryImage[]; a
       <div className="relative aspect-square w-full overflow-hidden border border-taupe/30 bg-beige/40">
         {active && (
           <Image
-            src={active.url}
+            src={cloudinaryDetailUrl(active.url)}
             alt={alt}
             fill
             sizes="(min-width: 1024px) 50vw, 100vw"
@@ -41,7 +42,7 @@ export function ProductImageGallery({ images, alt }: { images: GalleryImage[]; a
                 selected === i ? "border-burgundy" : "border-taupe/30 hover:border-burgundy/60"
               }`}
             >
-              <Image src={img.url} alt="" fill sizes="80px" className="object-cover" />
+              <Image src={cloudinaryThumbUrl(img.url)} alt="" fill sizes="80px" className="object-cover" />
             </button>
           ))}
         </div>

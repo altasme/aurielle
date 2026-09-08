@@ -1,5 +1,6 @@
 import "server-only";
 import { getSupabaseAdminClient } from "@/lib/supabase/server";
+import { cloudinaryCardUrl } from "@/lib/cloudinary-url";
 
 // Admin-panel pivot: Atelier Supply now reads live from the `products`
 // table (written by the admin panel, src/lib/admin/products.ts), not
@@ -34,6 +35,24 @@ export type SupplyMaterial = {
   images: ProductImage[];
 };
 
+// The Atelier Supply browse page only ever renders a card
+// (slug/name/type/price/photo) and searches by name/aliases -- with up
+// to a few hundred materials, fetching and shipping every one's full
+// description and photo gallery to the client for that would be pure
+// waste. Only the single-material detail page (getSupplyMaterialBySlug)
+// needs the full SupplyMaterial shape.
+export type SupplyMaterialCard = {
+  slug: string;
+  serialNumber: number;
+  displayName: string;
+  price: number;
+  currency: string;
+  pricingUnit: string;
+  productTypeName: string | null;
+  searchAliases: string;
+  primaryImageUrl: string | null;
+};
+
 type ProductRow = {
   id: string;
   serial_number: number | null;
@@ -49,10 +68,32 @@ type ProductRow = {
   product_images: { cloudinary_url: string; is_primary: boolean; sort_order: number }[] | null;
 };
 
+type CardRow = {
+  serial_number: number | null;
+  slug: string;
+  name: string;
+  price: number;
+  currency: string;
+  size: string | null;
+  product_types: { name: string } | { name: string }[] | null;
+  product_tags: { tag: string }[] | null;
+  product_images: { cloudinary_url: string; is_primary: boolean; sort_order: number }[] | null;
+};
+
+function productTypeNameOf(product_types: { name: string } | { name: string }[] | null): string | null {
+  const productType = Array.isArray(product_types) ? product_types[0] : product_types;
+  return productType?.name ?? null;
+}
+
+function primaryImageOf(images: { cloudinary_url: string; is_primary: boolean; sort_order: number }[]): string | null {
+  const sorted = [...images].sort((a, b) => a.sort_order - b.sort_order);
+  const primary = sorted.find((img) => img.is_primary) ?? sorted[0];
+  return primary ? cloudinaryCardUrl(primary.cloudinary_url) : null;
+}
+
 function mapRow(row: ProductRow): SupplyMaterial {
   const images = [...(row.product_images ?? [])].sort((a, b) => a.sort_order - b.sort_order);
   const primary = images.find((img) => img.is_primary) ?? images[0];
-  const productType = Array.isArray(row.product_types) ? row.product_types[0] : row.product_types;
   return {
     id: row.id,
     serialNumber: row.serial_number ?? 0,
@@ -63,7 +104,7 @@ function mapRow(row: ProductRow): SupplyMaterial {
     currency: row.currency,
     pricingUnit: row.size ?? "",
     productTypeId: row.product_type_id,
-    productTypeName: productType?.name ?? null,
+    productTypeName: productTypeNameOf(row.product_types),
     searchAliases: (row.product_tags ?? []).map((t) => t.tag).join(" "),
     available: true,
     primaryImageUrl: primary?.cloudinary_url ?? null,
@@ -71,20 +112,37 @@ function mapRow(row: ProductRow): SupplyMaterial {
   };
 }
 
+function mapCardRow(row: CardRow): SupplyMaterialCard {
+  return {
+    slug: row.slug,
+    serialNumber: row.serial_number ?? 0,
+    displayName: row.name,
+    price: Number(row.price),
+    currency: row.currency,
+    pricingUnit: row.size ?? "",
+    productTypeName: productTypeNameOf(row.product_types),
+    searchAliases: (row.product_tags ?? []).map((t) => t.tag).join(" "),
+    primaryImageUrl: primaryImageOf(row.product_images ?? []),
+  };
+}
+
 const SELECT =
   "id, serial_number, slug, name, description, price, currency, size, product_type_id, product_types(name), product_tags(tag), product_images(cloudinary_url, is_primary, sort_order)";
 
-export async function getSupplyMaterials(): Promise<SupplyMaterial[]> {
+const CARD_SELECT =
+  "serial_number, slug, name, price, currency, size, product_types(name), product_tags(tag), product_images(cloudinary_url, is_primary, sort_order)";
+
+export async function getSupplyMaterials(): Promise<SupplyMaterialCard[]> {
   const supabase = getSupabaseAdminClient();
   const { data, error } = await supabase
     .from("products")
-    .select(SELECT)
+    .select(CARD_SELECT)
     .eq("category", "atelier_supply")
     .eq("status", "active")
     .order("serial_number", { ascending: true, nullsFirst: false });
 
   if (error) throw new Error(`Failed to load supply materials: ${error.message}`);
-  return (data ?? []).map((row) => mapRow(row as unknown as ProductRow));
+  return (data ?? []).map((row) => mapCardRow(row as unknown as CardRow));
 }
 
 export async function getSupplyMaterialBySlug(slug: string): Promise<SupplyMaterial | undefined> {
