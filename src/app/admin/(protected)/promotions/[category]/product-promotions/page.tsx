@@ -47,7 +47,7 @@ export default async function ProductPromotionsPage({ params }: PageProps<"/admi
             {promotions.map((promo) => {
               const status = promotionStatusLabel(promo);
               return (
-                <tr key={promo.id} className="border-b border-taupe/10 last:border-0 align-top">
+                <tr key={promo.id} className="border-b border-taupe/10 align-top transition-colors last:border-0 hover:bg-beige/30">
                   <td className="px-4 py-3 text-ink">{promo.name}</td>
                   <td className="px-4 py-3 text-ink/70">
                     {promo.discountType === "percent" ? `${promo.discountValue}%` : formatMoney(currency, promo.discountValue)}

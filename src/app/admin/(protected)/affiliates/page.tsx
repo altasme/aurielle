@@ -1,13 +1,14 @@
 import { listAffiliateApplications, countAffiliateApplicationsByStatus } from "@/lib/admin/affiliates";
 import { AFFILIATE_STATUSES, AFFILIATE_STATUS_LABELS, type AffiliateStatus } from "@/lib/admin/affiliate-constants";
 import { AffiliateStatusActions } from "@/components/admin/affiliate-status-actions";
-import { DeleteAffiliateButton } from "@/components/admin/delete-affiliate-button";
+import { DeleteConfirmButton } from "@/components/admin/delete-confirm-button";
+import { StatusBadge, type StatusTier } from "@/components/admin/status-badge";
 import Link from "next/link";
 
-const STATUS_BADGE: Record<AffiliateStatus, string> = {
-  pending: "bg-beige text-ink/60",
-  approved: "bg-green-100 text-green-800",
-  rejected: "bg-red-100 text-red-800",
+const STATUS_TIER: Record<AffiliateStatus, StatusTier> = {
+  pending: "neutral",
+  approved: "positive",
+  rejected: "negative",
 };
 
 function isAffiliateStatus(value: string | undefined): value is AffiliateStatus {
@@ -74,7 +75,7 @@ export default async function AdminAffiliatesPage({ searchParams }: PageProps<"/
           </thead>
           <tbody>
             {applications.map((app) => (
-              <tr key={app.id} className="border-b border-taupe/10 last:border-0">
+              <tr key={app.id} className="border-b border-taupe/10 transition-colors last:border-0 hover:bg-beige/30">
                 <td className="px-4 py-3 text-ink">{app.name}</td>
                 <td className="px-4 py-3 text-ink/70">{app.mobileNumber}</td>
                 <td className="px-4 py-3 text-ink/70">{app.email}</td>
@@ -83,14 +84,16 @@ export default async function AdminAffiliatesPage({ searchParams }: PageProps<"/
                 <td className="px-4 py-3 text-ink/70">{app.tiktokAccount ?? "—"}</td>
                 <td className="px-4 py-3 text-ink/70">{new Date(app.createdAt).toLocaleDateString()}</td>
                 <td className="px-4 py-3">
-                  <span className={`rounded-sm px-2 py-0.5 text-xs uppercase tracking-wide ${STATUS_BADGE[app.status]}`}>
-                    {AFFILIATE_STATUS_LABELS[app.status]}
-                  </span>
+                  <StatusBadge tier={STATUS_TIER[app.status]}>{AFFILIATE_STATUS_LABELS[app.status]}</StatusBadge>
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex flex-col gap-2">
                     <AffiliateStatusActions id={app.id} status={app.status} />
-                    <DeleteAffiliateButton id={app.id} name={app.name} />
+                    <DeleteConfirmButton
+                      endpoint={`/api/admin/affiliates/${app.id}`}
+                      title="Delete Affiliate?"
+                      description={`Are you sure you want to delete ${app.name}'s affiliate application? This action cannot be undone.`}
+                    />
                   </div>
                 </td>
               </tr>

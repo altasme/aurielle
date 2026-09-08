@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 // Generic delete-with-confirm button (DELETE to `endpoint`, then
-// router.refresh()) -- same interaction as DeleteProductButton, just
-// parameterized instead of duplicated for promotions/discount codes.
+// router.refresh()) -- shared by every admin list (products, affiliates,
+// promotions, discount codes) instead of one hand-duplicated copy per list.
 export function DeleteConfirmButton({
   endpoint,
   title,

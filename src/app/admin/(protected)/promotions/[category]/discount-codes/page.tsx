@@ -47,7 +47,7 @@ export default async function DiscountCodesPage({ params }: PageProps<"/admin/pr
             {codes.map((code) => {
               const status = promotionStatusLabel(code);
               return (
-                <tr key={code.id} className="border-b border-taupe/10 last:border-0 align-top">
+                <tr key={code.id} className="border-b border-taupe/10 align-top transition-colors last:border-0 hover:bg-beige/30">
                   <td className="px-4 py-3 text-ink">{code.name}</td>
                   <td className="px-4 py-3 font-mono text-ink">{code.code}</td>
                   <td className="px-4 py-3 text-ink/70">

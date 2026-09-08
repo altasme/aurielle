@@ -2,7 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { listProducts, listProductTypes, type ProductCategory } from "@/lib/admin/products";
 import { formatMoney } from "@/lib/format-money";
-import { DeleteProductButton } from "@/components/admin/delete-product-button";
+import { DeleteConfirmButton } from "@/components/admin/delete-confirm-button";
+import { StatusBadge } from "@/components/admin/status-badge";
 
 const CATEGORY_TABS: { value: ProductCategory; label: string }[] = [
   { value: "aurielle_collection", label: "Aurielle Collection" },
@@ -121,7 +122,7 @@ export default async function AdminProductsPage({
           </thead>
           <tbody>
             {products.map((product) => (
-              <tr key={product.id} className="border-b border-taupe/10 last:border-0">
+              <tr key={product.id} className="border-b border-taupe/10 transition-colors last:border-0 hover:bg-beige/30">
                 <td className="px-4 py-3">
                   {product.primaryImageUrl ? (
                     <Image
@@ -144,13 +145,9 @@ export default async function AdminProductsPage({
                 <td className="px-4 py-3 text-ink/70">{formatMoney(product.currency, product.price)}</td>
                 <td className="px-4 py-3 text-ink/70">{product.size ?? "—"}</td>
                 <td className="px-4 py-3">
-                  <span
-                    className={`rounded-sm px-2 py-0.5 text-xs uppercase tracking-wide ${
-                      product.status === "active" ? "bg-green-100 text-green-800" : "bg-beige text-ink/60"
-                    }`}
-                  >
+                  <StatusBadge tier={product.status === "active" ? "positive" : "neutral"}>
                     {product.status}
-                  </span>
+                  </StatusBadge>
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
@@ -160,7 +157,11 @@ export default async function AdminProductsPage({
                     >
                       Edit
                     </Link>
-                    <DeleteProductButton id={product.id} name={product.name} />
+                    <DeleteConfirmButton
+                      endpoint={`/api/admin/products/${product.id}`}
+                      title="Delete Product?"
+                      description={`Are you sure you want to delete "${product.name}"? This action cannot be undone.`}
+                    />
                   </div>
                 </td>
               </tr>

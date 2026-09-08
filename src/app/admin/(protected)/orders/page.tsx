@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { listOrders, type BusinessLine, type OrderStatus } from "@/lib/admin/orders";
-import { ORDER_STATUSES, ORDER_STATUS_LABELS } from "@/lib/admin/order-constants";
+import { ORDER_STATUSES, ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS, type PaymentStatus } from "@/lib/admin/order-constants";
 import { formatMoney } from "@/lib/format-money";
+import { StatusBadge, type StatusTier } from "@/components/admin/status-badge";
 
 const BUSINESS_LINE_TABS: { value: BusinessLine | "all"; label: string }[] = [
   { value: "all", label: "All Orders" },
@@ -17,12 +18,22 @@ function isOrderStatus(value: string | undefined): value is OrderStatus {
   return (ORDER_STATUSES as string[]).includes(value ?? "");
 }
 
-const STATUS_BADGE: Record<OrderStatus, string> = {
-  pending_verification: "bg-beige text-ink/60",
-  to_pack: "bg-blue-100 text-blue-800",
-  to_ship: "bg-amber-100 text-amber-800",
-  shipped_out: "bg-green-100 text-green-800",
-  cancelled: "bg-red-100 text-red-800",
+// One hue ramping up through the fulfillment pipeline (pending -> to
+// pack -> to ship), then the brand accent at "shipped" and a distinct
+// negative tier for "cancelled" -- see status-badge.tsx.
+const ORDER_STATUS_TIER: Record<OrderStatus, StatusTier> = {
+  pending_verification: "neutral",
+  to_pack: "progress",
+  to_ship: "progressStrong",
+  shipped_out: "positive",
+  cancelled: "negative",
+};
+
+const PAYMENT_STATUS_TIER: Record<PaymentStatus, StatusTier> = {
+  pending: "neutral",
+  paid: "positive",
+  failed: "negative",
+  refunded: "muted",
 };
 
 export default async function AdminOrdersPage({ searchParams }: PageProps<"/admin/orders">) {
@@ -102,7 +113,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps<"/admi
           </thead>
           <tbody>
             {orders.map((order) => (
-              <tr key={order.id} className="border-b border-taupe/10 last:border-0">
+              <tr key={order.id} className="border-b border-taupe/10 transition-colors last:border-0 hover:bg-beige/30">
                 <td className="px-4 py-3 text-ink">
                   <span className="flex items-center gap-2">
                     {!order.viewedAt && (
@@ -123,13 +134,15 @@ export default async function AdminOrdersPage({ searchParams }: PageProps<"/admi
                   {order.businessLine === "collection" ? "Aurielle Collection" : "Atelier Supply"}
                 </td>
                 <td className="px-4 py-3 text-ink/70">{formatMoney(order.currency, order.total)}</td>
-                <td className="px-4 py-3 text-ink/70 capitalize">{order.paymentStatus}</td>
                 <td className="px-4 py-3">
-                  <span
-                    className={`rounded-sm px-2 py-0.5 text-xs uppercase tracking-wide ${STATUS_BADGE[order.orderStatus]}`}
-                  >
+                  <StatusBadge tier={PAYMENT_STATUS_TIER[order.paymentStatus]}>
+                    {PAYMENT_STATUS_LABELS[order.paymentStatus]}
+                  </StatusBadge>
+                </td>
+                <td className="px-4 py-3">
+                  <StatusBadge tier={ORDER_STATUS_TIER[order.orderStatus]}>
                     {ORDER_STATUS_LABELS[order.orderStatus]}
-                  </span>
+                  </StatusBadge>
                 </td>
                 <td className="px-4 py-3 text-ink/70">
                   {new Date(order.createdAt).toLocaleDateString()}

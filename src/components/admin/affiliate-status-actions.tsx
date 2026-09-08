@@ -30,7 +30,7 @@ export function AffiliateStatusActions({ id, status }: { id: string; status: Aff
             type="button"
             disabled={submitting}
             onClick={() => setStatus("approved")}
-            className="text-xs uppercase tracking-wide text-green-700 underline disabled:opacity-50"
+            className="text-xs uppercase tracking-wide text-burgundy underline disabled:opacity-50"
           >
             Approve
           </button>

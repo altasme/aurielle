@@ -1,3 +1,5 @@
+import { statusBadgeClasses } from "@/components/admin/status-badge";
+
 // Display-only "is this currently live" check for the admin list
 // pages -- the real, authoritative check (used at checkout) lives in
 // src/lib/promotions/apply.ts's SQL filters. This just mirrors that
@@ -19,7 +21,8 @@ export function promotionStatusLabel(params: {
 }
 
 export function promotionStatusClasses(status: ReturnType<typeof promotionStatusLabel>): string {
-  if (status === "Active") return "bg-burgundy/10 text-burgundy";
-  if (status === "Scheduled") return "bg-beige text-ink/60";
-  return "bg-taupe/20 text-ink/50";
+  if (status === "Active") return statusBadgeClasses("positive");
+  if (status === "Scheduled") return statusBadgeClasses("neutral");
+  if (status === "Disabled") return statusBadgeClasses("negative");
+  return statusBadgeClasses("muted"); // Expired, Used up
 }
