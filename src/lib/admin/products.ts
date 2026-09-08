@@ -317,3 +317,23 @@ export async function createProductType(
   if (error || !data) throw new Error(`Failed to create product type: ${error?.message}`);
   return { id: data.id, name: data.name, isSystem: data.is_system };
 }
+
+// Renaming is safe for any type, system-seeded or admin-created:
+// products reference it by product_type_id, not by name, so every
+// listing/product-form join (product_types(name)) picks up the new
+// name immediately with nothing else to update.
+export async function updateProductType(id: string, name: string): Promise<ProductType> {
+  const supabase = getSupabaseAdminClient();
+  const trimmed = name.trim();
+  if (!trimmed) throw new Error("Product type name is required");
+
+  const { data, error } = await supabase
+    .from("product_types")
+    .update({ name: trimmed })
+    .eq("id", id)
+    .select("id, name, is_system")
+    .single();
+
+  if (error || !data) throw new Error(`Failed to update product type: ${error?.message}`);
+  return { id: data.id, name: data.name, isSystem: data.is_system };
+}
