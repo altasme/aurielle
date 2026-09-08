@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { getPerfumeBySlug, getPerfumes } from "@/lib/data/perfumes";
 import { AddToCollectionCartButton } from "@/components/add-to-collection-cart-button";
+import { ProductImageGallery } from "@/components/product-image-gallery";
 import { Reveal } from "@/components/reveal";
 import { formatMoney } from "@/lib/format-money";
 
@@ -24,6 +24,14 @@ export default async function PerfumeDetailPage({
   const perfume = await getPerfumeBySlug(slug);
   if (!perfume) notFound();
 
+  // Perfumes uploaded before the admin panel's image manager existed
+  // have no product_images rows at all -- fall back to the original
+  // static photo by slug rather than showing an empty frame.
+  const galleryImages =
+    perfume.images.length > 0
+      ? perfume.images
+      : [{ url: `/images/perfumes/main/${perfume.slug}.jpg`, isPrimary: true }];
+
   return (
     <div className="mx-auto max-w-6xl px-6 py-20 lg:px-10">
       <Link href="/collection" className="text-xs uppercase tracking-wide text-burgundy underline">
@@ -31,15 +39,8 @@ export default async function PerfumeDetailPage({
       </Link>
 
       <div className="mt-8 grid gap-12 lg:grid-cols-2">
-        <Reveal className="relative aspect-square w-full overflow-hidden border border-taupe/30 bg-beige/40">
-          <Image
-            src={perfume.primaryImageUrl ?? `/images/perfumes/main/${perfume.slug}.jpg`}
-            alt={perfume.name}
-            fill
-            sizes="(min-width: 1024px) 50vw, 100vw"
-            priority
-            className="object-cover"
-          />
+        <Reveal>
+          <ProductImageGallery images={galleryImages} alt={perfume.name} />
         </Reveal>
 
         <Reveal delayMs={120}>

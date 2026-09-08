@@ -11,6 +11,8 @@ import type { Mood } from "@/lib/data/moods";
 // (see `revalidate` exports on the collection routes) and are refreshed
 // on demand via revalidatePath() whenever the admin saves a change.
 
+export type ProductImage = { url: string; isPrimary: boolean };
+
 export type Perfume = {
   id: string;
   slug: string;
@@ -24,6 +26,10 @@ export type Perfume = {
   perfumeType: string | null;
   available: boolean;
   primaryImageUrl: string | null;
+  // Every uploaded photo, in the admin's chosen display order (not
+  // just the one card/listing thumbnail) -- powers the product page's
+  // image gallery.
+  images: ProductImage[];
 };
 
 type ProductRow = {
@@ -37,11 +43,11 @@ type ProductRow = {
   mood: string | null;
   perfume_type: string | null;
   product_tags: { tag: string }[] | null;
-  product_images: { cloudinary_url: string; is_primary: boolean }[] | null;
+  product_images: { cloudinary_url: string; is_primary: boolean; sort_order: number }[] | null;
 };
 
 function mapRow(row: ProductRow): Perfume {
-  const images = row.product_images ?? [];
+  const images = [...(row.product_images ?? [])].sort((a, b) => a.sort_order - b.sort_order);
   const primary = images.find((img) => img.is_primary) ?? images[0];
   return {
     id: row.id,
@@ -56,11 +62,12 @@ function mapRow(row: ProductRow): Perfume {
     perfumeType: row.perfume_type,
     available: true,
     primaryImageUrl: primary?.cloudinary_url ?? null,
+    images: images.map((img) => ({ url: img.cloudinary_url, isPrimary: img.is_primary })),
   };
 }
 
 const SELECT =
-  "id, slug, name, description, size, price, currency, mood, perfume_type, product_tags(tag), product_images(cloudinary_url, is_primary)";
+  "id, slug, name, description, size, price, currency, mood, perfume_type, product_tags(tag), product_images(cloudinary_url, is_primary, sort_order)";
 
 export async function getPerfumes(): Promise<Perfume[]> {
   const supabase = getSupabaseAdminClient();

@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { getSupplyMaterialBySlug, getSupplyMaterials } from "@/lib/data/supply-materials";
 import { AddToSupplyCartButton } from "@/components/add-to-supply-cart-button";
+import { ProductImageGallery } from "@/components/product-image-gallery";
 
 // Falls back to a periodic refresh; admin saves also push an immediate
 // update via revalidatePath() (see src/app/api/admin/products routes).
@@ -29,18 +29,7 @@ export default async function SupplyMaterialDetailPage({
       </Link>
 
       <div className="mt-8 grid gap-12 lg:grid-cols-2">
-        <div className="relative aspect-square w-full overflow-hidden border border-taupe/30 bg-beige/40">
-          {material.primaryImageUrl && (
-            <Image
-              src={material.primaryImageUrl}
-              alt={material.displayName}
-              fill
-              sizes="(min-width: 1024px) 50vw, 100vw"
-              priority
-              className="object-cover"
-            />
-          )}
-        </div>
+        <ProductImageGallery images={material.images} alt={material.displayName} />
 
         <div>
           <h1 className="font-serif text-4xl text-ink">{material.displayName}</h1>
