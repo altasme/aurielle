@@ -103,11 +103,11 @@ function round2(n: number): number {
 
 // The currency most orders in a set were placed in. A business line is
 // expected to trade in one currency at a time; this picks the majority
-// so KPIs never silently add PHP to USD.
+// so KPIs never silently add mismatched currencies together.
 function dominantCurrency(rows: { currency: string }[]): string {
   const counts = new Map<string, number>();
   for (const row of rows) counts.set(row.currency, (counts.get(row.currency) ?? 0) + 1);
-  let best = "PHP";
+  let best = "USD";
   let bestCount = -1;
   for (const [currency, count] of counts) {
     if (count > bestCount) {

@@ -41,7 +41,7 @@ export function DiscountCodeForm({
   const [internalNotes, setInternalNotes] = useState(discountCode?.internalNotes ?? "");
   const [enabled, setEnabled] = useState(discountCode?.enabled ?? true);
 
-  const currency = category === "aurielle_collection" ? "₱" : "USD";
+  const currency = "$";
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();

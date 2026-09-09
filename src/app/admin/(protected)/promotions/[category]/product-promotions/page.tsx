@@ -11,7 +11,7 @@ export default async function ProductPromotionsPage({ params }: PageProps<"/admi
   const category = categoryFromUrlSegment(categoryParam);
   if (!category) notFound();
 
-  const currency = category === "aurielle_collection" ? "₱" : "USD";
+  const currency = "USD";
   const promotions = await listPromotions(category);
 
   return (

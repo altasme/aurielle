@@ -11,7 +11,7 @@ export default async function DiscountCodesPage({ params }: PageProps<"/admin/pr
   const category = categoryFromUrlSegment(categoryParam);
   if (!category) notFound();
 
-  const currency = category === "aurielle_collection" ? "₱" : "USD";
+  const currency = "USD";
   const codes = await listDiscountCodes(category);
 
   return (

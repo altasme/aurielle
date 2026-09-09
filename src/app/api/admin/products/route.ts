@@ -61,7 +61,7 @@ export const POST = withErrorHandling(async (request: Request) => {
     name: body.name.trim(),
     description: body.description.trim(),
     price: body.price,
-    currency: body.currency?.trim() || (body.category === "aurielle_collection" ? "₱" : "USD"),
+    currency: body.currency?.trim() || "USD",
     size: body.size.trim(),
     status: body.status === "active" ? "active" : "draft",
     tags: Array.isArray(body.tags) ? body.tags : [],

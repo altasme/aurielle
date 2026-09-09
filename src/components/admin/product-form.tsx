@@ -36,7 +36,7 @@ export function ProductForm({
   const [tags, setTags] = useState<string[]>(product?.tags ?? []);
   const [mood, setMood] = useState<string>(product?.mood ?? "");
 
-  const currencySymbol = category === "aurielle_collection" ? "₱" : "USD";
+  const currencySymbol = "$";
   const displayProductTypeName = product ? product.productTypeName : productTypeName;
 
   async function handleSubmit(e: FormEvent) {

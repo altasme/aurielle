@@ -54,7 +54,7 @@ export function PromotionForm({
   const [productTypeIds, setProductTypeIds] = useState<Set<string>>(new Set(promotion?.productTypeIds ?? []));
   const [itemSearch, setItemSearch] = useState("");
 
-  const currency = category === "aurielle_collection" ? "₱" : "USD";
+  const currency = "$";
 
   const filteredProducts = useMemo(() => {
     const term = itemSearch.trim().toLowerCase();

@@ -12,7 +12,7 @@ const CATEGORY_CARDS: { value: ProductCategory; label: string; description: stri
   {
     value: "aurielle_collection",
     label: "Aurielle Collection",
-    description: "Perfumes and fragrances, priced in ₱.",
+    description: "Perfumes and fragrances, priced in $.",
   },
   {
     value: "atelier_supply",
