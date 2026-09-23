@@ -4,6 +4,7 @@ import { listProducts, listProductTypes, type ProductCategory } from "@/lib/admi
 import { formatMoney } from "@/lib/format-money";
 import { DeleteConfirmButton } from "@/components/admin/delete-confirm-button";
 import { StatusBadge } from "@/components/admin/status-badge";
+import { cloudinaryThumbUrl } from "@/lib/cloudinary-url";
 
 const CATEGORY_TABS: { value: ProductCategory; label: string }[] = [
   { value: "aurielle_collection", label: "Aurielle Collection" },
@@ -126,7 +127,7 @@ export default async function AdminProductsPage({
                 <td className="px-4 py-3">
                   {product.primaryImageUrl ? (
                     <Image
-                      src={product.primaryImageUrl}
+                      src={cloudinaryThumbUrl(product.primaryImageUrl)}
                       alt=""
                       width={40}
                       height={40}

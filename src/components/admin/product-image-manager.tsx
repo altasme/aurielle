@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import type { ProductImage } from "@/lib/admin/products";
+import { cloudinaryThumbUrl } from "@/lib/cloudinary-url";
 
 export function ProductImageManager({
   productId,
@@ -104,7 +105,7 @@ export function ProductImageManager({
           {sorted.map((img, index) => (
             <div key={img.id} className="border border-taupe/20 bg-white p-2">
               <div className="relative aspect-square overflow-hidden bg-beige/40">
-                <Image src={img.cloudinaryUrl} alt="" fill sizes="200px" className="object-cover" />
+                <Image src={cloudinaryThumbUrl(img.cloudinaryUrl)} alt="" fill sizes="200px" className="object-cover" />
                 {img.isPrimary && (
                   <span className="absolute left-1 top-1 rounded-sm bg-burgundy px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-ivory">
                     Primary
