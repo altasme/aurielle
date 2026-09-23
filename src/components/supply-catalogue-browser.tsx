@@ -19,6 +19,17 @@ type SortOption = "serial" | "name" | "price-asc" | "price-desc";
 // (src/lib/data/supply-materials.ts).
 const PAGE_SIZE = 50;
 
+// On the "All" tab, group by type with Bottles leading and Fragrances
+// trailing (the atelier's stated browsing order), everything else
+// keeping its existing relative order in between. A stable sort makes
+// this a no-op once a single type is picked, since every remaining
+// item then shares the same priority.
+function typePriority(typeName: string): number {
+  if (typeName === "Bottles") return 0;
+  if (typeName === "Fragrances") return 2;
+  return 1;
+}
+
 function chipClassName(active: boolean): string {
   const base = "border px-4 py-1.5 text-xs uppercase tracking-wide transition-colors";
   return active
@@ -60,6 +71,9 @@ export function SupplyCatalogueBrowser({
       default:
         sorted.sort((a, b) => a.serialNumber - b.serialNumber);
     }
+    sorted.sort(
+      (a, b) => typePriority(a.productTypeName ?? "Other") - typePriority(b.productTypeName ?? "Other")
+    );
     return sorted;
   }, [materials, query, sort, type]);
 
