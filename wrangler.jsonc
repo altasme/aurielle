@@ -48,13 +48,9 @@
 	"r2_buckets": [
 		{
 			// Product photos and Website Management hero images (replacing
-			// Cloudinary -- see src/lib/admin/r2.ts). Create this bucket
-			// first (`wrangler r2 bucket create aurielle-images` or the
-			// Cloudflare dashboard) and attach a public custom domain to it,
-			// then set that domain as R2_PUBLIC_BASE_URL. The bucket name
-			// below must match whatever you actually create.
+			// Cloudinary -- see src/lib/admin/r2.ts).
 			"binding": "IMAGES_BUCKET",
-			"bucket_name": "aurielle-images"
+			"bucket_name": "aurielle-bucket"
 		}
 	]
 	// No incremental-cache r2_buckets/images bindings yet (separate from
