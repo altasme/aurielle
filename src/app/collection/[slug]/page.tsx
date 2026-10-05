@@ -30,7 +30,13 @@ export default async function PerfumeDetailPage({
   const galleryImages =
     perfume.images.length > 0
       ? perfume.images
-      : [{ url: `/images/perfumes/main/${perfume.slug}.jpg`, isPrimary: true }];
+      : [
+          {
+            fullUrl: `/images/perfumes/main/${perfume.slug}.jpg`,
+            thumbUrl: `/images/perfumes/main/${perfume.slug}.jpg`,
+            isPrimary: true,
+          },
+        ];
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-20 lg:px-10">

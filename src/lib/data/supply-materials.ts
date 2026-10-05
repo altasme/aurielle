@@ -1,6 +1,6 @@
 import "server-only";
 import { getSupabaseAdminClient } from "@/lib/supabase/server";
-import { cloudinaryCardUrl } from "@/lib/cloudinary-url";
+import { productFullUrl, productThumbUrl, type StoredProductImage } from "@/lib/product-image-url";
 
 // Admin-panel pivot: Atelier Supply now reads live from the `products`
 // table (written by the admin panel, src/lib/admin/products.ts), not
@@ -9,7 +9,7 @@ import { cloudinaryCardUrl } from "@/lib/cloudinary-url";
 // "Size" field (spec §9 describes it as "flexible text, different
 // units" -- e.g. "KG", "500ml" -- there is no separate unit column).
 
-export type ProductImage = { url: string; isPrimary: boolean };
+export type ProductImage = { fullUrl: string | null; thumbUrl: string | null; isPrimary: boolean };
 
 export type SupplyMaterial = {
   id: string;
@@ -53,6 +53,12 @@ export type SupplyMaterialCard = {
   primaryImageUrl: string | null;
 };
 
+type StoredImageRow = { r2_key: string | null; cloudinary_url: string | null; is_primary: boolean; sort_order: number };
+
+function toStoredImage(row: StoredImageRow): StoredProductImage {
+  return { r2Key: row.r2_key, cloudinaryUrl: row.cloudinary_url };
+}
+
 type ProductRow = {
   id: string;
   serial_number: number | null;
@@ -65,7 +71,7 @@ type ProductRow = {
   product_type_id: string | null;
   product_types: { name: string } | { name: string }[] | null;
   product_tags: { tag: string }[] | null;
-  product_images: { cloudinary_url: string; is_primary: boolean; sort_order: number }[] | null;
+  product_images: StoredImageRow[] | null;
 };
 
 type CardRow = {
@@ -77,7 +83,7 @@ type CardRow = {
   size: string | null;
   product_types: { name: string } | { name: string }[] | null;
   product_tags: { tag: string }[] | null;
-  product_images: { cloudinary_url: string; is_primary: boolean; sort_order: number }[] | null;
+  product_images: StoredImageRow[] | null;
 };
 
 function productTypeNameOf(product_types: { name: string } | { name: string }[] | null): string | null {
@@ -85,10 +91,10 @@ function productTypeNameOf(product_types: { name: string } | { name: string }[] 
   return productType?.name ?? null;
 }
 
-function primaryImageOf(images: { cloudinary_url: string; is_primary: boolean; sort_order: number }[]): string | null {
+function primaryImageOf(images: StoredImageRow[]): string | null {
   const sorted = [...images].sort((a, b) => a.sort_order - b.sort_order);
   const primary = sorted.find((img) => img.is_primary) ?? sorted[0];
-  return primary ? cloudinaryCardUrl(primary.cloudinary_url) : null;
+  return primary ? productThumbUrl(toStoredImage(primary)) : null;
 }
 
 function mapRow(row: ProductRow): SupplyMaterial {
@@ -107,8 +113,12 @@ function mapRow(row: ProductRow): SupplyMaterial {
     productTypeName: productTypeNameOf(row.product_types),
     searchAliases: (row.product_tags ?? []).map((t) => t.tag).join(" "),
     available: true,
-    primaryImageUrl: primary?.cloudinary_url ?? null,
-    images: images.map((img) => ({ url: img.cloudinary_url, isPrimary: img.is_primary })),
+    primaryImageUrl: primary ? productThumbUrl(toStoredImage(primary)) : null,
+    images: images.map((img) => ({
+      fullUrl: productFullUrl(toStoredImage(img)),
+      thumbUrl: productThumbUrl(toStoredImage(img)),
+      isPrimary: img.is_primary,
+    })),
   };
 }
 
@@ -127,10 +137,10 @@ function mapCardRow(row: CardRow): SupplyMaterialCard {
 }
 
 const SELECT =
-  "id, serial_number, slug, name, description, price, currency, size, product_type_id, product_types(name), product_tags(tag), product_images(cloudinary_url, is_primary, sort_order)";
+  "id, serial_number, slug, name, description, price, currency, size, product_type_id, product_types(name), product_tags(tag), product_images(r2_key, cloudinary_url, is_primary, sort_order)";
 
 const CARD_SELECT =
-  "serial_number, slug, name, price, currency, size, product_types(name), product_tags(tag), product_images(cloudinary_url, is_primary, sort_order)";
+  "serial_number, slug, name, price, currency, size, product_types(name), product_tags(tag), product_images(r2_key, cloudinary_url, is_primary, sort_order)";
 
 export async function getSupplyMaterials(): Promise<SupplyMaterialCard[]> {
   const supabase = getSupabaseAdminClient();

@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { cloudinaryDetailUrl, cloudinaryThumbUrl } from "@/lib/cloudinary-url";
 
-export type GalleryImage = { url: string; isPrimary: boolean };
+export type GalleryImage = { fullUrl: string | null; thumbUrl: string | null; isPrimary: boolean };
 
 // Main photo + a thumbnail strip beneath it that swaps which photo is
 // shown large, for any product with more than one uploaded image.
@@ -17,9 +16,9 @@ export function ProductImageGallery({ images, alt }: { images: GalleryImage[]; a
   return (
     <div>
       <div className="relative aspect-square w-full overflow-hidden border border-taupe/30 bg-beige/40">
-        {active && (
+        {active?.fullUrl && (
           <Image
-            src={cloudinaryDetailUrl(active.url)}
+            src={active.fullUrl}
             alt={alt}
             fill
             sizes="(min-width: 1024px) 50vw, 100vw"
@@ -33,7 +32,7 @@ export function ProductImageGallery({ images, alt }: { images: GalleryImage[]; a
         <div className="mt-4 flex flex-wrap gap-3">
           {images.map((img, i) => (
             <button
-              key={`${img.url}-${i}`}
+              key={`${img.thumbUrl}-${i}`}
               type="button"
               onClick={() => setSelected(i)}
               aria-label={`Show photo ${i + 1} of ${images.length}`}
@@ -42,7 +41,7 @@ export function ProductImageGallery({ images, alt }: { images: GalleryImage[]; a
                 selected === i ? "border-burgundy" : "border-taupe/30 hover:border-burgundy/60"
               }`}
             >
-              <Image src={cloudinaryThumbUrl(img.url)} alt="" fill sizes="80px" className="object-cover" />
+              {img.thumbUrl && <Image src={img.thumbUrl} alt="" fill sizes="80px" className="object-cover" />}
             </button>
           ))}
         </div>

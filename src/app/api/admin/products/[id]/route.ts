@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { getSessionAdminUser } from "@/lib/admin/auth";
 import { getProduct, updateProduct, deleteProduct, type ProductInput } from "@/lib/admin/products";
-import { deleteImage } from "@/lib/admin/cloudinary";
+import { deleteImage as deleteCloudinaryImage } from "@/lib/admin/cloudinary";
+import { deleteImages as deleteR2Images } from "@/lib/admin/r2";
 import { revalidateProduct } from "@/lib/admin/revalidate";
 import { withErrorHandling } from "@/lib/with-error-handling";
 
@@ -75,12 +76,20 @@ export const DELETE = withErrorHandling(async (_request: Request, { params }: Pa
 
   const { images } = await deleteProduct(id);
 
-  // Best-effort Cloudinary cleanup: the product row (and its
-  // product_images rows, via cascade) are already gone, so a failed
-  // asset delete here shouldn't fail the request -- it'd just leave an
-  // orphaned Cloudinary asset with no DB reference, not a broken
+  // Best-effort asset cleanup: the product row (and its product_images
+  // rows, via cascade) are already gone, so a failed delete here
+  // shouldn't fail the request -- it'd just leave an orphaned R2
+  // object or Cloudinary asset with no DB reference, not a broken
   // product.
-  await Promise.allSettled(images.map((img) => deleteImage(img.cloudinaryPublicId)));
+  await Promise.allSettled(
+    images.map((img) =>
+      img.r2Key
+        ? deleteR2Images([`${img.r2Key}/full.webp`, `${img.r2Key}/thumb.webp`])
+        : img.cloudinaryPublicId
+          ? deleteCloudinaryImage(img.cloudinaryPublicId)
+          : Promise.resolve(),
+    ),
+  );
 
   revalidateProduct(existing.category, existing.slug);
   return NextResponse.json({ ok: true });

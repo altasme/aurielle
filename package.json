@@ -6,6 +6,7 @@
     "postinstall": "patch-package",
     "generate:catalogue": "node scripts/generate-catalogue.mjs",
     "backup:images": "node scripts/backup-images.mjs",
+    "migrate:images-to-r2": "node scripts/migrate-images-to-r2.mjs",
     "prebuild": "npm run generate:catalogue",
     "predev": "npm run generate:catalogue",
     "dev": "next dev",
@@ -25,6 +26,7 @@
     "worker-mailer": "^1.2.1"
   },
   "devDependencies": {
+    "@aws-sdk/client-s3": "^3.700.0",
     "@opennextjs/cloudflare": "^1.20.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
@@ -34,6 +36,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.0",
     "patch-package": "^8.0.1",
+    "sharp": "^0.33.5",
     "tailwindcss": "^4",
     "typescript": "^5",
     "wrangler": "^4.120.0"

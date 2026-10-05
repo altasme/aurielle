@@ -1,6 +1,14 @@
 import "server-only";
 import { createHash } from "node:crypto";
 
+// Legacy-asset cleanup only: every new upload now goes to R2 (see
+// src/lib/admin/r2.ts) rather than Cloudinary, but this still deletes
+// the Cloudinary asset behind a pre-migration row when its DB row is
+// deleted or replaced (product_images.cloudinary_public_id /
+// site_image_slots.cloudinary_public_id). Once
+// scripts/migrate-images-to-r2.mjs has moved every image, this file
+// and the Cloudinary account behind it can both go.
+//
 // Direct REST calls via fetch, not the official `cloudinary` SDK: that
 // SDK assumes a Node runtime (fs/https modules) and isn't reliably
 // edge-safe on Cloudflare Workers. fetch + a hand-built signature is
@@ -29,35 +37,6 @@ function sign(params: Record<string, string>, apiSecret: string): string {
     .map((key) => `${key}=${params[key]}`)
     .join("&");
   return createHash("sha1").update(`${toSign}${apiSecret}`).digest("hex");
-}
-
-export type CloudinaryUploadResult = { publicId: string; url: string };
-
-export async function uploadImage(
-  file: Blob,
-  folder: string,
-): Promise<CloudinaryUploadResult> {
-  const { cloudName, apiKey, apiSecret } = getConfig();
-  const timestamp = Math.floor(Date.now() / 1000).toString();
-  const paramsToSign = { folder, timestamp };
-  const signature = sign(paramsToSign, apiSecret);
-
-  const form = new FormData();
-  form.append("file", file);
-  form.append("api_key", apiKey);
-  form.append("timestamp", timestamp);
-  form.append("folder", folder);
-  form.append("signature", signature);
-
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-    method: "POST",
-    body: form,
-  });
-  const data = (await res.json()) as { public_id?: string; secure_url?: string; error?: { message: string } };
-  if (!res.ok || !data.public_id || !data.secure_url) {
-    throw new Error(data.error?.message ?? "Cloudinary upload failed");
-  }
-  return { publicId: data.public_id, url: data.secure_url };
 }
 
 export async function deleteImage(publicId: string): Promise<void> {

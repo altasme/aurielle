@@ -1,13 +1,19 @@
 import { NextResponse } from "next/server";
+import { randomUUID } from "node:crypto";
 import { getSessionAdminUser } from "@/lib/admin/auth";
 import { getProduct } from "@/lib/admin/products";
-import { uploadImage } from "@/lib/admin/cloudinary";
+import { putImage } from "@/lib/admin/r2";
+import { productFullUrl, productThumbUrl } from "@/lib/product-image-url";
 import { getSupabaseAdminClient } from "@/lib/supabase/server";
 import { revalidateProduct } from "@/lib/admin/revalidate";
 import { withErrorHandling } from "@/lib/with-error-handling";
 
 type Params = { params: Promise<{ id: string }> };
 
+// The client (src/components/admin/product-image-manager.tsx) resizes
+// the chosen photo into these two variants before upload -- R2 has no
+// on-the-fly transform the way Cloudinary did, so this is the only
+// place the sizes this app serves ever get decided.
 export const POST = withErrorHandling(async (request: Request, { params }: Params) => {
   const user = await getSessionAdminUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -17,14 +23,15 @@ export const POST = withErrorHandling(async (request: Request, { params }: Param
   if (!product) return NextResponse.json({ error: "Product not found" }, { status: 404 });
 
   const formData = await request.formData();
-  const file = formData.get("file");
-  if (!(file instanceof Blob)) {
-    return NextResponse.json({ error: "No file provided" }, { status: 400 });
+  const full = formData.get("full");
+  const thumb = formData.get("thumb");
+  if (!(full instanceof Blob) || !(thumb instanceof Blob)) {
+    return NextResponse.json({ error: "Both full and thumb images are required" }, { status: 400 });
   }
 
-  let uploaded: Awaited<ReturnType<typeof uploadImage>>;
+  const r2Key = `products/${product.category}/${id}/${randomUUID()}`;
   try {
-    uploaded = await uploadImage(file, `aurielle/${product.category}`);
+    await Promise.all([putImage(`${r2Key}/full.webp`, full), putImage(`${r2Key}/thumb.webp`, thumb)]);
   } catch (err) {
     const message = err instanceof Error ? err.message : "Image upload failed";
     return NextResponse.json({ error: message }, { status: 502 });
@@ -40,26 +47,29 @@ export const POST = withErrorHandling(async (request: Request, { params }: Param
     .from("product_images")
     .insert({
       product_id: id,
-      cloudinary_public_id: uploaded.publicId,
-      cloudinary_url: uploaded.url,
+      r2_key: r2Key,
       is_primary: isFirstImage,
       sort_order: nextSortOrder,
     })
-    .select("id, cloudinary_public_id, cloudinary_url, is_primary, sort_order")
+    .select("id, r2_key, cloudinary_public_id, cloudinary_url, is_primary, sort_order")
     .single();
 
   if (error || !data) {
     return NextResponse.json({ error: error?.message ?? "Failed to save image" }, { status: 500 });
   }
 
+  const stored = { r2Key: data.r2_key, cloudinaryUrl: data.cloudinary_url };
   revalidateProduct(product.category, product.slug);
   return NextResponse.json({
     image: {
       id: data.id,
+      r2Key: data.r2_key,
       cloudinaryPublicId: data.cloudinary_public_id,
       cloudinaryUrl: data.cloudinary_url,
       isPrimary: data.is_primary,
       sortOrder: data.sort_order,
+      fullUrl: productFullUrl(stored),
+      thumbUrl: productThumbUrl(stored),
     },
   });
 });

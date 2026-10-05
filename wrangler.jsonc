@@ -16,7 +16,15 @@
 	// src/lib/email/reply-template.ts to build the logo's absolute URL
 	// and the footer's website link.
 	"vars": {
-		"NEXT_PUBLIC_SITE_URL": "https://auriellefragrancestudio.com"
+		"NEXT_PUBLIC_SITE_URL": "https://auriellefragrancestudio.com",
+		// The public base URL images are served from once a custom domain
+		// is attached to the IMAGES_BUCKET bucket below (R2 dashboard ->
+		// bucket -> Settings -> Public access -> Custom Domains). Not
+		// sensitive -- it's a public CDN URL baked into every page's HTML
+		// either way -- so a plain `vars` entry, same as NEXT_PUBLIC_SITE_URL
+		// above. Replace the placeholder before running the migration
+		// script or uploading any new image.
+		"R2_PUBLIC_BASE_URL": "https://images.auriellefragrancestudio.com"
 	},
 	"assets": {
 		"directory": ".open-next/assets",
@@ -36,12 +44,25 @@
 			"binding": "WORKER_SELF_REFERENCE",
 			"service": "aurielle"
 		}
+	],
+	"r2_buckets": [
+		{
+			// Product photos and Website Management hero images (replacing
+			// Cloudinary -- see src/lib/admin/r2.ts). Create this bucket
+			// first (`wrangler r2 bucket create aurielle-images` or the
+			// Cloudflare dashboard) and attach a public custom domain to it,
+			// then set that domain as R2_PUBLIC_BASE_URL. The bucket name
+			// below must match whatever you actually create.
+			"binding": "IMAGES_BUCKET",
+			"bucket_name": "aurielle-images"
+		}
 	]
-	// No r2_buckets / images bindings yet: no next/image optimization
-	// (images.unoptimized in next.config.ts), and the catalogue pages'
-	// `export const revalidate` currently has no durable cache to write
-	// to without one (see README "Deploying to Cloudflare") -- each
-	// request just renders fresh instead of serving a cached copy, which
-	// is correct but not free ISR. Add an r2_buckets binding per
+	// No incremental-cache r2_buckets/images bindings yet (separate from
+	// IMAGES_BUCKET above): no next/image optimization (images.unoptimized
+	// in next.config.ts), and the catalogue pages' `export const
+	// revalidate` currently has no durable cache to write to without one
+	// (see README "Deploying to Cloudflare") -- each request just
+	// renders fresh instead of serving a cached copy, which is correct
+	// but not free ISR. Add a NEXT_INC_CACHE_R2_BUCKET binding per
 	// https://opennext.js.org/cloudflare/caching if that becomes worth it.
 }

@@ -26,11 +26,6 @@ export function cloudinaryDetailUrl(url: string): string {
   return cloudinaryTransform(url, "w_1200,h_1200,c_fill,g_auto,q_auto,f_auto");
 }
 
-// A gallery's small thumbnail strip.
-export function cloudinaryThumbUrl(url: string): string {
-  return cloudinaryTransform(url, "w_200,h_200,c_fill,g_auto,q_auto,f_auto");
-}
-
 // A full-bleed hero/banner photo (Website Management image slots) --
 // capped to a sane max width, no forced crop since slots vary in
 // aspect ratio and already rely on CSS object-cover for that.

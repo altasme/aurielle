@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import type { ProductImage } from "@/lib/admin/products";
-import { cloudinaryThumbUrl } from "@/lib/cloudinary-url";
+import { resizeImageToWebp } from "@/lib/image-resize-client";
 
 export function ProductImageManager({
   productId,
@@ -23,8 +23,10 @@ export function ProductImageManager({
     setUploading(true);
     setError(null);
     try {
+      const [full, thumb] = await Promise.all([resizeImageToWebp(file, 1200), resizeImageToWebp(file, 500)]);
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("full", full, "full.webp");
+      formData.append("thumb", thumb, "thumb.webp");
       const res = await fetch(`/api/admin/products/${productId}/images`, {
         method: "POST",
         body: formData,
@@ -105,7 +107,7 @@ export function ProductImageManager({
           {sorted.map((img, index) => (
             <div key={img.id} className="border border-taupe/20 bg-white p-2">
               <div className="relative aspect-square overflow-hidden bg-beige/40">
-                <Image src={cloudinaryThumbUrl(img.cloudinaryUrl)} alt="" fill sizes="200px" className="object-cover" />
+                {img.thumbUrl && <Image src={img.thumbUrl} alt="" fill sizes="200px" className="object-cover" />}
                 {img.isPrimary && (
                   <span className="absolute left-1 top-1 rounded-sm bg-burgundy px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-ivory">
                     Primary

@@ -3,3 +3,16 @@ SUPABASE_SERVICE_ROLE_KEY=
 CLOUDINARY_CLOUD_NAME=
 CLOUDINARY_API_KEY=
 CLOUDINARY_API_SECRET=
+# Public base URL images are served from once a custom domain is
+# attached to the IMAGES_BUCKET bucket (R2 dashboard -> bucket ->
+# Settings -> Public access -> Custom Domains). Must match the value
+# in wrangler.jsonc's `vars` for local dev to render images correctly.
+R2_PUBLIC_BASE_URL=
+# Only needed to run scripts/migrate-images-to-r2.mjs locally -- the
+# app itself never uses these, it only uses the IMAGES_BUCKET binding
+# (wrangler.jsonc). Create an API token under the R2 bucket's
+# "Manage API tokens", not a global Cloudflare API token.
+R2_ACCOUNT_ID=
+R2_ACCESS_KEY_ID=
+R2_SECRET_ACCESS_KEY=
+R2_BUCKET_NAME=

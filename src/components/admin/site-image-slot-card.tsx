@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import { useSubmit } from "@/lib/use-submit";
+import { resizeImageToWebp } from "@/lib/image-resize-client";
 
 // One photo slot on a Website Management page: current photo, a guide
 // (recommended size/aspect ratio/file type) so a non-technical client
@@ -37,8 +38,9 @@ export function SiteImageSlotCard({
 
   async function handleUpload(file: File) {
     const result = await submit(async () => {
+      const resized = await resizeImageToWebp(file, 1920);
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", resized, "hero.webp");
       const res = await fetch(`/api/admin/site-content/${page}/images/${slotKey}`, { method: "POST", body: formData });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Failed to upload photo");

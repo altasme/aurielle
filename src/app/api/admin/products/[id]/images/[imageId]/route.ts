@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { getSessionAdminUser } from "@/lib/admin/auth";
 import { getProduct } from "@/lib/admin/products";
-import { deleteImage } from "@/lib/admin/cloudinary";
+import { deleteImage as deleteCloudinaryImage } from "@/lib/admin/cloudinary";
+import { deleteImages as deleteR2Images } from "@/lib/admin/r2";
 import { getSupabaseAdminClient } from "@/lib/supabase/server";
 import { revalidateProduct } from "@/lib/admin/revalidate";
 import { withErrorHandling } from "@/lib/with-error-handling";
@@ -63,7 +64,11 @@ export const DELETE = withErrorHandling(async (_request: Request, { params }: Pa
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   // Best-effort: the DB row is already gone either way.
-  await deleteImage(image.cloudinaryPublicId).catch(() => undefined);
+  if (image.r2Key) {
+    await deleteR2Images([`${image.r2Key}/full.webp`, `${image.r2Key}/thumb.webp`]).catch(() => undefined);
+  } else if (image.cloudinaryPublicId) {
+    await deleteCloudinaryImage(image.cloudinaryPublicId).catch(() => undefined);
+  }
 
   // If the deleted image was primary and others remain, promote the
   // next one so the product never ends up with images but no primary.

@@ -1,7 +1,8 @@
 import "server-only";
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdminClient } from "@/lib/supabase/server";
-import { uploadImage, deleteImage } from "@/lib/admin/cloudinary";
+import { deleteImage as deleteCloudinaryImage } from "@/lib/admin/cloudinary";
+import { putImage, deleteImages as deleteR2Images, r2PublicUrl } from "@/lib/admin/r2";
 import { getPageSchema, resolvePageContent, SITE_CONTENT_PAGES, type TextFieldDef, type ImageSlotDef } from "@/lib/site-content";
 
 export type EditableTextField = TextFieldDef & { value: string };
@@ -83,35 +84,41 @@ export async function uploadImageSlot(page: string, slotKey: string, file: Blob)
     .eq("slot_key", slotKey)
     .maybeSingle();
 
-  const uploaded = await uploadImage(file, `aurielle/site-content/${page}`);
+  // Deterministic key: a reupload overwrites the same R2 object in
+  // place, so unlike Cloudinary there's no separate asset to clean up
+  // on this (non-legacy) path.
+  const r2Key = `site-content/${page}/${slotKey}.webp`;
+  await putImage(r2Key, file);
+  const url = r2PublicUrl(r2Key);
 
   const { error } = await supabase.from("site_image_slots").upsert(
     {
       page,
       slot_key: slotKey,
-      image_url: uploaded.url,
-      cloudinary_public_id: uploaded.publicId,
+      image_url: url,
+      cloudinary_public_id: null,
       updated_at: new Date().toISOString(),
     },
     { onConflict: "page,slot_key" },
   );
   if (error) throw new Error(`Failed to save image slot: ${error.message}`);
 
-  // Best-effort cleanup of the photo this one replaced -- a failure
-  // here would only leave an orphaned Cloudinary asset, never break
-  // the save the admin is waiting on.
+  // Best-effort cleanup of a legacy Cloudinary photo this slot had
+  // before the R2 migration -- a failure here would only leave an
+  // orphaned Cloudinary asset, never break the save the admin is
+  // waiting on.
   if (existing?.cloudinary_public_id) {
-    await deleteImage(existing.cloudinary_public_id).catch(() => {});
+    await deleteCloudinaryImage(existing.cloudinary_public_id).catch(() => {});
   }
 
   revalidateSiteContentPage(page);
-  return { url: uploaded.url };
+  return { url };
 }
 
 // Reverts an image slot back to the site's original photo -- deletes
-// the Cloudinary asset (if this slot was ever actually replaced) and
-// the override row, so resolvePageContent() falls back to the
-// schema's default /images/... path again.
+// whatever asset this slot had (R2 object or, pre-migration, a
+// Cloudinary one) and the override row, so resolvePageContent() falls
+// back to the schema's default /images/... path again.
 export async function resetImageSlot(page: string, slotKey: string): Promise<void> {
   const supabase = getSupabaseAdminClient();
   const { data: existing } = await supabase
@@ -125,7 +132,9 @@ export async function resetImageSlot(page: string, slotKey: string): Promise<voi
   if (error) throw new Error(`Failed to reset image slot: ${error.message}`);
 
   if (existing?.cloudinary_public_id) {
-    await deleteImage(existing.cloudinary_public_id).catch(() => {});
+    await deleteCloudinaryImage(existing.cloudinary_public_id).catch(() => {});
+  } else {
+    await deleteR2Images([`site-content/${page}/${slotKey}.webp`]).catch(() => {});
   }
 
   revalidateSiteContentPage(page);

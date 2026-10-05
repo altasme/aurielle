@@ -1,16 +1,20 @@
 import "server-only";
 import { getSupabaseAdminClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/slugify";
+import { productFullUrl, productThumbUrl } from "@/lib/product-image-url";
 
 export type ProductCategory = "aurielle_collection" | "atelier_supply";
 export type ProductStatus = "active" | "draft";
 
 export type ProductImage = {
   id: string;
-  cloudinaryPublicId: string;
-  cloudinaryUrl: string;
+  r2Key: string | null;
+  cloudinaryPublicId: string | null;
+  cloudinaryUrl: string | null;
   isPrimary: boolean;
   sortOrder: number;
+  fullUrl: string | null;
+  thumbUrl: string | null;
 };
 
 export type ProductListItem = {
@@ -49,17 +53,22 @@ export type ProductType = { id: string; name: string; isSystem: boolean };
 
 function mapImage(row: {
   id: string;
-  cloudinary_public_id: string;
-  cloudinary_url: string;
+  r2_key: string | null;
+  cloudinary_public_id: string | null;
+  cloudinary_url: string | null;
   is_primary: boolean;
   sort_order: number;
 }): ProductImage {
+  const stored = { r2Key: row.r2_key, cloudinaryUrl: row.cloudinary_url };
   return {
     id: row.id,
+    r2Key: row.r2_key,
     cloudinaryPublicId: row.cloudinary_public_id,
     cloudinaryUrl: row.cloudinary_url,
     isPrimary: row.is_primary,
     sortOrder: row.sort_order,
+    fullUrl: productFullUrl(stored),
+    thumbUrl: productThumbUrl(stored),
   };
 }
 
@@ -72,7 +81,7 @@ export async function listProducts(params: {
   let query = supabase
     .from("products")
     .select(
-      "id, category, name, price, currency, size, status, perfume_type, product_types(name), product_images(cloudinary_url, is_primary)",
+      "id, category, name, price, currency, size, status, perfume_type, product_types(name), product_images(r2_key, cloudinary_url, is_primary)",
     )
     .eq("category", params.category)
     .order("created_at", { ascending: false });
@@ -88,7 +97,7 @@ export async function listProducts(params: {
   if (error) throw new Error(`Failed to list products: ${error.message}`);
 
   return (data ?? []).map((row) => {
-    const images = (row.product_images ?? []) as { cloudinary_url: string; is_primary: boolean }[];
+    const images = (row.product_images ?? []) as { r2_key: string | null; cloudinary_url: string | null; is_primary: boolean }[];
     const primary = images.find((img) => img.is_primary) ?? images[0];
     const productType = row.product_types as unknown as { name: string } | null;
     return {
@@ -101,7 +110,7 @@ export async function listProducts(params: {
       status: row.status,
       perfumeType: row.perfume_type,
       productTypeName: productType?.name ?? null,
-      primaryImageUrl: primary?.cloudinary_url ?? null,
+      primaryImageUrl: primary ? productThumbUrl({ r2Key: primary.r2_key, cloudinaryUrl: primary.cloudinary_url }) : null,
     };
   });
 }
@@ -111,7 +120,7 @@ export async function getProduct(id: string): Promise<ProductDetail | null> {
   const { data, error } = await supabase
     .from("products")
     .select(
-      "id, category, slug, name, description, price, currency, size, status, perfume_type, mood, product_type_id, product_types(name), serial_number, product_tags(tag), product_images(id, cloudinary_public_id, cloudinary_url, is_primary, sort_order)",
+      "id, category, slug, name, description, price, currency, size, status, perfume_type, mood, product_type_id, product_types(name), serial_number, product_tags(tag), product_images(id, r2_key, cloudinary_public_id, cloudinary_url, is_primary, sort_order)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -279,7 +288,7 @@ export async function deleteProduct(id: string): Promise<{ images: ProductImage[
   const supabase = getSupabaseAdminClient();
   const { data: images } = await supabase
     .from("product_images")
-    .select("id, cloudinary_public_id, cloudinary_url, is_primary, sort_order")
+    .select("id, r2_key, cloudinary_public_id, cloudinary_url, is_primary, sort_order")
     .eq("product_id", id);
 
   const { error } = await supabase.from("products").delete().eq("id", id);

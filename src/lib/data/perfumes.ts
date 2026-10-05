@@ -1,7 +1,7 @@
 import "server-only";
 import { getSupabaseAdminClient } from "@/lib/supabase/server";
 import type { Mood } from "@/lib/data/moods";
-import { cloudinaryCardUrl } from "@/lib/cloudinary-url";
+import { productFullUrl, productThumbUrl, type StoredProductImage } from "@/lib/product-image-url";
 
 // Admin-panel pivot: the Aurielle Collection catalogue now reads live
 // from the `products` table (written by the admin panel, src/lib/admin/
@@ -12,7 +12,7 @@ import { cloudinaryCardUrl } from "@/lib/cloudinary-url";
 // (see `revalidate` exports on the collection routes) and are refreshed
 // on demand via revalidatePath() whenever the admin saves a change.
 
-export type ProductImage = { url: string; isPrimary: boolean };
+export type ProductImage = { fullUrl: string | null; thumbUrl: string | null; isPrimary: boolean };
 
 export type Perfume = {
   id: string;
@@ -49,6 +49,12 @@ export type PerfumeCard = {
   primaryImageUrl: string | null;
 };
 
+type StoredImageRow = { r2_key: string | null; cloudinary_url: string | null; is_primary: boolean; sort_order: number };
+
+function toStoredImage(row: StoredImageRow): StoredProductImage {
+  return { r2Key: row.r2_key, cloudinaryUrl: row.cloudinary_url };
+}
+
 type ProductRow = {
   id: string;
   slug: string;
@@ -60,7 +66,7 @@ type ProductRow = {
   mood: string | null;
   perfume_type: string | null;
   product_tags: { tag: string }[] | null;
-  product_images: { cloudinary_url: string; is_primary: boolean; sort_order: number }[] | null;
+  product_images: StoredImageRow[] | null;
 };
 
 type CardRow = {
@@ -70,13 +76,13 @@ type CardRow = {
   currency: string;
   mood: string | null;
   product_tags: { tag: string }[] | null;
-  product_images: { cloudinary_url: string; is_primary: boolean; sort_order: number }[] | null;
+  product_images: StoredImageRow[] | null;
 };
 
-function primaryImageOf(images: { cloudinary_url: string; is_primary: boolean; sort_order: number }[]): string | null {
+function primaryImageOf(images: StoredImageRow[]): string | null {
   const sorted = [...images].sort((a, b) => a.sort_order - b.sort_order);
   const primary = sorted.find((img) => img.is_primary) ?? sorted[0];
-  return primary ? cloudinaryCardUrl(primary.cloudinary_url) : null;
+  return primary ? productThumbUrl(toStoredImage(primary)) : null;
 }
 
 function mapRow(row: ProductRow): Perfume {
@@ -94,8 +100,12 @@ function mapRow(row: ProductRow): Perfume {
     mood: (row.mood as Mood | null) ?? null,
     perfumeType: row.perfume_type,
     available: true,
-    primaryImageUrl: primary?.cloudinary_url ?? null,
-    images: images.map((img) => ({ url: img.cloudinary_url, isPrimary: img.is_primary })),
+    primaryImageUrl: primary ? productThumbUrl(toStoredImage(primary)) : null,
+    images: images.map((img) => ({
+      fullUrl: productFullUrl(toStoredImage(img)),
+      thumbUrl: productThumbUrl(toStoredImage(img)),
+      isPrimary: img.is_primary,
+    })),
   };
 }
 
@@ -112,10 +122,10 @@ function mapCardRow(row: CardRow): PerfumeCard {
 }
 
 const SELECT =
-  "id, slug, name, description, size, price, currency, mood, perfume_type, product_tags(tag), product_images(cloudinary_url, is_primary, sort_order)";
+  "id, slug, name, description, size, price, currency, mood, perfume_type, product_tags(tag), product_images(r2_key, cloudinary_url, is_primary, sort_order)";
 
 const CARD_SELECT =
-  "slug, name, price, currency, mood, product_tags(tag), product_images(cloudinary_url, is_primary, sort_order)";
+  "slug, name, price, currency, mood, product_tags(tag), product_images(r2_key, cloudinary_url, is_primary, sort_order)";
 
 export async function getPerfumes(): Promise<PerfumeCard[]> {
   const supabase = getSupabaseAdminClient();
