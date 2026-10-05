@@ -53,3 +53,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local output from scripts/backup-images.mjs and
+# scripts/migrate-images-to-r2.mjs -- manifests of a one-off local run,
+# not project source
+/image-backup/
