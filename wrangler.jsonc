@@ -17,13 +17,11 @@
 	// and the footer's website link.
 	"vars": {
 		"NEXT_PUBLIC_SITE_URL": "https://auriellefragrancestudio.com",
-		// The public base URL images are served from once a custom domain
-		// is attached to the IMAGES_BUCKET bucket below (R2 dashboard ->
-		// bucket -> Settings -> Public access -> Custom Domains). Not
-		// sensitive -- it's a public CDN URL baked into every page's HTML
-		// either way -- so a plain `vars` entry, same as NEXT_PUBLIC_SITE_URL
-		// above. Replace the placeholder before running the migration
-		// script or uploading any new image.
+		// The public custom domain attached to the IMAGES_BUCKET bucket
+		// below (R2 dashboard -> bucket -> Settings -> Public access ->
+		// Custom Domains). Not sensitive -- it's a public CDN URL baked
+		// into every page's HTML either way -- so a plain `vars` entry,
+		// same as NEXT_PUBLIC_SITE_URL above.
 		"R2_PUBLIC_BASE_URL": "https://images.auriellefragrancestudio.com"
 	},
 	"assets": {
