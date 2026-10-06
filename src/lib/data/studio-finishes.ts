@@ -8,28 +8,33 @@ export type StudioFinish = {
 
 export const STUDIO_FINISHES: StudioFinish[] = [
   {
-    name: "Gold Foil",
-    description: "Warm metallic gold accents and detailing.",
-    image: "/images/studio/finishes/gold-foil.jpg",
+    name: "Direct 3D Embossed Bottle Print",
+    description: "Raised, tactile 3D printing straight onto the bottle surface.",
+    image: "/images/studio/finishes/direct-3d-embossed-bottle-print.jpg",
   },
   {
-    name: "Metallic",
-    description: "Reflective silver, chrome and brushed-metal finishes.",
-    image: "/images/studio/finishes/metallic.jpg",
+    name: "Direct Mirror Bottle Print",
+    description: "Vivid full-colour printing onto a mirrored bottle finish.",
+    image: "/images/studio/finishes/direct-mirror-bottle-print.jpg",
   },
   {
-    name: "Acrylic",
-    description: "Clear or tinted acrylic with a polished edge.",
-    image: "/images/studio/finishes/acrylic.jpg",
+    name: "UV DTF Crystal Label",
+    description: "Crystal-clear UV DTF labels with dimensional sparkle.",
+    image: "/images/studio/finishes/uv-dtf-crystal-label.jpg",
   },
   {
-    name: "Crystal / 3D",
-    description: "Raised, dimensional UV printing with depth.",
-    image: "/images/studio/finishes/crystal-3d.jpg",
+    name: "Colored Metal Label",
+    description: "Full-colour printing on durable metal labels.",
+    image: "/images/studio/finishes/colored-metal-label.jpg",
   },
   {
-    name: "Full Colour",
-    description: "Vivid, photo-quality full-colour prints.",
-    image: "/images/studio/finishes/full-colour.jpg",
+    name: "Direct Bottle Print",
+    description: "Full-colour printing applied directly onto the bottle.",
+    image: "/images/studio/finishes/direct-bottle-print.jpg",
+  },
+  {
+    name: "3D Printed Metal Labels",
+    description: "Raised, dimensional 3D printing on metal labels.",
+    image: "/images/studio/finishes/3d-printed-metal-labels.jpg",
   },
 ];

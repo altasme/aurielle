@@ -63,7 +63,7 @@ export default async function CustomisationStudioPage() {
             <h2 className="font-serif text-2xl text-ink">{text.finishes_heading}</h2>
             <p className="mx-auto mt-2 max-w-md text-sm text-ink/60">{text.finishes_body}</p>
           </Reveal>
-          <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-5">
+          <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3">
             {STUDIO_FINISHES.map((finish, i) => (
               <Reveal key={finish.name} delayMs={i * 60}>
                 <FinishTile name={finish.name} description={finish.description} image={finish.image} />
