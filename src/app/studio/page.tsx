@@ -8,8 +8,8 @@ import { StudioGroupingGallery } from "@/components/studio-grouping-gallery";
 import { StudioStepIcon, type StudioStepIconName } from "@/components/studio-step-icon";
 import { FinishTile } from "@/components/finish-tile";
 import { StickyQuoteButton } from "@/components/sticky-quote-button";
-import { STUDIO_GROUPINGS } from "@/lib/data/studio-groupings";
-import { STUDIO_FINISHES } from "@/lib/data/studio-finishes";
+import { getStudioGroupings } from "@/lib/data/studio-groupings";
+import { getStudioFinishes } from "@/lib/data/studio-finishes";
 import { getSiteContent } from "@/lib/site-content";
 
 export const metadata: Metadata = {
@@ -29,7 +29,11 @@ export const revalidate = 3600;
 const HOW_IT_WORKS_ICONS: StudioStepIconName[] = ["upload", "proof", "print", "delivered"];
 
 export default async function CustomisationStudioPage() {
-  const { text, images } = await getSiteContent("studio");
+  const [{ text, images }, studioGroupings, studioFinishes] = await Promise.all([
+    getSiteContent("studio"),
+    getStudioGroupings(),
+    getStudioFinishes(),
+  ]);
 
   return (
     <div>
@@ -64,7 +68,7 @@ export default async function CustomisationStudioPage() {
             <p className="mx-auto mt-2 max-w-md text-sm text-ink/60">{text.finishes_body}</p>
           </Reveal>
           <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3">
-            {STUDIO_FINISHES.map((finish, i) => (
+            {studioFinishes.map((finish, i) => (
               <Reveal key={finish.name} delayMs={i * 60}>
                 <FinishTile name={finish.name} description={finish.description} image={finish.image} />
               </Reveal>
@@ -75,7 +79,7 @@ export default async function CustomisationStudioPage() {
 
       {/* 3-6. FOUR GROUPINGS, alternating image side */}
       <div className="space-y-0">
-        {STUDIO_GROUPINGS.map((grouping, i) => (
+        {studioGroupings.map((grouping, i) => (
           <section
             key={grouping.slug}
             className={i % 2 === 0 ? "bg-beige px-6 py-20 lg:px-10" : "px-6 py-20 lg:px-10"}
@@ -124,7 +128,7 @@ export default async function CustomisationStudioPage() {
         </div>
         <div className="mx-auto mt-10 max-w-2xl">
           <Suspense>
-            <StudioQuoteForm />
+            <StudioQuoteForm groupings={studioGroupings.map((g) => ({ slug: g.slug, name: g.name }))} />
           </Suspense>
         </div>
       </section>

@@ -6,10 +6,9 @@ import { FormField, FIELD_CLASSES } from "./form-field";
 import { CountrySelect } from "./country-select";
 import { SubmitButton } from "./submit-button";
 import { useSubmit } from "@/lib/use-submit";
-import { STUDIO_GROUPINGS } from "@/lib/data/studio-groupings";
 import { track } from "@/lib/analytics";
 
-export function StudioQuoteForm() {
+export function StudioQuoteForm({ groupings }: { groupings: { slug: string; name: string }[] }) {
   const searchParams = useSearchParams();
 
   const [name, setName] = useState("");
@@ -86,7 +85,7 @@ export function StudioQuoteForm() {
             className={`mt-2 ${FIELD_CLASSES}`}
           >
             <option value="">Not sure / other</option>
-            {STUDIO_GROUPINGS.map((g) => (
+            {groupings.map((g) => (
               <option key={g.slug} value={g.name}>
                 {g.name}
               </option>

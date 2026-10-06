@@ -12,3 +12,11 @@ export function revalidateProduct(category: ProductCategory, slug?: string): voi
   if (slug) revalidatePath(`${listPath}/${slug}`);
   if (category === "aurielle_collection") revalidatePath("/");
 }
+
+// Studio groupings/finishes appear on both /studio (full list) and the
+// homepage (the spotlight grouping's chip row) -- see
+// src/lib/admin/studio-content.ts.
+export function revalidateStudioContent(): void {
+  revalidatePath("/studio");
+  revalidatePath("/");
+}

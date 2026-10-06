@@ -4,10 +4,8 @@ import { PerfumeCard } from "@/components/perfume-card";
 import { Reveal } from "@/components/reveal";
 import { getFeaturedPerfumes } from "@/lib/data/perfumes";
 import { CUSTOMISATION_STUDIO_ENABLED } from "@/config/studio";
-import { STUDIO_GROUPINGS } from "@/lib/data/studio-groupings";
+import { getStudioGroupings } from "@/lib/data/studio-groupings";
 import { getSiteContent } from "@/lib/site-content";
-
-const STUDIO_SPOTLIGHT = STUDIO_GROUPINGS.find((g) => g.spotlight);
 
 // Homepage rebalance per the v5.2 "lean gateway" spec, which supersedes
 // v5.1's reorder: v5.1 grouped the same sections into three runs but
@@ -30,11 +28,13 @@ export default async function Home() {
   // that page, so there's one place to keep them in sync rather than
   // two copies drifting apart) -- see EXTRA_REVALIDATE_PATHS in
   // src/lib/admin/site-content.ts.
-  const [featured, { text, images }, atelier] = await Promise.all([
+  const [featured, { text, images }, atelier, studioGroupings] = await Promise.all([
     getFeaturedPerfumes(4),
     getSiteContent("home"),
     getSiteContent("atelier-supply"),
+    getStudioGroupings(),
   ]);
+  const studioSpotlight = studioGroupings.find((g) => g.spotlight);
 
   return (
     <div className="flex flex-col">
@@ -70,7 +70,7 @@ export default async function Home() {
           inside /studio, never the homepage (luxury face only). Placed
           right after the hero per client direction -- Studio services
           get top billing, not buried after Collection/Atelier Supply. */}
-      {CUSTOMISATION_STUDIO_ENABLED && STUDIO_SPOTLIGHT && (
+      {CUSTOMISATION_STUDIO_ENABLED && studioSpotlight && (
         <section className="bg-beige px-6 py-24 lg:px-10">
           <div className="mx-auto max-w-6xl text-center">
             <Reveal>
@@ -79,7 +79,7 @@ export default async function Home() {
             </Reveal>
 
             <Reveal delayMs={80} className="mt-8 flex flex-wrap justify-center gap-3">
-              {STUDIO_SPOTLIGHT.items.map((item) => (
+              {studioSpotlight.items.map((item) => (
                 <span
                   key={item}
                   className="border border-taupe/30 bg-ivory px-5 py-2.5 text-xs uppercase tracking-[0.15em] text-ink/70"

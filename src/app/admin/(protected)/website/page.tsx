@@ -23,6 +23,22 @@ export default function AdminWebsiteManagementPage() {
             <p className="mt-2 text-sm text-ink/60">{page.description}</p>
           </Link>
         ))}
+        <Link
+          href="/admin/website/studio-groupings"
+          className="border border-taupe/20 bg-white p-6 transition-colors hover:border-burgundy"
+        >
+          <h2 className="font-serif text-lg text-ink">Studio Groupings</h2>
+          <p className="mt-2 text-sm text-ink/60">
+            The Customisation Studio&rsquo;s service groupings, their items, and photos.
+          </p>
+        </Link>
+        <Link
+          href="/admin/website/studio-finishes"
+          className="border border-taupe/20 bg-white p-6 transition-colors hover:border-burgundy"
+        >
+          <h2 className="font-serif text-lg text-ink">Studio Finishes</h2>
+          <p className="mt-2 text-sm text-ink/60">The &ldquo;What the Studio Can Do&rdquo; finish tiles.</p>
+        </Link>
       </div>
     </div>
   );
