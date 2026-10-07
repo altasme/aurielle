@@ -28,24 +28,19 @@ const description = CUSTOMISATION_STUDIO_ENABLED
 
 export const metadata: Metadata = {
   // Set NEXT_PUBLIC_SITE_URL once the production domain is final so
-  // og:image/twitter:image resolve to absolute URLs; falls back to
-  // localhost for local dev.
+  // any future metadata using it resolves to absolute URLs; falls
+  // back to localhost for local dev.
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: "Aurielle Paris Atelier",
   description,
   openGraph: {
     title: "Aurielle Paris Atelier",
     description,
-    // Explicit width/height so platforms that don't fetch the image to
-    // measure it (some link-unfurlers skip that step) still render the
-    // large-card layout instead of falling back to no preview at all.
-    images: [{ url: "/images/og-share.jpg", width: 1200, height: 630 }],
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: "Aurielle Paris Atelier",
     description,
-    images: ["/images/og-share.jpg"],
   },
 };
 
